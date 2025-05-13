@@ -1,0 +1,24 @@
+package capstone.service;
+
+import capstone.model.User;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class UserService {
+    private final Map<String, User> userMap = new HashMap<>();
+
+    public boolean SignUp(String userId, String password) {
+        if (userMap.containsKey(userId)) return false;
+        userMap.put(userId, new User(userId, password));
+        return true;
+    }
+
+    public User login(String userId, String password) {
+        User user = userMap.get(userId);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        }
+        return null;
+    }
+}
