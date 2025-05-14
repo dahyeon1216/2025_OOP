@@ -34,10 +34,11 @@ public class LoginView extends JFrame {
             String id = idField.getText();
             String pw = new String(pwField.getPassword());
             User loginUser = userService.login(id, pw);
+
             if (loginUser != null) {
                 LoginSession.login(loginUser);
                 JOptionPane.showMessageDialog(this, "로그인 성공");
-                new DonationPostView(donationService).setVisible(true);
+                new DonationPostView(loginUser, donationService).setVisible(true);
                 this.dispose(); // 로그인 창 닫기
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 실패");

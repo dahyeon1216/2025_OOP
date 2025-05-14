@@ -13,9 +13,17 @@ import java.time.format.DateTimeFormatter;
 public class DonationPostView extends JFrame{
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
+    private final User loginUser;
 
-    public DonationPostView(DonationPostService donationPostService) {
-        // ✅ 수정된 부분: 사용자 입력 필드 추가
+    public DonationPostView(User loginUser, DonationPostService donationPostService) {
+        this.loginUser = loginUser;
+
+        if (this.loginUser == null) {
+            JOptionPane.showMessageDialog(null, "로그인이 필요합니다.", "접근 제한", JOptionPane.ERROR_MESSAGE);
+            dispose();
+            return;
+        }
+
         JTextField donationImgField = new JTextField();
         JTextField titleField = new JTextField();
         JTextField goalPointField = new JTextField();
@@ -25,7 +33,6 @@ public class DonationPostView extends JFrame{
         JButton deleteBtn = new JButton("삭제");
         JButton editBtn = new JButton("수정");
 
-        // ✅ 수정된 부분: 레이아웃 구성 변경 (6행 → 이미지, 제목, 금액, 마감일, 내용, 버튼)
         JPanel inputPanel = new JPanel(new GridLayout(6, 2));
         inputPanel.add(new JLabel("이미지 경로:"));
         inputPanel.add(donationImgField);
@@ -50,11 +57,6 @@ public class DonationPostView extends JFrame{
 
 
         writeBtn.addActionListener(e -> {
-            if (!LoginSession.isLoggedIn()) {
-                JOptionPane.showMessageDialog(this, "로그인이 필요합니다.");
-                return;
-            }
-
             try {
                 String donationImg = donationImgField.getText();
                 String title = titleField.getText();
@@ -62,11 +64,9 @@ public class DonationPostView extends JFrame{
                 LocalDate endAt = LocalDate.parse(endAtField.getText());
                 String content = contentArea.getText();
 
-                User currentUser = LoginSession.getCurrentUser();
-                donationPostService.create(currentUser, donationImg, goalPoint, endAt, title, content);
+                donationPostService.create(loginUser, donationImg, goalPoint, endAt, title, content);
                 refreshList(donationPostService);
-
-                JOptionPane.showMessageDialog(this, "기부글 등록 완료");
+                JOptionPane.showMessageDialog(this, "글 등록 성공");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "입력 오류: " + ex.getMessage());
             }
@@ -74,7 +74,7 @@ public class DonationPostView extends JFrame{
 
         deleteBtn.addActionListener(e -> {
             DonationPost selected = postList.getSelectedValue();
-            if (selected != null && selected.getWriter().equals(LoginSession.getCurrentUser())) {
+            if (selected != null && selected.getWriter().getUserId().equals(loginUser.getUserId())) {
                 donationPostService.delete(selected.getId());
                 refreshList(donationPostService);
             } else {
@@ -82,20 +82,23 @@ public class DonationPostView extends JFrame{
             }
         });
 
+
         editBtn.addActionListener(e -> {
             DonationPost selected = postList.getSelectedValue();
-            if (selected != null && selected.getWriter().equals(LoginSession.getCurrentUser())) {
+            if (selected != null && selected.getWriter().getUserId().equals(loginUser.getUserId())) {
                 String newTitle = JOptionPane.showInputDialog("새 제목", selected.getTitle());
                 String newContent = JOptionPane.showInputDialog("새 내용", selected.getContent());
-                selected.setTitle(newTitle);
-                selected.setContent(newContent);
-                refreshList(donationPostService);
+                if (newTitle != null && newContent != null) {
+                    selected.setTitle(newTitle);
+                    selected.setContent(newContent);
+                    refreshList(donationPostService);
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "본인만 수정 가능");
             }
         });
 
-        // 🔍 더블 클릭 시 상세 보기
+        // 더블 클릭 시 기부글 상세 보기
         postList.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -103,13 +106,13 @@ public class DonationPostView extends JFrame{
                     DonationPost selected = postList.getSelectedValue();
                     if (selected != null) {
                         String message = String.format(
-                                "제목: %s\n내용: %s\n작성자: %s\n목표금액: %,d원\n모금액: %,d원\n이미지: %s\n작성일시: %s",
+                                "제목: %s\n내용: %s\n작성자: %s\n모금목표: %,d\n현재 모금: %,d\n만료일: %s\n작성일: %s",
                                 selected.getTitle(),
                                 selected.getContent(),
                                 selected.getWriter().getUserId(),
                                 selected.getGoalPoint(),
                                 selected.getRaisedPoint(),
-                                selected.getDonationImg(),
+                                selected.getEndAt(),
                                 selected.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
                         );
                         JOptionPane.showMessageDialog(null, message, "기부글 상세정보", JOptionPane.INFORMATION_MESSAGE);
