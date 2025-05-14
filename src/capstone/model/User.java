@@ -40,9 +40,13 @@ public class User {
     }
 
     // 회원가입 생성자
-    public User(String userId, String password){
+    public User(String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
         this.userId = userId;
         this.password = password;
+        this.name = name;
+        this.nickName = nickName;
+        this.bankType = bankType;
+        this.bankAccount = bankAccount;
     }
 
     // Getter and Setter
