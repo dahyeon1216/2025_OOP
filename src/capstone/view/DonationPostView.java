@@ -1,9 +1,11 @@
 package capstone.view;
 
 import capstone.auth.LoginSession;
+import capstone.controller.UserController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.service.DonationPostService;
+import capstone.service.UserService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,15 +16,46 @@ public class DonationPostView extends JFrame{
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
     private final User loginUser;
+    private final UserService userService;
 
-    public DonationPostView(User loginUser, DonationPostService donationPostService) {
+
+    public DonationPostView(User loginUser, DonationPostService donationPostService, UserService userService) {
         this.loginUser = loginUser;
+        this.userService = userService;
 
         if (this.loginUser == null) {
             JOptionPane.showMessageDialog(null, "로그인이 필요합니다.", "접근 제한", JOptionPane.ERROR_MESSAGE);
             dispose();
             return;
         }
+
+        setTitle("기부글 관리(userId=" + loginUser.getUserId() + ")");
+        setSize(600, 500);
+        setLocationRelativeTo(null);
+
+        // 메뉴바 추가
+        JMenuBar menuBar = new JMenuBar();
+        JMenu userMenu = new JMenu("내 정보");
+        JMenuItem viewProfile = new JMenuItem("회원 정보 조회");
+        JMenuItem editProfile = new JMenuItem("회원 정보 수정");
+        JMenuItem chargePoint = new JMenuItem("포인트 충전");
+        userMenu.add(viewProfile);
+        userMenu.add(editProfile);
+        userMenu.add(chargePoint);
+        menuBar.add(userMenu);
+        setJMenuBar(menuBar);
+
+        viewProfile.addActionListener(e -> {
+            new UserProfileView(loginUser, new UserController(userService)).setVisible(true);
+        });
+
+        editProfile.addActionListener(e -> {
+            new UserProfileEditView(loginUser, new UserController(userService)).setVisible(true);
+        });
+
+        chargePoint.addActionListener(e -> {
+            new PointChargeView(loginUser).setVisible(true);
+        });
 
         JTextField donationImgField = new JTextField();
         JTextField titleField = new JTextField();

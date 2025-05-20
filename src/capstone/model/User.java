@@ -10,8 +10,6 @@ public class User {
     private String password;
     private String name;
     private String nickName;
-    private LocalDate birthday;
-    private String phoneNum;
     private String profileImg;
     private BankType bankType;
     private String bankAccount;
@@ -23,15 +21,13 @@ public class User {
     }
 
     // 전체 필드 생성자
-    public User(String userId, String password, String name, String nickName, LocalDate birthday,
-                String phoneNum, String profileImg, BankType bankType, String bankAccount,
+    public User(String userId, String password, String name, String nickName,
+                String profileImg, BankType bankType, String bankAccount,
                 int point, Tier tier) {
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.nickName = nickName;
-        this.birthday = birthday;
-        this.phoneNum = phoneNum;
         this.profileImg = profileImg;
         this.bankType = bankType;
         this.bankAccount = bankAccount;
@@ -47,6 +43,7 @@ public class User {
         this.nickName = nickName;
         this.bankType = bankType;
         this.bankAccount = bankAccount;
+        this.tier = Tier.BRONZE; // default
     }
 
     // Getter and Setter
@@ -62,12 +59,6 @@ public class User {
     public String getNickName() { return nickName; }
     public void setNickName(String nickName) { this.nickName = nickName; }
 
-    public LocalDate getBirthday() { return birthday; }
-    public void setBirthday(LocalDate birthday) { this.birthday = birthday; }
-
-    public String getPhoneNum() { return phoneNum; }
-    public void setPhoneNum(String phoneNum) { this.phoneNum = phoneNum; }
-
     public String getProfileImg() { return profileImg; }
     public void setProfileImag(String profileImag) { this.profileImg = profileImag; }
 
@@ -80,6 +71,6 @@ public class User {
     public int getPoint() { return point; }
     public void setPoint(int point) { this.point = point; }
 
-    public Tier getTier() { return tier; }
+    public String getTier() { return String.valueOf(tier); }
     public void setTier(Tier tier) { this.tier = tier; }
 }

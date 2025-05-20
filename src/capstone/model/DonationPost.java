@@ -86,4 +86,9 @@ public class DonationPost {
     public void setWriter(User writer) {
         this.writer = writer;
     }
+
+    @Override
+     public String toString() {
+         return id + ". " + title + " (작성자: " + writer.getUserId() + ")";
+     }
 }

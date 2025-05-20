@@ -38,7 +38,7 @@ public class LoginView extends JFrame {
             if (loginUser != null) {
                 LoginSession.login(loginUser);
                 JOptionPane.showMessageDialog(this, "로그인 성공");
-                new DonationPostView(loginUser, donationService).setVisible(true);
+                new DonationPostView(loginUser, donationService, userService).setVisible(true);
                 this.dispose(); // 로그인 창 닫기
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 실패");

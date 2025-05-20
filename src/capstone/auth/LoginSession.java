@@ -13,9 +13,10 @@ public class LoginSession {
         currentUser = null;
     }
 
-    public static User getCurrentUser() {
-        return currentUser;
-    }
+    // 사용X -> 로컬 환경에선 애플리케이션 전체에서 1개의 로그인 사용자 정보만 저장
+//    public static User getCurrentUser() {
+//        return currentUser;
+//    }
 
     public static boolean isLoggedIn() {
         return currentUser != null;

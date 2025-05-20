@@ -56,7 +56,7 @@ public class SignupView extends JFrame {
                 return;
             }
 
-            boolean success = userService.SignUp(userId, password, name, nickName, bankType, bankAccount);
+            boolean success = userService.signUp(userId, password, name, nickName, bankType, bankAccount);
             if (success) {
                 JOptionPane.showMessageDialog(this, "회원가입 성공!");
                 this.dispose();
