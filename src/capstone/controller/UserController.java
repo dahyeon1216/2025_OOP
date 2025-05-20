@@ -11,6 +11,26 @@ public class UserController {
         this.userService = userService;
     }
 
+    // 회원가입
+    public boolean signUp(String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+        return userService.signUp(userId, password, name, nickName, bankType, bankAccount);
+    }
+
+    // 로그인
+    public User login(String userId, String password) {
+        return userService.login(userId, password);
+    }
+
+    // 비밀번호 변경
+    public boolean changePassword(String userId, String currentPassword, String newPassword) {
+        User user = userService.findById(userId);
+        if (user == null || !user.getPassword().equals(currentPassword)) {
+            return false; // 현재 비밀번호 불일치 또는 사용자 없음
+        }
+        user.setPassword(newPassword);
+        return true;
+    }
+
     // 사용자 ID로 사용자 정보를 조회
     public User getUserProfile(String userId) {
         return userService.findById(userId);
