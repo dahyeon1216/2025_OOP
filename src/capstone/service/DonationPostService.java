@@ -12,6 +12,15 @@ import java.util.Optional;
 public class DonationPostService {
     private final List<DonationPost> posts = new ArrayList<>();
 
+    public DonationPost findById(int id) {
+        for (DonationPost post : posts) {
+            if (post.getId() == id) {
+                return post;
+            }
+        }
+        return null;
+    }
+
     public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
         posts.add(post);
@@ -32,7 +41,7 @@ public class DonationPostService {
     }
 
     public void update(int id, String title, String content, String donationImg, int goalPoint, LocalDate endAt) {
-        DonationPost post = posts.get(id);
+        DonationPost post = findById(id);
         if (post != null) {
             post.setTitle(title);
             post.setContent(content);
@@ -43,6 +52,6 @@ public class DonationPostService {
     }
 
     public void delete(int id) {
-        posts.remove(id);
+        posts.removeIf(p -> p.getId() == id);
     }
 }
