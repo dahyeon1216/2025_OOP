@@ -31,35 +31,18 @@ public class DonationPostService {
         return result;
     }
 
-    public boolean update(int postId, String newTitle, String newContent, User editor) {
-        Optional<DonationPost> optionalPost = posts.stream()
-                .filter(p -> p.getId() == postId)
-                .findFirst();
-
-        if (optionalPost.isPresent()) {
-            DonationPost post = optionalPost.get();
-            if (post.getWriter().getUserId().equals(editor.getUserId())) {
-                post.setTitle(newTitle);
-                post.setContent(newContent);
-                post.setUpFuncAt(LocalDateTime.now());
-                return true;
-            }
+    public void update(int id, String title, String content, String donationImg, int goalPoint, LocalDate endAt) {
+        DonationPost post = posts.get(id);
+        if (post != null) {
+            post.setTitle(title);
+            post.setContent(content);
+            post.setDonationImg(donationImg);
+            post.setGoalPoint(goalPoint);
+            post.setEndAt(endAt);
         }
-        return false;
     }
 
-    public boolean delete(int postId, User requester) {
-        Optional<DonationPost> optionalPost = posts.stream()
-                .filter(p -> p.getId() == postId)
-                .findFirst();
-
-        if (optionalPost.isPresent()) {
-            DonationPost post = optionalPost.get();
-            if (post.getWriter().getUserId().equals(requester.getUserId())) {
-                posts.remove(post);
-                return true;
-            }
-        }
-        return false;
+    public void delete(int id) {
+        posts.remove(id);
     }
 }

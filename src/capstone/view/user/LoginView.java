@@ -1,9 +1,7 @@
-package capstone.view;
+package capstone.view.user;
 
 import capstone.controller.UserController;
 import capstone.model.User;
-import capstone.service.DonationPostService;
-import capstone.service.UserService;
 
 import javax.swing.*;
 import java.awt.*;

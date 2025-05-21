@@ -1,8 +1,7 @@
-package capstone.view;
+package capstone.view.user;
 
 import capstone.controller.UserController;
 import capstone.model.BankType;
-import capstone.service.UserService;
 
 import javax.swing.*;
 import java.awt.*;

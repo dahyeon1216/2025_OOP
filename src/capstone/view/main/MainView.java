@@ -1,9 +1,14 @@
-package capstone.view;
+package capstone.view.main;
 
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
 import capstone.model.User;
-import capstone.service.UserService;
+import capstone.view.donation.DonationPostWriteView;
+import capstone.view.user.LoginView;
+import capstone.view.user.PointChargeView;
+import capstone.view.user.SignupView;
+import capstone.view.user.UserProfileEditView;
+import capstone.view.user.UserProfileView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +24,8 @@ public class MainView extends JFrame {
     private JMenuItem writePost, listPosts;
 
     private JPanel centerPanel;
+    private DonationPostListPanel donationPostListPanel;
+
 
     public MainView(User loginUser, UserController userController, DonationPostController donationPostController) {
         this.loginUser = loginUser;
@@ -26,7 +33,7 @@ public class MainView extends JFrame {
         this.donationPostController = donationPostController;
 
         setTitle("메인 메뉴" + (loginUser != null ? " - " + loginUser.getUserId() : " (비로그인)"));
-        setSize(800, 500);
+        setSize(600, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -43,7 +50,7 @@ public class MainView extends JFrame {
         loginItem.addActionListener(e -> {
             new LoginView(userController, user -> {
                 this.loginUser = user;
-                setTitle("메인 메뉴 - " + user.getUserId());
+                setTitle("메인 메뉴(" + user.getUserId()+")");
                 sessionMenu.setText(user.getUserId());
                 JOptionPane.showMessageDialog(this, "로그인 성공");
                 updateMenuAccess();
@@ -103,7 +110,7 @@ public class MainView extends JFrame {
 
         myPosts.addActionListener(e -> {
             if (this.loginUser != null) {
-                swapCenterPanel(new MyDonationPostListPanel(donationPostController, this.loginUser).getContentPane());
+                swapCenterPanel(new MyDonationPostListPanel(donationPostController, this.loginUser));
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }
@@ -126,7 +133,7 @@ public class MainView extends JFrame {
         detailMenu.add(allPostsItem);
 
         allPostsItem.addActionListener(e -> {
-            swapCenterPanel(new DonationPostListPanel(donationPostController));
+            swapCenterPanel(new DonationPostListPanel(this.loginUser, donationPostController));
         });
 
         menuBar.add(sessionMenu);
@@ -137,15 +144,16 @@ public class MainView extends JFrame {
 
         setJMenuBar(menuBar);
 
+        // 메인 패널 설정
+        donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController);
         centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(new DonationPostListPanel(donationPostController), BorderLayout.CENTER);
+        centerPanel.add(donationPostListPanel, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
-
         updateMenuAccess();
     }
 
     private void updateMenuAccess() {
-        boolean loggedIn = (loginUser != null);
+        boolean loggedIn = (this.loginUser != null);
         profileView.setEnabled(loggedIn);
         profileEdit.setEnabled(loggedIn);
         pointCharge.setEnabled(loggedIn);

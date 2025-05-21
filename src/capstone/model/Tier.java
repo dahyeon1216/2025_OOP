@@ -1,4 +1,4 @@
-package capstone;
+package capstone.model;
 
 public enum Tier {
     BRONZE,

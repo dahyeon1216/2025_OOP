@@ -30,12 +30,12 @@ public class DonationPostController {
     }
 
     // 기부글 수정
-    public boolean updatePost(int postId, String newTitle, String newContent, User editor) {
-        return donationPostService.update(postId, newTitle, newContent, editor);
+    public void updatePost(int id, String title, String content, String img, int goal, LocalDate endAt) {
+        donationPostService.update(id, title, content, img, goal, endAt);
     }
 
     //  기부글 삭제
-    public boolean deletePost(int postId, User requester) {
-        return donationPostService.delete(postId, requester);
+    public void deletePost(int postId) {
+        donationPostService.delete(postId);
     }
 }

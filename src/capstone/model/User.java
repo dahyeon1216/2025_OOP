@@ -1,6 +1,6 @@
 package capstone.model;
 
-import capstone.Tier;
+import capstone.model.Tier;
 
 import java.time.LocalDate;
 

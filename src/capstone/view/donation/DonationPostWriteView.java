@@ -1,4 +1,4 @@
-package capstone.view;
+package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
 import capstone.model.User;
@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 public class DonationPostWriteView extends JFrame {
     public DonationPostWriteView(User user, DonationPostController controller) {
+        System.out.println("DonationPostWriteView: "+user);
+
         setTitle("기부글 작성");
         setSize(500, 400);
         setLocationRelativeTo(null);
@@ -70,7 +72,6 @@ public class DonationPostWriteView extends JFrame {
                 int goal = Integer.parseInt(goalPointField.getText());
                 String img = imageField.getText();
                 LocalDate endAt = LocalDate.parse(endDateField.getText());
-
                 controller.createPost(user, img, goal, endAt, title, content);
                 JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
                 dispose();
@@ -79,4 +80,5 @@ public class DonationPostWriteView extends JFrame {
             }
         });
     }
+
 }

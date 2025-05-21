@@ -1,4 +1,4 @@
-package capstone.view;
+package capstone.view.user;
 
 import capstone.controller.UserController;
 import capstone.model.User;

@@ -1,10 +1,9 @@
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
 import capstone.model.BankType;
-import capstone.model.User;
 import capstone.service.DonationPostService;
 import capstone.service.UserService;
-import capstone.view.MainView;
+import capstone.view.main.MainView;
 
 import javax.swing.*;
 import java.awt.*;
