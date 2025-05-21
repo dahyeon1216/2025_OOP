@@ -1,0 +1,48 @@
+package capstone.service;
+
+import capstone.model.DonationPost;
+import capstone.model.User;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public class DonationPostService {
+    private final List<DonationPost> posts = new ArrayList<>();
+
+    public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
+        DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
+        posts.add(post);
+    }
+
+    public List<DonationPost> getAll() {
+        return new ArrayList<>(posts);
+    }
+
+    public List<DonationPost> getByUser(User user) {
+        List<DonationPost> result = new ArrayList<>();
+        for (DonationPost post : posts) {
+            if (post.getWriter().getUserId().equals(user.getUserId())) {
+                result.add(post);
+            }
+        }
+        return result;
+    }
+
+    public void update(int id, String title, String content, String donationImg, int goalPoint, LocalDate endAt) {
+        DonationPost post = posts.get(id);
+        if (post != null) {
+            post.setTitle(title);
+            post.setContent(content);
+            post.setDonationImg(donationImg);
+            post.setGoalPoint(goalPoint);
+            post.setEndAt(endAt);
+        }
+    }
+
+    public void delete(int id) {
+        posts.remove(id);
+    }
+}
