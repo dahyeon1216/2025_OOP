@@ -50,10 +50,17 @@ public class MainView extends JFrame {
         loginItem.addActionListener(e -> {
             new LoginView(userController, user -> {
                 this.loginUser = user;
-                setTitle("메인 메뉴(" + user.getUserId()+")");
+                setTitle("메인 메뉴(" + user.getUserId() + ")");
                 sessionMenu.setText(user.getUserId());
-                JOptionPane.showMessageDialog(this, "로그인 성공");
                 updateMenuAccess();
+
+                donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController);
+                centerPanel.removeAll();
+                centerPanel.add(donationPostListPanel, BorderLayout.CENTER);
+                centerPanel.revalidate();
+                centerPanel.repaint();
+
+                JOptionPane.showMessageDialog(this, "로그인 성공");
             }).setVisible(true);
         });
 
@@ -66,8 +73,11 @@ public class MainView extends JFrame {
                 this.loginUser = null;
                 setTitle("메인 메뉴 (비로그인)");
                 sessionMenu.setText("로그인/회원가입");
-                JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
                 updateMenuAccess();
+                centerPanel.removeAll(); // ✅ 로그아웃 시 화면 초기화
+                centerPanel.revalidate();
+                centerPanel.repaint();
+                JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
             } else {
                 JOptionPane.showMessageDialog(this, "현재 로그인 상태가 아닙니다.");
             }
@@ -133,7 +143,8 @@ public class MainView extends JFrame {
         detailMenu.add(allPostsItem);
 
         allPostsItem.addActionListener(e -> {
-            swapCenterPanel(new DonationPostListPanel(this.loginUser, donationPostController));
+            DonationPostListPanel panel = new DonationPostListPanel(this.loginUser, donationPostController);
+            swapCenterPanel(panel);
         });
 
         menuBar.add(sessionMenu);
@@ -145,9 +156,7 @@ public class MainView extends JFrame {
         setJMenuBar(menuBar);
 
         // 메인 패널 설정
-        donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController);
         centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(donationPostListPanel, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
         updateMenuAccess();
     }

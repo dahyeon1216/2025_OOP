@@ -9,7 +9,6 @@ import java.time.LocalDate;
 
 public class DonationPostWriteView extends JFrame {
     public DonationPostWriteView(User user, DonationPostController controller) {
-        System.out.println("DonationPostWriteView: "+user);
 
         setTitle("기부글 작성");
         setSize(500, 400);
