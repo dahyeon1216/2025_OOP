@@ -2,7 +2,8 @@ package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
 import capstone.model.User;
-import capstone.view.RoundedBorder;
+import capstone.view.Roundborder.RoundedBorder;
+import capstone.view.Roundborder.RoundedButton;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,7 +14,20 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.stream.IntStream;
 
+
 public class DonationPostWriteView extends JFrame {
+
+    private static Font customFont;
+    static {
+        try {
+            customFont = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/font1.ttf")).deriveFont(15f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(customFont);
+        } catch (Exception e) {
+            customFont = new Font("SansSerif", Font.PLAIN, 15); // fallback
+            e.printStackTrace();
+        }
+    }
 
     public DonationPostWriteView(User user, DonationPostController controller) {
         super("기부글 쓰기");
@@ -25,7 +39,8 @@ public class DonationPostWriteView extends JFrame {
         // Header
         JPanel header = new JPanel(null);
         header.setPreferredSize(new Dimension(393, 45)); // 높이 45px
-        header.setBackground(Color.LIGHT_GRAY);
+        header.setBackground(new Color(120, 230, 170));
+
 
         //뒤로가기 버튼
         ImageIcon backIcon = new ImageIcon("icons/arrow-left.png");
@@ -42,7 +57,7 @@ public class DonationPostWriteView extends JFrame {
 
         //헤더 내 텍스트
         JLabel titleLbl = new JLabel("기부글 쓰기",SwingConstants.CENTER);
-        titleLbl.setFont(new Font("맑은 고딕", Font.BOLD, 18));
+        titleLbl.setFont(customFont.deriveFont(Font.BOLD, 23f));
         titleLbl.setBounds(13, 7, 360, 30);
         header.add(titleLbl);
         //header.add(Box.createHorizontalGlue());  // 오른쪽 여백
@@ -89,8 +104,8 @@ public class DonationPostWriteView extends JFrame {
 
         // 제목 필드
         JLabel titleLabel = new JLabel("제목");
-        titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-        titleLabel.setBounds(18,100,100,20 );
+        titleLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
+        titleLabel.setBounds(18,100,100,22 );
         body.add(titleLabel);
 
         JTextField titleField = new JTextField("제목을 입력하세요");
@@ -104,8 +119,8 @@ public class DonationPostWriteView extends JFrame {
 
         // 목표금액 필드
         JLabel goalLabel = new JLabel("목표금액");
-        goalLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-        goalLabel.setBounds(18, 175, 100, 20);
+        goalLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
+        goalLabel.setBounds(18, 175, 100, 22);
         body.add(goalLabel);
 
         //목표금액 텍스트 필드
@@ -127,24 +142,24 @@ public class DonationPostWriteView extends JFrame {
         moneyPanel.add(goalField, BorderLayout.CENTER);
         moneyPanel.add(currencyLbl, BorderLayout.EAST);
         moneyPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        moneyPanel.setBounds(18,202, 330, 35);
+        moneyPanel.setBounds(18,205, 330, 35);
         body.add(moneyPanel);
         body.add(Box.createVerticalStrut(10));
 
         // 기한 필드
         JLabel dateLabel = new JLabel("기한");
-        dateLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-        dateLabel.setBounds(18, 250, 100, 20);
+        dateLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
+        dateLabel.setBounds(18, 250, 100, 22);
         body.add(dateLabel);
 
        // 날짜 패널 (Null layout로 배치 수동 조정)
         JPanel datePanel = new JPanel(null);
-        datePanel.setBounds(18, 275, 330, 40);
+        datePanel.setBounds(18, 278, 330, 40);
         datePanel.setBackground(Color.WHITE); // 배경 흰색
         body.add(datePanel);
 
        // 콤보박스 스타일용 폰트
-        Font comboFont = new Font("맑은 고딕", Font.PLAIN, 13);
+        Font comboFont = customFont.deriveFont(Font.PLAIN, 18f);
         Color bgColor = new Color(240, 240, 240);
 
         // 년도 콤보박스
@@ -183,31 +198,31 @@ public class DonationPostWriteView extends JFrame {
 
         // 설명 필드
         JLabel descLabel = new JLabel("자세한 설명");
-        descLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-        descLabel.setBounds(18,326,100,20);
+        descLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
+        descLabel.setBounds(18,323,100,22);
         body.add(descLabel);
 
-        JTextArea contentArea = new JTextArea(6, 20);
+        JTextArea contentArea = new JTextArea(9, 20);
         contentArea.setBackground(new Color(240, 240, 240)); // 텍스트 area 배경: 연한 회색
         contentArea.setBorder(new RoundedBorder(15)); // 둥근 테두리
         JScrollPane scroll = new JScrollPane(contentArea);
         scroll.setBorder(null);
         scroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-        scroll.setBounds(18, 351,330,200);
+        scroll.setBounds(18, 357,330,200);
         body.add(scroll);
 
-        // 저장 버튼
-        JButton submitBtn = new JButton("저장완료");
+        // 저장완료버튼 생성 및 설정
+        RoundedButton submitBtn = new RoundedButton("저장완료", new Color(60, 60, 60), 30);
         submitBtn.setPreferredSize(new Dimension(0, 44));
         submitBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        submitBtn.setFont(submitBtn.getFont().deriveFont(Font.BOLD, 14f));
-        submitBtn.setBackground(Color.BLACK);
+        submitBtn.setFont(customFont.deriveFont(Font.BOLD, 20f));
         submitBtn.setForeground(Color.WHITE);
-        submitBtn.setFocusPainted(false);
 
+        // footer 설정
         JPanel footer = new JPanel();
         footer.setBorder(new EmptyBorder(10, 20, 20, 20));
         footer.setLayout(new BorderLayout());
+        footer.setOpaque(false);
         footer.add(submitBtn, BorderLayout.CENTER);
 
         // 전체 조립
@@ -240,7 +255,7 @@ public class DonationPostWriteView extends JFrame {
         JScrollPane scrollPane = new JScrollPane(
                 body,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER // 🔥 가로 스크롤 끔
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER // 가로 스크롤 끔
         );
         scrollPane.setBorder(null);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -264,10 +279,10 @@ public class DonationPostWriteView extends JFrame {
         };
     }
 
-    /* UI 테스트용 main
+    //UI 테스트용 main
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new DonationPostWriteView(null, null);
         });
-    }*/
+    }
 }
