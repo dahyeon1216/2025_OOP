@@ -73,4 +73,18 @@ public class User {
 
     public String getTier() { return String.valueOf(tier); }
     public void setTier(Tier tier) { this.tier = tier; }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        User user = (User) obj;
+        return userId != null && userId.equals(user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return userId != null ? userId.hashCode() : 0;
+    }
+
 }

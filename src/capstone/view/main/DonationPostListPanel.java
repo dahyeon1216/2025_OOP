@@ -14,8 +14,10 @@ public class DonationPostListPanel extends JPanel {
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
     private final DonationPostController controller;
+    private final User loginUser;
 
     public DonationPostListPanel(User loginUser, DonationPostController controller) {
+        this.loginUser = loginUser;
         this.controller = controller;
         setLayout(new BorderLayout());
 
@@ -33,10 +35,17 @@ public class DonationPostListPanel extends JPanel {
 
         // 더블 클릭 시 상세보기
         postList.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && postList.getSelectedValue() != null) {
-                    DonationPost selected = postList.getSelectedValue();
-                    new DonationPostDetailView(selected, loginUser, controller, () -> refreshList()).setVisible(true);
+                if (e.getClickCount() == 2) {
+                    DonationPost post = postList.getSelectedValue();
+
+                    new DonationPostDetailView(
+                            post,
+                            loginUser,
+                            controller,
+                            DonationPostListPanel.this::refreshList
+                    ).setVisible(true);
                 }
             }
         });
@@ -51,5 +60,4 @@ public class DonationPostListPanel extends JPanel {
             listModel.addElement(post);
         }
     }
-
 }
