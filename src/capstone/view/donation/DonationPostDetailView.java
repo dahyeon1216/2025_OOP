@@ -34,6 +34,9 @@ public class DonationPostDetailView extends JFrame {
         panel.add(new JLabel("마감일: " + (post.getEndAt() != null ? post.getEndAt().toString() : "없음")));
 
         if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
+//            panel.add(Box.createVerticalStrut(10)); // 여백
+            panel.add(new JLabel("가상계좌: " + (post.getVirtualAccount() != null ? post.getVirtualAccount() : "없음")));
+
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
             JButton editBtn = new JButton("수정");

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class DonationPostService {
     private final List<DonationPost> posts = new ArrayList<>();
@@ -23,7 +24,20 @@ public class DonationPostService {
 
     public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
+        String virtualAccount = generateVirtualAccount(); // 가상계좌 생성
+        post.setVirtualAccount(virtualAccount); // 가상계좌 설정
         posts.add(post);
+    }
+
+    // 랜덤 가상계좌 생성
+    private String generateVirtualAccount() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        sb.append("VA-"); // prefix (예: 가상계좌의 의미)
+        for (int i = 0; i < 12; i++) {
+            sb.append(random.nextInt(10)); // 0~9 숫자 12자리
+        }
+        return sb.toString();
     }
 
     public List<DonationPost> getAll() {

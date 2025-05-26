@@ -17,6 +17,9 @@ public class DonationPost {
     private int raisedPoint;
     private String billImg;
 
+
+    private String virtualAccount;
+
     // 기본 생성자
     public DonationPost() {
     }
@@ -85,6 +88,14 @@ public class DonationPost {
 
     public void setWriter(User writer) {
         this.writer = writer;
+    }
+
+    public void setVirtualAccount(String virtualAccount) {
+        this.virtualAccount = virtualAccount;
+    }
+
+    public String getVirtualAccount() {
+        return virtualAccount;
     }
 
     @Override
