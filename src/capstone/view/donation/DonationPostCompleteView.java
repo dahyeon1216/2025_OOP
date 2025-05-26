@@ -1,7 +1,11 @@
 package capstone.view.donation;
 
+import capstone.controller.DonationPostController;
+import capstone.controller.UserController;
+import capstone.model.User;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
+import capstone.view.main.MainView;
 
 import java.awt.*;import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,7 +25,16 @@ public class DonationPostCompleteView extends JFrame {
         }
     }
 
-    public DonationPostCompleteView() {
+
+    private final User loginUser;
+    private final UserController userController;
+    private final DonationPostController donationPostController;
+
+    public DonationPostCompleteView(User loginUser, UserController userController, DonationPostController donationPostController) {
+        this.loginUser = loginUser;
+        this.userController = userController;
+        this.donationPostController = donationPostController;
+
         super("기부글 업로드 완료");
         setSize(393, 698);
         setLocationRelativeTo(null);
@@ -69,8 +82,8 @@ public class DonationPostCompleteView extends JFrame {
 
 
         mainBtn.addActionListener(e -> {
-            // 메인화면 이동 로직
-            dispose();
+            dispose(); // 현재 완료 화면 닫기
+            new MainView(); // 메인 화면 실행
         });
 
         JPanel footer = new JPanel(new BorderLayout());
