@@ -3,6 +3,8 @@ package capstone.view.donation;
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
 import capstone.model.User;
+import capstone.service.DonationPostService;
+import capstone.service.UserService;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
 import capstone.view.main.MainView;
@@ -83,7 +85,7 @@ public class DonationPostCompleteView extends JFrame {
 
         mainBtn.addActionListener(e -> {
             dispose(); // 현재 완료 화면 닫기
-            new MainView(); // 메인 화면 실행
+            new MainView(loginUser, userController, donationPostController); // 메인 화면 실행
         });
 
         JPanel footer = new JPanel(new BorderLayout());
@@ -102,7 +104,22 @@ public class DonationPostCompleteView extends JFrame {
 
     // 테스트용 메인
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(DonationPostCompleteView::new);
+        // 더미 유저
+        User dummyUser = new User();
+
+        // 서비스 → 컨트롤러
+        UserService dummyUserService = new UserService(); // 만약 인자가 필요하면 수정
+        UserController dummyUserController = new UserController(dummyUserService);
+
+        DonationPostService dummyPostService = new DonationPostService(); // 마찬가지로 인자가 필요하면 수정
+        DonationPostController dummyPostController = new DonationPostController(dummyPostService);
+
+        // 완료화면 실행
+        SwingUtilities.invokeLater(() ->
+                new DonationPostCompleteView(dummyUser, dummyUserController, dummyPostController)
+        );
     }
 }
+
+
 
