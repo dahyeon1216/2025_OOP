@@ -30,6 +30,8 @@ public class DonationPostService {
         return new ArrayList<>(posts);
     }
 
+
+
     public List<DonationPost> getByUser(User user) {
         List<DonationPost> result = new ArrayList<>();
         for (DonationPost post : posts) {
@@ -53,5 +55,27 @@ public class DonationPostService {
 
     public void delete(int id) {
         posts.removeIf(p -> p.getId() == id);
+    }
+
+    // 진행중 기부글 (마감일이 오늘 이후)
+    public List<DonationPost> getOngoingPosts() {
+        List<DonationPost> result = new ArrayList<>();
+        for (DonationPost post : posts) {
+            if (post.getEndAt().isAfter(LocalDate.now())) {
+                result.add(post);
+            }
+        }
+        return result;
+    }
+
+    // 완료된 기부글 (마감일이 오늘이거나 이전)
+    public List<DonationPost> getCompletedPosts() {
+        List<DonationPost> result = new ArrayList<>();
+        for (DonationPost post : posts) {
+            if (!post.getEndAt().isAfter(LocalDate.now())) {
+                result.add(post);
+            }
+        }
+        return result;
     }
 }

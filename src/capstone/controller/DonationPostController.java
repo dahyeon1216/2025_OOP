@@ -14,6 +14,14 @@ public class DonationPostController {
         this.donationPostService = donationPostService;
     }
 
+    public List<DonationPost> getOngoingPosts() {
+        return donationPostService.getOngoingPosts();
+    }
+
+    public List<DonationPost> getCompletedPosts() {
+        return donationPostService.getCompletedPosts();
+    }
+
     // 기부글 작성
     public void createPost(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         donationPostService.create(writer, donationImg, goalPoint, endAt, title, content);

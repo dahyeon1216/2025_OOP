@@ -24,7 +24,8 @@ public class MainView extends JFrame {
     private JMenuItem writePost, listPosts;
 
     private JPanel centerPanel;
-    private DonationPostListPanel donationPostListPanel;
+    private DonationPostListView donationPostListView
+            ;
 
 
     public MainView(User loginUser, UserController userController, DonationPostController donationPostController) {
@@ -133,7 +134,7 @@ public class MainView extends JFrame {
         detailMenu.add(allPostsItem);
 
         allPostsItem.addActionListener(e -> {
-            swapCenterPanel(new DonationPostListPanel(this.loginUser, donationPostController));
+            swapCenterPanel(new DonationPostListView(this.loginUser, donationPostController, this));
         });
 
         menuBar.add(sessionMenu);
@@ -145,9 +146,9 @@ public class MainView extends JFrame {
         setJMenuBar(menuBar);
 
         // 메인 패널 설정
-        donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController);
+        donationPostListView = new DonationPostListView(this.loginUser, donationPostController, this);
         centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(donationPostListPanel, BorderLayout.CENTER);
+        centerPanel.add(donationPostListView, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
         updateMenuAccess();
     }
