@@ -122,7 +122,7 @@ public class MainView extends JFrame {
 
         writePost.addActionListener(e -> {
             if (this.loginUser != null) {
-                new DonationPostWriteView(this.loginUser, donationPostController).setVisible(true);
+                new DonationPostWriteView(this,this.loginUser, donationPostController).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }

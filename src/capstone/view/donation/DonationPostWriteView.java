@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 
 public class DonationPostWriteView extends JFrame {
 
+    private JFrame previousView; //전 화면
     private static Font customFont;
     static {
         try {
@@ -29,8 +30,9 @@ public class DonationPostWriteView extends JFrame {
         }
     }
 
-    public DonationPostWriteView(User user, DonationPostController controller) {
+    public DonationPostWriteView(JFrame previousView,User user, DonationPostController controller) {
         super("기부글 쓰기");
+        this.previousView = previousView;
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(393, 698); // 9:16 비율 적용
         setLocationRelativeTo(null);
@@ -43,6 +45,7 @@ public class DonationPostWriteView extends JFrame {
 
 
         //뒤로가기 버튼
+
         ImageIcon backIcon = new ImageIcon("icons/arrow-left.png");
         Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImg);
@@ -231,6 +234,11 @@ public class DonationPostWriteView extends JFrame {
         getContentPane().add(body, BorderLayout.CENTER);
         getContentPane().add(footer, BorderLayout.SOUTH);
 
+        backBtn.addActionListener(e -> {
+            previousView.setVisible(true); // 이전 화면 다시 보여주기
+            dispose(); // 현재 화면 닫기
+        });
+
         submitBtn.addActionListener(e -> {
             try {
                 String imgPath = "donationImg.jpg";
@@ -282,7 +290,7 @@ public class DonationPostWriteView extends JFrame {
     //UI 테스트용 main
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new DonationPostWriteView(null, null);
+            new DonationPostWriteView(null,null, null);
         });
     }
 }
