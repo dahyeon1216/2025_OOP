@@ -3,7 +3,9 @@ package capstone.view.main;
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
 import capstone.model.User;
+import capstone.view.donation.CompletedDonationPostListPanel;
 import capstone.view.donation.DonationPostWriteView;
+import capstone.view.donation.OngoingDonationPostListPanel;
 import capstone.view.user.LoginView;
 import capstone.view.user.PointChargeView;
 import capstone.view.user.SignupView;
@@ -138,9 +140,21 @@ public class MainView extends JFrame {
             }
         });
 
-        JMenu detailMenu = new JMenu("기부글 상세보기 (구현 예정)");
+        JMenu detailMenu = new JMenu("기부글 상세보기");
+        JMenuItem ongoingItem = new JMenuItem("진행 중인 기부글 보기");
+        JMenuItem completedItem = new JMenuItem("진행 완료된 기부글 보기");
         JMenuItem allPostsItem = new JMenuItem("기부글 전체보기");
+
+        detailMenu.add(ongoingItem);
+        detailMenu.add(completedItem);
         detailMenu.add(allPostsItem);
+
+        ongoingItem.addActionListener(e -> {
+            swapCenterPanel(new OngoingDonationPostListPanel(this.loginUser, donationPostController));
+        });
+        completedItem.addActionListener(e -> {
+            swapCenterPanel(new CompletedDonationPostListPanel(this.loginUser, donationPostController));
+        });
 
         allPostsItem.addActionListener(e -> {
             DonationPostListPanel panel = new DonationPostListPanel(this.loginUser, donationPostController);
