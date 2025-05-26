@@ -1,6 +1,7 @@
 package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 
@@ -15,7 +16,9 @@ public class DonationPostPanelFactory {
     public static JPanel createPostListPanel(String title,
                                              List<DonationPost> posts,
                                              User loginUser,
-                                             DonationPostController controller) {
+                                             DonationPostController controller,
+                                             ScrapController scrapController,
+                                             Runnable onPostUpdated) {
 
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -30,7 +33,7 @@ public class DonationPostPanelFactory {
                 if (e.getClickCount() == 2) {
                     DonationPost selected = postList.getSelectedValue();
                     if (selected != null) {
-                        new DonationPostDetailView(selected, loginUser, controller, null).setVisible(true);
+                        new DonationPostDetailView(selected, loginUser, controller, scrapController, onPostUpdated).setVisible(true);
                     }
                 }
             }

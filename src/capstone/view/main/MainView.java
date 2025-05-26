@@ -1,11 +1,13 @@
 package capstone.view.main;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.controller.UserController;
 import capstone.model.User;
 import capstone.view.donation.CompletedDonationPostListPanel;
 import capstone.view.donation.DonationPostWriteView;
 import capstone.view.donation.OngoingDonationPostListPanel;
+import capstone.view.scrap.ScrappedPostListPanel;
 import capstone.view.user.LoginView;
 import capstone.view.user.PointChargeView;
 import capstone.view.user.SignupView;
@@ -19,6 +21,7 @@ public class MainView extends JFrame {
     private User loginUser;
     private final UserController userController;
     private final DonationPostController donationPostController;
+    private final ScrapController scrapController;
     private JMenu sessionMenu;
 
     private JMenuItem profileView, profileEdit, pointCharge;
@@ -29,10 +32,11 @@ public class MainView extends JFrame {
     private DonationPostListPanel donationPostListPanel;
 
 
-    public MainView(User loginUser, UserController userController, DonationPostController donationPostController) {
+    public MainView(User loginUser, UserController userController, DonationPostController donationPostController, ScrapController scrapController) {
         this.loginUser = loginUser;
         this.userController = userController;
         this.donationPostController = donationPostController;
+        this.scrapController = scrapController;
 
         setTitle("메인 메뉴" + (loginUser != null ? " - " + loginUser.getUserId() : " (비로그인)"));
         setSize(600, 400);
@@ -56,7 +60,7 @@ public class MainView extends JFrame {
                 sessionMenu.setText(user.getUserId());
                 updateMenuAccess();
 
-                donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController);
+                donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController, scrapController);
                 centerPanel.removeAll();
                 centerPanel.add(donationPostListPanel, BorderLayout.CENTER);
                 centerPanel.revalidate();
@@ -114,7 +118,7 @@ public class MainView extends JFrame {
 
         JMenu myDonationMenu = new JMenu("나의 기부글");
         myPosts = new JMenuItem("내가 쓴 기부글 조회");
-        myScraps = new JMenuItem("스크랩한 기부글 조회 (구현 예정)");
+        myScraps = new JMenuItem("스크랩한 기부글 조회");
         myDonations = new JMenuItem("기부 내역 조회 (구현 예정)");
         myDonationMenu.add(myPosts);
         myDonationMenu.add(myScraps);
@@ -122,7 +126,15 @@ public class MainView extends JFrame {
 
         myPosts.addActionListener(e -> {
             if (this.loginUser != null) {
-                swapCenterPanel(new MyDonationPostListPanel(donationPostController, this.loginUser));
+                swapCenterPanel(new MyDonationPostListPanel(donationPostController, scrapController, this.loginUser));
+            } else {
+                JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
+            }
+        });
+
+        myScraps.addActionListener(e -> {
+            if (this.loginUser != null) {
+                swapCenterPanel(new ScrappedPostListPanel(this.loginUser, donationPostController, scrapController));
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }
@@ -150,14 +162,14 @@ public class MainView extends JFrame {
         detailMenu.add(allPostsItem);
 
         ongoingItem.addActionListener(e -> {
-            swapCenterPanel(new OngoingDonationPostListPanel(this.loginUser, donationPostController));
+            swapCenterPanel(new OngoingDonationPostListPanel(this.loginUser, donationPostController, scrapController));
         });
         completedItem.addActionListener(e -> {
-            swapCenterPanel(new CompletedDonationPostListPanel(this.loginUser, donationPostController));
+            swapCenterPanel(new CompletedDonationPostListPanel(this.loginUser, donationPostController, scrapController));
         });
 
         allPostsItem.addActionListener(e -> {
-            DonationPostListPanel panel = new DonationPostListPanel(this.loginUser, donationPostController);
+            DonationPostListPanel panel = new DonationPostListPanel(this.loginUser, donationPostController, scrapController);
             swapCenterPanel(panel);
         });
 
