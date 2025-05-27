@@ -84,20 +84,23 @@ public class DonationPostListView extends BaseView {
         cardListPanel.setLayout(new BoxLayout(cardListPanel, BoxLayout.Y_AXIS));
         cardListPanel.setOpaque(false);
 
+        // 스크롤 생성
         JScrollPane scrollPane = new JScrollPane(cardListPanel);
-        scrollPane.setPreferredSize(new Dimension(360, 500)); // 창보다 살짝 작게
+        scrollPane.setPreferredSize(new Dimension(360, 500));
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
-
-
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         // 기부글 쓰기 버튼
-        JButton writeBtn = new RoundedButton("기부글 쓰기", Color.BLACK, 20);
+        JButton writeBtn = new RoundedButton("기부글 쓰기", Color.BLACK, 30);
         writeBtn.setForeground(Color.WHITE);
+        writeBtn.setPreferredSize(new Dimension(130, 45)); // 너비, 높이
+        writeBtn.setFont(customFont.deriveFont(Font.BOLD, 22f));
         writeBtn.addActionListener(e -> new DonationPostWriteView(this, null, null)); // controller는 예시로 null
 
-        JPanel writeBtnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel writeBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 20)); // 오른쪽 정렬, 여백 약간
         writeBtnPanel.setOpaque(false);
         writeBtnPanel.add(writeBtn);
 
@@ -114,6 +117,8 @@ public class DonationPostListView extends BaseView {
         body.add(center, BorderLayout.NORTH);
         body.add(scrollPane, BorderLayout.CENTER);
         body.add(writeBtnPanel, BorderLayout.SOUTH);
+        body.setComponentZOrder(writeBtnPanel, 0); // writeBtnPanel 자체를 제일 앞에
+
 
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(header, BorderLayout.NORTH);
@@ -187,8 +192,9 @@ public class DonationPostListView extends BaseView {
 
     private JPanel createDonationCard(DonationPost post) {
         JPanel card = new JPanel(null);
-        card.setPreferredSize(new Dimension(320, 110));
-        card.setMaximumSize(new Dimension(320, 110));
+        card.setMinimumSize(new Dimension(355, 145));
+        card.setPreferredSize(new Dimension(355, 145));
+        card.setMaximumSize(new Dimension(355, 145));
         card.setBackground(new Color(245, 245, 245));
         card.setBorder(BorderFactory.createEmptyBorder()); //테두리 제거
         card.setBorder(new RoundedBorder(20));
@@ -211,31 +217,36 @@ public class DonationPostListView extends BaseView {
         card.add(imageLabel);
 
         // 3. 제목
-        JLabel titleLabel = new JLabel(post.getTitle());
-        titleLabel.setBounds(80, 30, 230, 22);
+        String titleHtml = "<html><body style='width: 230px'>" + post.getTitle() + "</body></html>";
+        JLabel titleLabel = new JLabel(titleHtml);
         titleLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
+
+// 🔽 최대 높이 제한 적용
+        int maxTitleHeight = 40;
+        int titleHeight = Math.min(titleLabel.getPreferredSize().height, maxTitleHeight);
+        titleLabel.setBounds(80, 30, 230, titleHeight);
         card.add(titleLabel);
 
-        // 4. 진행률 계산 (raisedPoint / goalPoint)
+// 4. 진행률 계산 (raisedPoint / goalPoint)
         int percent = post.getGoalPoint() == 0 ? 0 :
                 (int) ((double) post.getRaisedPoint() / post.getGoalPoint() * 100);
 
-        JLabel progressLabel = new JLabel(percent + "%    " + post.getGoalPoint() + "P");
-        progressLabel.setBounds(80, 55, 250, 20);
-        progressLabel.setFont(customFont.deriveFont(Font.PLAIN, 18f));
+        JLabel progressLabel = new JLabel("진행률 " + percent + "%    " + post.getGoalPoint() + "P");
+        progressLabel.setFont(customFont.deriveFont(Font.PLAIN, 20f));
+
+// 제목 바로 아래에 진행률 위치 고정
+        int progressY = 30 + titleHeight + 5;
+        progressLabel.setBounds(80, progressY, 250, 20);
         card.add(progressLabel);
 
-        // 5. 진행률 바
-        JProgressBar bar = new JProgressBar();
-        bar.setValue(percent);
-        bar.setBounds(80, 80, 200, 10);
-        bar.setForeground(Color.DARK_GRAY);
-        bar.setBackground(Color.LIGHT_GRAY);
-        card.add(bar);
+// 카드 높이 조정 (딱 맞게)
+        int totalHeight = progressY + 25;
+        card.setPreferredSize(new Dimension(320, totalHeight));
+        card.setMaximumSize(new Dimension(320, totalHeight));
 
         // 6. 스크랩 버튼
         JButton scrapBtn = new JButton(new ImageIcon("icons/bookmark.png"));
-        scrapBtn.setBounds(290, 10, 30, 30);
+        scrapBtn.setBounds(310, 10, 30, 30);
         scrapBtn.setContentAreaFilled(false);
         scrapBtn.setBorderPainted(false);
         scrapBtn.addActionListener(e -> {
@@ -254,11 +265,14 @@ public class DonationPostListView extends BaseView {
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
-        wrapper.setBorder(BorderFactory.createEmptyBorder(0, 17, 15, 17)); // 좌우 10px, 아래 여백도 추가
+        wrapper.setPreferredSize(new Dimension(355, 145));
+        wrapper.setMaximumSize(new Dimension(355, 145));
+        wrapper.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0)); // 좌우 10px, 아래 여백도 추가
         wrapper.add(card, BorderLayout.CENTER);
 
         return wrapper;
     }
+
 
 
     //UI 테스트 용

@@ -33,11 +33,12 @@ public class DonationPostCompleteView extends JFrame {
     private final DonationPostController donationPostController;
 
     public DonationPostCompleteView(User loginUser, UserController userController, DonationPostController donationPostController) {
+        super("기부글 업로드 완료");
+
         this.loginUser = loginUser;
         this.userController = userController;
         this.donationPostController = donationPostController;
 
-        super("기부글 업로드 완료");
         setSize(393, 698);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
