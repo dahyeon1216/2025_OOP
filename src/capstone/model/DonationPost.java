@@ -98,6 +98,14 @@ public class DonationPost {
         return virtualAccount;
     }
 
+    public boolean isInProgress() {
+        return !LocalDate.now().isAfter(endAt); // 오늘(endAt 포함)까지는 진행 중
+    }
+
+    public boolean isCompleted() {
+        return LocalDate.now().isAfter(endAt); // endAt 이후면 완료
+    }
+
     @Override
      public String toString() {
          return id + ". " + title + " (작성자: " + writer.getUserId() + ")";

@@ -1,6 +1,7 @@
 package capstone.view.main;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.view.donation.DonationPostDetailView;
@@ -14,11 +15,15 @@ public class DonationPostListPanel extends JPanel {
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
     private final DonationPostController controller;
+    private final ScrapController scrapController;
     private final User loginUser;
 
-    public DonationPostListPanel(User loginUser, DonationPostController controller) {
+    public DonationPostListPanel(User loginUser,
+                                 DonationPostController controller,
+                                 ScrapController scrapController) {
         this.loginUser = loginUser;
         this.controller = controller;
+        this.scrapController = scrapController;
         setLayout(new BorderLayout());
 
         // 리스트 UI
@@ -39,13 +44,15 @@ public class DonationPostListPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     DonationPost post = postList.getSelectedValue();
-
-                    new DonationPostDetailView(
-                            post,
-                            loginUser,
-                            controller,
-                            DonationPostListPanel.this::refreshList
-                    ).setVisible(true);
+                    if (post != null) {
+                        new DonationPostDetailView(
+                                post,
+                                loginUser,
+                                controller,
+                                scrapController,
+                                DonationPostListPanel.this::refreshList
+                        ).setVisible(true);
+                    }
                 }
             }
         });
