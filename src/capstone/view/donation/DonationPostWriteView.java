@@ -2,6 +2,7 @@ package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
 import capstone.model.User;
+import capstone.service.DonationPostService;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
 
@@ -166,10 +167,10 @@ public class DonationPostWriteView extends JFrame {
         Color bgColor = new Color(240, 240, 240);
 
         // 년도 콤보박스
-        JComboBox<String> yearCb = new JComboBox<>();
+        JComboBox<Integer> yearCb = new JComboBox<>();
         IntStream.range(LocalDate.now().getYear(), LocalDate.now().getYear() + 6)
-                .mapToObj(y -> y + "년")
                 .forEach(yearCb::addItem);
+        yearCb.setRenderer(createSuffixRenderer("년")); // ← 렌더러 적용
         yearCb.setBounds(0, 0, 100, 30);
         yearCb.setBackground(bgColor);
         yearCb.setFont(comboFont);
@@ -177,10 +178,10 @@ public class DonationPostWriteView extends JFrame {
         datePanel.add(yearCb);
 
 // 월 콤보박스
-        JComboBox<String> monthCb = new JComboBox<>();
+        JComboBox<Integer> monthCb = new JComboBox<>();
         IntStream.rangeClosed(1, 12)
-                .mapToObj(m -> m + "월")
                 .forEach(monthCb::addItem);
+        monthCb.setRenderer(createSuffixRenderer("월")); // ← 렌더러 적용
         monthCb.setBounds(115, 0, 100, 30);
         monthCb.setBackground(bgColor);
         monthCb.setFont(comboFont);
@@ -188,10 +189,10 @@ public class DonationPostWriteView extends JFrame {
         datePanel.add(monthCb);
 
 // 일 콤보박스
-        JComboBox<String> dayCb = new JComboBox<>();
+        JComboBox<Integer> dayCb = new JComboBox<>();
         IntStream.rangeClosed(1, 31)
-                .mapToObj(d -> d + "일")
                 .forEach(dayCb::addItem);
+        dayCb.setRenderer(createSuffixRenderer("일")); // ← 렌더러 적용
         dayCb.setBounds(230, 0, 100, 30);
         dayCb.setBackground(bgColor);
         dayCb.setFont(comboFont);
@@ -243,15 +244,17 @@ public class DonationPostWriteView extends JFrame {
             try {
                 String imgPath = "donationImg.jpg";
                 String title = titleField.getText();
-                String goalText = goalField.getText().replaceAll("[^0-9]", "");
-                int goal = Integer.parseInt(goalText);
-                LocalDate endAt = LocalDate.of(
-                        (Integer) yearCb.getSelectedItem(),
-                        (Integer) monthCb.getSelectedItem(),
-                        (Integer) dayCb.getSelectedItem()
-                );
+                String input = goalField.getText();
+                int goalAmount = Integer.parseInt(input); // 숫자로 변환
+
+                int year = (Integer) yearCb.getSelectedItem();
+                int month = (Integer) monthCb.getSelectedItem();
+                int day = (Integer) dayCb.getSelectedItem();
+
+                LocalDate endAt = LocalDate.of(year, month, day);
+
                 String content = contentArea.getText();
-                controller.createPost(user, imgPath, goal, endAt, title, content);
+                controller.createPost(user, imgPath, goalAmount, endAt, title, content);
                 JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
                 dispose();
             } catch (Exception ex) {
@@ -287,10 +290,46 @@ public class DonationPostWriteView extends JFrame {
         };
     }
 
-    //UI 테스트용 main
+    private ListCellRenderer<? super Integer> createSuffixRenderer(String suffix) {
+        return new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                String display = value == null ? "" : value + suffix;
+                return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
+            }
+        };
+    }
+
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new DonationPostWriteView(null,null, null);
+            // 테스트용 사용자
+            User testUser = new User();
+            testUser.setUserId("1L");
+            testUser.setNickName("테스트 사용자");
+
+            DonationPostService mockService = new DonationPostService() {
+                //@Override
+                public void createPost(User user, String title, int goal, LocalDate end, String content, String category) {
+                    System.out.println("Mock post created by " + user.getNickName());
+                }
+            };
+
+            DonationPostController testController = new DonationPostController(mockService);
+            new DonationPostWriteView(null,testUser, testController);
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -221,7 +221,7 @@ public class DonationPostListView extends BaseView {
         JLabel titleLabel = new JLabel(titleHtml);
         titleLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
 
-// 🔽 최대 높이 제한 적용
+// 최대 높이 제한 적용
         int maxTitleHeight = 40;
         int titleHeight = Math.min(titleLabel.getPreferredSize().height, maxTitleHeight);
         titleLabel.setBounds(80, 30, 230, titleHeight);
