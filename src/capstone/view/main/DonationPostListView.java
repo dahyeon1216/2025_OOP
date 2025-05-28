@@ -255,13 +255,31 @@ public class DonationPostListView extends BaseView {
         });
         card.add(scrapBtn);
 
-        // 7. 상세 보기 이동
         card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         card.addMouseListener(new MouseAdapter() {
+            private long lastClickTime = 0;
+
+            @Override
             public void mouseClicked(MouseEvent e) {
-                new DonationPostDetailView(post, loginUser, controller, () -> refreshCardList()).setVisible(true); // 상세 보기로 연결
+                long clickTime = System.currentTimeMillis();
+
+                // 더블 클릭 감지 (두 번 클릭 간격 400ms 이하)
+                if (clickTime - lastClickTime < 400) {
+                    JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(card);
+
+                    new DonationPostDetailView(
+                            post,
+                            loginUser,
+                            controller,
+                            () -> refreshCardList(),
+                            currentFrame
+                    ).setVisible(true);
+                }
+
+                lastClickTime = clickTime;
             }
         });
+
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
@@ -290,6 +308,8 @@ public class DonationPostListView extends BaseView {
                 public List<DonationPost> getOngoingPosts() {
                     return List.of(
                             new DonationPost(dummyUser, "images/dog1.jpg", 10000000, LocalDate.now().plusDays(10), "아기 유기견들을 도와주세요", "내용 없음"),
+                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음"),
+                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음"),
                             new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음")
                     );
                 }

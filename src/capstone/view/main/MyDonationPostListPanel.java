@@ -35,7 +35,15 @@ public class MyDonationPostListPanel extends JPanel { // ✅ JFrame → JPanel�
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && postList.getSelectedValue() != null) {
                     DonationPost selected = postList.getSelectedValue();
-                    new DonationPostDetailView(selected, loginUser, controller, refreshBtn::doClick).setVisible(true);
+                    JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(postList);
+
+                    new DonationPostDetailView(
+                            selected,
+                            loginUser,
+                            controller,
+                            refreshBtn::doClick,
+                            currentFrame
+                    ).setVisible(true);
                 }
             }
         });

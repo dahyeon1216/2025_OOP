@@ -1,9 +1,5 @@
 package capstone.model;
 
-import capstone.model.Tier;
-
-import java.time.LocalDate;
-
 public class User {
 //    private Long id;
     private String userId; // 로그인할 때 쓰는 아이디
@@ -17,13 +13,12 @@ public class User {
     private Tier tier;
 
     // 기본 생성자
-    public User() {
+    public User(String sally1023, String sally, String 프로필_url_예시) {
     }
 
     // 전체 필드 생성자
-    public User(String userId, String password, String name, String nickName,
-                String profileImg, BankType bankType, String bankAccount,
-                int point, Tier tier) {
+    public User(String userId, String password, String name,
+                int point) {
         this.userId = userId;
         this.password = password;
         this.name = name;
@@ -45,6 +40,15 @@ public class User {
         this.bankAccount = bankAccount;
         this.tier = Tier.BRONZE; // default
     }
+
+    //포스트용 유저 생성자
+    public User(String userId, String nickName, String profileImg, Tier tier) {
+        this.userId = userId;
+        this.nickName = nickName;
+        this.profileImg = profileImg;
+        this.tier = tier;
+    }
+
 
     // Getter and Setter
     public String getUserId() { return userId; }

@@ -47,7 +47,7 @@ public class DonationPostWriteView extends JFrame {
 
         //뒤로가기 버튼
 
-        ImageIcon backIcon = new ImageIcon("icons/arrow-left.png");
+        ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
         Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImg);
 
@@ -302,10 +302,11 @@ public class DonationPostWriteView extends JFrame {
     }
 
 
+    //UI 테스트용 main
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // 테스트용 사용자
-            User testUser = new User();
+            User testUser = new User("sally1023", "Sally", "프로필 URL 예시");
             testUser.setUserId("1L");
             testUser.setNickName("테스트 사용자");
 

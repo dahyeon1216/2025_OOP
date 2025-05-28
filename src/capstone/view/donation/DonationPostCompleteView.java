@@ -5,7 +5,6 @@ import capstone.controller.UserController;
 import capstone.model.User;
 import capstone.service.DonationPostService;
 import capstone.service.UserService;
-import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
 import capstone.view.main.MainView;
 
@@ -106,7 +105,7 @@ public class DonationPostCompleteView extends JFrame {
     // 테스트용 메인
     public static void main(String[] args) {
         // 더미 유저
-        User dummyUser = new User();
+        User dummyUser = new User("sally1023", "Sally", "프로필 URL 예시");
 
         // 서비스 → 컨트롤러
         UserService dummyUserService = new UserService(); // 만약 인자가 필요하면 수정

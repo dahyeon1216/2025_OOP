@@ -41,23 +41,8 @@ public abstract class BaseView extends JFrame {
         header.setPreferredSize(new Dimension(393, 45));
         header.setBackground(new Color(120, 230, 170));
 
-        // 뒤로가기 버튼
-        ImageIcon backIcon = new ImageIcon("icons/arrow-left.png");
-        Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
-        ImageIcon resizedIcon = new ImageIcon(scaledImg);
-
-        JButton backBtn = new JButton(resizedIcon);
-        backBtn.setBorderPainted(false);
-        backBtn.setContentAreaFilled(false);
-        backBtn.setFocusPainted(false);
-        backBtn.setBounds(5, 6, 40, 30);
-
-        // 공통 리스너: 이전 화면 보이기 + 현재 닫기
-        backBtn.addActionListener(e -> {
-            if (previousView != null) previousView.setVisible(true);
-            dispose();
-        });
-
+        // 뒤로가기 버튼 - 공통 메서드 사용
+        JButton backBtn = createBackBlackButton(); // ← 여기 변경됨
         header.add(backBtn);
 
         // 타이틀 라벨
@@ -68,4 +53,46 @@ public abstract class BaseView extends JFrame {
 
         return header;
     }
+
+    //뒤로 가기 검정버튼 만드는 메소드
+    protected JButton createBackBlackButton() {
+        ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
+        Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(scaledImg);
+
+        JButton backBtn = new JButton(resizedIcon);
+        backBtn.setBorderPainted(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.setFocusPainted(false);
+        backBtn.setBounds(5, 6, 40, 30);
+
+        backBtn.addActionListener(e -> {
+            if (previousView != null) previousView.setVisible(true);
+            dispose();
+        });
+
+        return backBtn;
+    }
+
+    //뒤로 가기 흰색 버튼 만드는 메소드
+    protected JButton createBackWhiteButton() {
+        ImageIcon backIcon = new ImageIcon("icons/arrow-leftw.png");
+        Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(scaledImg);
+
+        JButton backBtn = new JButton(resizedIcon);
+        backBtn.setBorderPainted(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.setFocusPainted(false);
+        backBtn.setOpaque(false);
+        backBtn.setBounds(5, 6, 40, 30);
+
+        backBtn.addActionListener(e -> {
+            if (previousView != null) previousView.setVisible(true);
+            dispose();
+        });
+
+        return backBtn;
+    }
+
 }
