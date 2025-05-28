@@ -6,6 +6,8 @@ import capstone.model.Tier;
 import capstone.model.User;
 import capstone.service.DonationPostService;
 import capstone.view.BaseView;
+import capstone.view.Roundborder.RoundedBorder;
+import capstone.view.Roundborder.RoundedButton;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -27,12 +29,15 @@ public class DonationPostDetailView extends BaseView {
                                   JFrame previousView) {
         super(post.getTitle(), previousView); // ← 여기도 바꾸고
 
-        setLayout(null);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setLayout(null);  // 자유 배치
+        mainPanel.setPreferredSize(new Dimension(393, 900));
 
         // 헤더
         JPanel header = createHeader(post.getTitle()); // ← 여기도 바꿈
         header.setBounds(0, 0, 393, 45);
-        add(header);
+        mainPanel.add(header);
 
         //이미지 영역
         JLabel imageLabel = new JLabel();
@@ -52,7 +57,7 @@ public class DonationPostDetailView extends BaseView {
             imageLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
         }
 
-        add(imageLabel);
+        mainPanel.add(imageLabel);
 
         // 프로필 영역
         JPanel profilePanel = new JPanel(null);
@@ -83,7 +88,7 @@ public class DonationPostDetailView extends BaseView {
         nicknameLabel.setBounds(100, 10, 200, 25);
         profilePanel.add(nicknameLabel);
 
-// 티어
+       // 티어
         JLabel tierLabel = new JLabel("⭐ " + loginUser.getTier() + "티어");
 //나중에 티어마다 임티 가져오는거 설정하기
 // getTier()는 String or int
@@ -103,9 +108,50 @@ public class DonationPostDetailView extends BaseView {
         raisedLabel.setBounds(100, 57, 200, 20);
         profilePanel.add(raisedLabel);
 
+        mainPanel.add(profilePanel);
 
-        add(profilePanel);
+        //본문 영역
+        // 본문 전체를 감쌀 둥근 패널
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(null);
+        //contentPanel.setBorder(new RoundedBorder(15));
+        contentPanel.setBackground(new Color(242, 242, 242));
+        contentPanel.setBounds(15, 560, 348, 400); // 좌우 여백 15씩 정확히 맞춤
+        contentPanel.setBorder(null); // ✅ 명시적으로 테두리 제거
 
+// 내용 텍스트
+        JTextArea contentArea = new JTextArea(post.getContent());
+        contentArea.setBounds(20, 20, 313, 395); // ← 좌우 여백 20px
+        contentArea.setLineWrap(true);
+        contentArea.setWrapStyleWord(true);
+        contentArea.setEditable(false);
+        contentArea.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        contentArea.setOpaque(false);
+        contentArea.setBorder(null); // 테두리 제거
+
+        contentPanel.add(contentArea);
+
+        // 기부하기 버튼 생성 및 설정
+        RoundedButton donationBtn = new RoundedButton("기부하기", new Color(60, 60, 60), 30);
+        donationBtn.setPreferredSize(new Dimension(0, 44));
+        donationBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        donationBtn.setFont(customFont.deriveFont(Font.BOLD, 20f));
+        donationBtn.setForeground(Color.WHITE);
+        donationBtn.setBounds(20, 340, 308, 44);
+
+        contentPanel.add(donationBtn);
+
+        mainPanel.add(contentPanel);
+
+        //스크롤
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setBounds(0, 0, 393, 698); // 프레임 크기와 동일
+        scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // 가로 스크롤 제거
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);    // 세로 스크롤 항상 표시
+
+
+        add(scrollPane);
 
         setVisible(true);
 
@@ -147,7 +193,7 @@ public class DonationPostDetailView extends BaseView {
     }
 
     //테스트용 UI
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             //1. 더미 사용자
             User dummyUser = new User("sally1023", "기부자1","images/profile.jpg", Tier.SILVER);
@@ -174,7 +220,7 @@ public class DonationPostDetailView extends BaseView {
         });
     }
 
-     */
+
 
 
 }
