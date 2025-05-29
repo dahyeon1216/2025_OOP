@@ -14,6 +14,11 @@ public class DonationPostController {
         this.donationPostService = donationPostService;
     }
 
+    // ID 하나로 특정 post 하나만 가져오는 기능
+    public DonationPost getPostById(int id) {
+        return donationPostService.findById(id);
+    }
+
     public List<DonationPost> getOngoingPosts() {
         return donationPostService.getOngoingPosts();
     }

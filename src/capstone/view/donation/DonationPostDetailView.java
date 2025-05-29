@@ -22,12 +22,22 @@ import java.io.IOException;
 
 public class DonationPostDetailView extends BaseView {
 
+    private final DonationPost post;
+    private final User loginUser;
+    private final DonationPostController controller;
+    private final Runnable refreshAction;
+
     public DonationPostDetailView(DonationPost post,
                                   User loginUser,
                                   DonationPostController controller,
                                   Runnable refreshAction,
                                   JFrame previousView) {
-        super(post.getTitle(), previousView); // ← 여기도 바꾸고
+        super(post.getTitle(), previousView);
+
+        this.post = post;
+        this.loginUser = loginUser;
+        this.controller = controller;
+        this.refreshAction = refreshAction;
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE);
@@ -37,6 +47,37 @@ public class DonationPostDetailView extends BaseView {
         // 헤더
         JPanel header = createHeader(post.getTitle()); // ← 여기도 바꿈
         header.setBounds(0, 0, 393, 45);
+        JButton editButton = createMenuBarButton();
+
+        //버튼 리스너
+        editButton.addActionListener(e -> {
+            dispose(); // 현재 상세 뷰 닫기
+
+            // 콜백 정의: 수정 완료 후 새 상세 뷰 열기
+            DonationPostEditView.EditCallback callback = (int updatedPostId) -> {
+                DonationPost updatedPost = controller.getPostById(updatedPostId);
+
+                if (updatedPost == null) {
+                    JOptionPane.showMessageDialog(null, "수정된 글 정보를 불러올 수 없습니다.");
+                    return;
+                }
+
+                new DonationPostDetailView(
+                        updatedPost,
+                        loginUser,
+                        controller,
+                        refreshAction,
+                        null
+                );
+            };
+
+            // 수정 화면 열기
+            new DonationPostEditView(post, loginUser, controller, callback).setVisible(true);
+        });
+
+
+
+        header.add(editButton);
         mainPanel.add(header);
 
         //이미지 영역
@@ -61,7 +102,7 @@ public class DonationPostDetailView extends BaseView {
 
         // 프로필 영역
         JPanel profilePanel = new JPanel(null);
-        profilePanel.setBounds(0, 440, 393, 100); // 사진 영역(393) + 헤더(45) 아래
+        profilePanel.setBounds(0, 445, 393, 100); // 사진 영역(393) + 헤더(45) 아래
         profilePanel.setBackground(Color.WHITE);
 
         // 프로필 이미지
@@ -114,20 +155,20 @@ public class DonationPostDetailView extends BaseView {
         // 본문 전체를 감쌀 둥근 패널
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(null);
-        //contentPanel.setBorder(new RoundedBorder(15));
-        contentPanel.setBackground(new Color(242, 242, 242));
-        contentPanel.setBounds(15, 560, 348, 400); // 좌우 여백 15씩 정확히 맞춤
-        contentPanel.setBorder(null); // ✅ 명시적으로 테두리 제거
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBounds(15, 545, 348, 400); // 좌우 여백 15씩 정확히 맞춤
+        //contentPanel.setBorder(null); // 명시적으로 테두리 제거
+
 
 // 내용 텍스트
         JTextArea contentArea = new JTextArea(post.getContent());
-        contentArea.setBounds(20, 20, 313, 395); // ← 좌우 여백 20px
+        contentArea.setBounds(5, 0,340 , 250); // ← 좌우 여백 20px
+        contentArea.setBorder(new RoundedBorder(15));
+        contentArea.setBackground(new Color(240, 240, 240));
         contentArea.setLineWrap(true);
         contentArea.setWrapStyleWord(true);
-        contentArea.setEditable(false);
+        contentArea.setEditable(false); //읽기 전용
         contentArea.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        contentArea.setOpaque(false);
-        contentArea.setBorder(null); // 테두리 제거
 
         contentPanel.add(contentArea);
 
@@ -137,7 +178,7 @@ public class DonationPostDetailView extends BaseView {
         donationBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         donationBtn.setFont(customFont.deriveFont(Font.BOLD, 20f));
         donationBtn.setForeground(Color.WHITE);
-        donationBtn.setBounds(20, 340, 308, 44);
+        donationBtn.setBounds(245, 270, 100, 44);
 
         contentPanel.add(donationBtn);
 
@@ -150,11 +191,9 @@ public class DonationPostDetailView extends BaseView {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // 가로 스크롤 제거
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);    // 세로 스크롤 항상 표시
 
-
         add(scrollPane);
 
         setVisible(true);
-
         }
 
     //이미지 둥글게 하는 코드
@@ -219,9 +258,6 @@ public class DonationPostDetailView extends BaseView {
 
         });
     }
-
-
-
 
 }
 

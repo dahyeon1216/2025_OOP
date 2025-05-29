@@ -1,5 +1,9 @@
 package capstone.view;
 
+import capstone.model.DonationPost;
+import capstone.view.donation.DonationPostDetailView;
+import capstone.view.donation.DonationPostEditView;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -36,13 +40,13 @@ public abstract class BaseView extends JFrame {
      * @param title 텍스트
      * @return JPanel (헤더)
      */
-    protected JPanel createHeader(String title) {
+    public JPanel createHeader(String title) {
         JPanel header = new JPanel(null);
         header.setPreferredSize(new Dimension(393, 45));
         header.setBackground(new Color(120, 230, 170));
 
         // 뒤로가기 버튼 - 공통 메서드 사용
-        JButton backBtn = createBackBlackButton(); // ← 여기 변경됨
+        JButton backBtn = createBackButton();
         header.add(backBtn);
 
         // 타이틀 라벨
@@ -54,8 +58,24 @@ public abstract class BaseView extends JFrame {
         return header;
     }
 
+    // 메뉴바 버튼 만드는 메소드
+    protected JButton createMenuBarButton() {
+        ImageIcon editIcon = new ImageIcon("icons/menuVertical.png");
+        Image scaledImg = editIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(scaledImg);
+
+        JButton editBtn = new JButton(resizedIcon);
+        editBtn.setBorderPainted(false);
+        editBtn.setContentAreaFilled(false);
+        editBtn.setFocusPainted(false);
+        editBtn.setBounds(335, 6, 40, 30);
+
+        //리스너는 하위클래스에서 붙일거임
+        return editBtn;
+    }
+
     //뒤로 가기 검정버튼 만드는 메소드
-    protected JButton createBackBlackButton() {
+    protected JButton createBackButton() {
         ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
         Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImg);

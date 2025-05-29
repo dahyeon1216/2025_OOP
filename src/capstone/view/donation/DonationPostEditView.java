@@ -9,15 +9,17 @@ import java.awt.*;
 import java.time.LocalDate;
 
 public class DonationPostEditView extends JFrame {
-    public interface EditCallback {
-        void onEdited();
+    public static interface EditCallback {
+        void onEditComplete(int updatedPostId); // 수정된 post의 ID를 넘기도록 변경
     }
+
 
     public DonationPostEditView(DonationPost post, User user, DonationPostController controller, EditCallback callback) {
         setTitle("기부글 수정");
         setSize(500, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setVisible(true);
 
         JTextField titleField = new JTextField(post.getTitle());
         JTextArea contentArea = new JTextArea(post.getContent());
@@ -60,8 +62,13 @@ public class DonationPostEditView extends JFrame {
                 controller.updatePost(post.getId(), title, content, image, goal, endAt);
 
                 JOptionPane.showMessageDialog(this, "수정 완료되었습니다.");
-                if (callback != null) callback.onEdited();
-                dispose();
+
+                // 수정된 post의 ID를 콜백으로 넘김
+                if (callback != null) {
+                    callback.onEditComplete(post.getId());
+                }
+
+                dispose(); // 수정 창 닫기
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "입력값을 확인하세요: " + ex.getMessage());
             }

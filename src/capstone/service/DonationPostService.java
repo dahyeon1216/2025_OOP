@@ -21,8 +21,12 @@ public class DonationPostService {
         return null;
     }
 
+    private int sequence = 1;
+
     public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
+        post.setId(sequence++);
+        System.out.println("✅ 생성된 post ID = " + post.getId());
         posts.add(post);
     }
 

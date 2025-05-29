@@ -51,6 +51,7 @@ public class DonationPost {
 
     // Getter and Setter
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public User getWriter() {
         return writer;
