@@ -42,28 +42,12 @@ public class VirtualAccount {
         return ownerUser;
     }
 
-    public void setOwnerUser(User ownerUser) {
-        this.ownerUser = ownerUser;
-    }
-
-    public DonationPost getDonationPost() {
-        return donationPost;
-    }
-
-    public void setDonationPost(DonationPost donationPost) {
-        this.donationPost = donationPost;
-    }
-
     public int getRaisedPoint() {
         return raisedPoint;
     }
 
     public void setRaisedPoint(int raisedPoint) {
         this.raisedPoint = raisedPoint;
-    }
-
-    public int getCurrentPoint() {
-        return currentPoint;
     }
 
     public void setCurrentPoint(int point) {

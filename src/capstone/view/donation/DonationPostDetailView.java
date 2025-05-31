@@ -8,6 +8,7 @@ import capstone.model.VirtualAccount;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class DonationPostDetailView extends JFrame {
     public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, ScrapController scrapController, Runnable onPostUpdated) {
@@ -18,6 +19,24 @@ public class DonationPostDetailView extends JFrame {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // 이미지 미리보기 표시
+        String imgFileName = post.getDonationImg(); // 예: "1717208215022_hello.jpg"
+        if (imgFileName != null && !imgFileName.isBlank()) {
+            String imagePath = "resources/images/" + imgFileName;
+            File imgFile = new File(imagePath);
+            if (imgFile.exists()) {
+                ImageIcon icon = new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(300, 200, Image.SCALE_SMOOTH));
+                JLabel imageLabel = new JLabel(icon);
+                imageLabel.setBorder(BorderFactory.createTitledBorder("기부 이미지"));
+                panel.add(imageLabel);
+            } else {
+                panel.add(new JLabel("이미지 파일이 존재하지 않습니다."));
+            }
+        } else {
+            panel.add(new JLabel("이미지 없음"));
+        }
+
 
         panel.add(new JLabel("제목: " + post.getTitle()));
         panel.add(new JLabel("작성자: " + (post.getWriter() != null ? post.getWriter().getUserId() : "익명")));

@@ -12,7 +12,7 @@ public class ReceiptView extends JFrame {
     private final VirtualAccount virtualAccount;
     private final User loginUser;
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
-    private final JLabel currentPointLabel = new JLabel(); // 💡 잔여 포인트 표시 라벨
+    private final JLabel currentPointLabel = new JLabel(); // 잔여 포인트 표시 라벨
 
     public ReceiptView(VirtualAccount virtualAccount, User loginUser) {
         this.virtualAccount = virtualAccount;
@@ -23,7 +23,7 @@ public class ReceiptView extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // 💡 현재 포인트 표시
+        // 현재 포인트 표시
         updateCurrentPointLabel();
         add(currentPointLabel, BorderLayout.NORTH);
 
@@ -74,12 +74,12 @@ public class ReceiptView extends JFrame {
         setVisible(true);
     }
 
-    // 💡 포인트 표시 라벨 갱신
+    // 포인트 표시 라벨 갱신
     private void updateCurrentPointLabel() {
         currentPointLabel.setText("전체 모금 포인트: " + virtualAccount.getRaisedPoint() + "P");
     }
 
-    // 💡 리스트 갱신 메서드
+    // 리스트 갱신 메소드
     private void refreshReceiptList() {
         listModel.clear();
         Map<Integer, String> receipt = virtualAccount.getReceipt();
