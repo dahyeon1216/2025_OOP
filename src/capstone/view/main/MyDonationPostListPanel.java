@@ -1,14 +1,10 @@
 package capstone.view.main;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
-<<<<<<< Updated upstream
-import capstone.view.donation.DonationPostDetailView;
-import capstone.view.donation.DonationPostWriteView;
-=======
 import capstone.view.donation.DonationPostPanelFactory;
->>>>>>> Stashed changes
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,13 +32,14 @@ public class MyDonationPostListPanel extends JPanel {
         add(postListPanel, BorderLayout.CENTER);
 
         refresh();
+
     }
 
     public void refresh() {
         postListPanel.removeAll();
 
         List<DonationPost> posts = controller.getAllPosts().stream()
-                .filter(post -> post.getWriter() != null && post.getWriter().equals(loginUser)) // 내가 쓴 글만
+                .filter(post -> post.getWriter() != null && post.getWriter().equals(loginUser)) // ✅ 내가 쓴 글만
                 .toList();
 
         Runnable onPostUpdated = this::refresh;
@@ -56,4 +53,3 @@ public class MyDonationPostListPanel extends JPanel {
         postListPanel.repaint();
     }
 }
-

@@ -3,6 +3,7 @@ package capstone.model;
 import capstone.model.Tier;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class User {
 //    private Long id;
@@ -75,16 +76,16 @@ public class User {
     public void setTier(Tier tier) { this.tier = tier; }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        User user = (User) obj;
-        return userId != null && userId.equals(user.userId);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(userId, user.userId);
     }
 
     @Override
     public int hashCode() {
-        return userId != null ? userId.hashCode() : 0;
+        return Objects.hash(userId);
     }
 
 }

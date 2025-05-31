@@ -1,6 +1,7 @@
 package capstone.view.main;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.view.donation.DonationPostDetailView;
@@ -21,7 +22,9 @@ public class DonationPostListPanel extends JPanel {
 
     private JPanel postListPanel;
 
-    public DonationPostListPanel(User loginUser, DonationPostController controller) {
+    public DonationPostListPanel(User loginUser,
+                                 DonationPostController controller,
+                                 ScrapController scrapController) {
         this.loginUser = loginUser;
         this.controller = controller;
         this.scrapController = scrapController;

@@ -1,6 +1,7 @@
 package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 
@@ -8,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class DonationPostDetailView extends JFrame {
-    public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, Runnable onPostUpdated) {
+    public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, ScrapController scrapController, Runnable onPostUpdated) {
         setTitle("기부글 상세 보기");
         setSize(500, 450);
         setLocationRelativeTo(null);
@@ -55,14 +56,8 @@ public class DonationPostDetailView extends JFrame {
         if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
             panel.add(new JLabel("가상계좌: " + (post.getVirtualAccount() != null ? post.getVirtualAccount() : "없음")));
 
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
             JButton editBtn = new JButton("수정");
             JButton deleteBtn = new JButton("삭제");
-
-            buttonPanel.add(editBtn);
-            buttonPanel.add(deleteBtn);
-            panel.add(buttonPanel);
 
             editBtn.addActionListener(e -> {
                 new DonationPostEditView(post, loginUser, donationPostController, () -> {
@@ -82,8 +77,13 @@ public class DonationPostDetailView extends JFrame {
                 }
             });
 
+            buttonPanel.add(editBtn);
+            buttonPanel.add(deleteBtn);
+        }
+
         // 버튼 패널 전체에 추가
         panel.add(buttonPanel);
+
         add(panel);
     }
 }
