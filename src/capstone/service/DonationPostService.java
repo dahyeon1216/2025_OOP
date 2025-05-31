@@ -15,6 +15,7 @@ public class DonationPostService {
     private final List<DonationPost> posts = new ArrayList<>();
     private final List<DonationRecord> donationRecords = new ArrayList<>();
 
+    // id인 특정 기부글 상세조회
     public DonationPost findById(int id) {
         for (DonationPost post : posts) {
             if (post.getId() == id) {
@@ -24,6 +25,7 @@ public class DonationPostService {
         return null;
     }
 
+    // 기부글 작성
     public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
         String virtualAccount = generateVirtualAccount(); // 가상계좌 생성
@@ -42,20 +44,12 @@ public class DonationPostService {
         return sb.toString();
     }
 
+    // 전체 기부글 조회
     public List<DonationPost> getAll() {
         return new ArrayList<>(posts);
     }
 
-    public List<DonationPost> getByUser(User user) {
-        List<DonationPost> result = new ArrayList<>();
-        for (DonationPost post : posts) {
-            if (post.getWriter().getUserId().equals(user.getUserId())) {
-                result.add(post);
-            }
-        }
-        return result;
-    }
-
+    // 기부글 수정
     public void update(int id, String title, String content, String donationImg, int goalPoint, LocalDate endAt) {
         DonationPost post = findById(id);
         if (post != null) {
@@ -67,7 +61,18 @@ public class DonationPostService {
         }
     }
 
+    // 기부글 삭제
     public void delete(int id) {
         posts.removeIf(p -> p.getId() == id);
+    }
+
+    // 기부글에 기부하기
+    public boolean donateToPost(DonationPost post, User donor, int donatePpoint) {
+        if (post.isCompleted()) return false; // 이미 종료된 기부글
+        if (donor.getPoint() < donatePpoint) return false;
+
+        donor.setPoint(donor.getPoint() - donatePpoint); // 포인트 차감
+        post.donate(donatePpoint); // 포스트에 기부 반영
+        return true;
     }
 }

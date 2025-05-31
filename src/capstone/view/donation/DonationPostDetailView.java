@@ -31,11 +31,46 @@ public class DonationPostDetailView extends JFrame {
         panel.add(scrollPane);
 
         panel.add(new JLabel("이미지: " + post.getDonationImg()));
-        panel.add(new JLabel("목표 금액: " + post.getGoalPoint() + "P"));
-        panel.add(new JLabel("마감일: " + (post.getEndAt() != null ? post.getEndAt().toString() : "없음")));
+        panel.add(new JLabel("목표 포인트: " + post.getGoalPoint()));
+        panel.add(new JLabel("현재 기부된 포인트: " + post.getRaisedPoint()));
+        panel.add(new JLabel("모금 종료일: " + (post.getEndAt() != null ? post.getEndAt().toString() : "없음")));
+
+        int goal = post.getGoalPoint();
+        int current = post.getRaisedPoint();
+        double rawPercent = goal > 0 ? ((double) current / goal) * 100 : 0;
+        double cappedPercent = Math.min(100.0, rawPercent);
+        String percentText = String.format("%.1f%%", cappedPercent);
+        panel.add(new JLabel("진행률: " + percentText));
 
         // 공통 버튼 패널 (왼쪽 정렬)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        if (!post.isCompleted()) {
+            JButton donateButton = new JButton("기부하기");
+            donateButton.addActionListener(e -> {
+                String input = JOptionPane.showInputDialog(this, "기부할 포인트를 입력하세요:");
+                if (input != null) {
+                    try {
+                        int amount = Integer.parseInt(input);
+                        if (amount <= 0) throw new NumberFormatException();
+                        boolean success = donationPostController.donate(post, loginUser, amount);
+                        if (success) {
+                            JOptionPane.showMessageDialog(this, "기부 완료!");
+                            onPostUpdated.run(); // 화면 새로고침
+                            dispose();
+
+                            new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "기부 실패. 포인트 부족합니다.");
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "올바른 숫자를 입력하세요.");
+                    }
+                }
+            });
+            buttonPanel.add(donateButton);
+        }
+
 
         // 스크랩 버튼
         if (loginUser != null) {
