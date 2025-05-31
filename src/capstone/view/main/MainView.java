@@ -8,11 +8,7 @@ import capstone.view.donation.CompletedDonationPostListPanel;
 import capstone.view.donation.DonationPostWriteView;
 import capstone.view.donation.OngoingDonationPostListPanel;
 import capstone.view.scrap.ScrappedPostListPanel;
-import capstone.view.user.LoginView;
-import capstone.view.user.PointChargeView;
-import capstone.view.user.SignupView;
-import capstone.view.user.UserProfileEditView;
-import capstone.view.user.UserProfileView;
+import capstone.view.user.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -117,7 +113,7 @@ public class MainView extends JFrame {
         JMenu myDonationMenu = new JMenu("나의 기부글");
         myPosts = new JMenuItem("내가 쓴 기부글 조회");
         myScraps = new JMenuItem("스크랩한 기부글 조회");
-        myDonations = new JMenuItem("기부 내역 조회 (구현 예정)");
+        myDonations = new JMenuItem("기부 내역 조회");
         myDonationMenu.add(myPosts);
         myDonationMenu.add(myScraps);
         myDonationMenu.add(myDonations);
@@ -137,6 +133,16 @@ public class MainView extends JFrame {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }
         });
+
+        myDonations.addActionListener(e -> {
+            if (this.loginUser != null) {
+                swapCenterPanel(new DonationHistoryPanel(this.loginUser, donationPostController, scrapController));
+                revalidate();
+            } else {
+                JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
+            }
+        });
+
 
         JMenu writeMenu = new JMenu("기부글 쓰기");
         writePost = new JMenuItem("기부글 작성하기");

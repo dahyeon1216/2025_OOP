@@ -1,5 +1,6 @@
 package capstone.controller;
 
+import capstone.dto.DonatedPostInfo;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.service.DonationPostService;
@@ -38,6 +39,12 @@ public class DonationPostController {
     public boolean donate(DonationPost post, User user, int donatePpoint) {
         return donationPostService.donateToPost(post, user, donatePpoint);
     }
+
+    // 사용자의 기부한 내역 조회
+    public List<DonatedPostInfo> getDonatedPostInfos(User user) {
+        return donationPostService.getDonatedPostInfos(user);
+    }
+
 
     // 기부글 정산하기
     public boolean settlePost(DonationPost post) {
