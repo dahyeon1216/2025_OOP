@@ -5,6 +5,7 @@ import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.view.donation.DonationPostDetailView;
+import capstone.view.donation.DonationPostPanelFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,52 +16,40 @@ import java.util.List;
 public class ScrappedPostListPanel extends JPanel {
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
+    private final User loginUser;
+    private final DonationPostController donationPostController;
+    private final ScrapController scrapController;
+
+    private JPanel postListPanel;
 
     public ScrappedPostListPanel(User loginUser,
                                  DonationPostController donationPostController,
                                  ScrapController scrapController) {
+        this.loginUser = loginUser;
+        this.donationPostController = donationPostController;
+        this.scrapController = scrapController;
+
         setLayout(new BorderLayout());
 
-        // 스크롤 가능한 리스트
-        JScrollPane scrollPane = new JScrollPane(postList);
-        add(scrollPane, BorderLayout.CENTER);
+        // 기부글 목록 패널
+        postListPanel = new JPanel(new BorderLayout());
+        add(postListPanel, BorderLayout.CENTER);
 
-        // 새로고침 버튼
-        JButton refreshBtn = new JButton("새로고침");
-        refreshBtn.addActionListener(e -> refresh(loginUser, scrapController));
-
-        // 하단 패널 구성
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.add(refreshBtn);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        // 더블 클릭 시 상세보기
-        postList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && postList.getSelectedValue() != null) {
-                    DonationPost selected = postList.getSelectedValue();
-                    new DonationPostDetailView(
-                            selected,
-                            loginUser,
-                            donationPostController,
-                            scrapController,
-                            () -> refresh(loginUser, scrapController)
-                    ).setVisible(true);
-                }
-            }
-        });
-
-        // 초기 로딩
-        refresh(loginUser, scrapController);
+        refresh(); // 초기 로딩
     }
+    public void refresh() {
+        postListPanel.removeAll();
 
-    // ✅ 새로고침 메서드
-    private void refresh(User loginUser, ScrapController scrapController) {
-        List<DonationPost> scrappedPosts = scrapController.getScrappedPosts(loginUser);
-        listModel.clear();
-        for (DonationPost post : scrappedPosts) {
-            listModel.addElement(post);
-        }
+        List<DonationPost> posts = scrapController.getScrappedPosts(loginUser);
+
+        Runnable onPostUpdated = this::refresh; // 상세 보기에서 스크랩 취소 시 자동 새로고침
+
+        JPanel listPanel = DonationPostPanelFactory.createPostListPanel(
+                "스크랩한 기부글 목록", posts, loginUser, donationPostController, scrapController, onPostUpdated
+        );
+
+        postListPanel.add(listPanel, BorderLayout.CENTER);
+        postListPanel.revalidate();
+        postListPanel.repaint();
     }
 }
