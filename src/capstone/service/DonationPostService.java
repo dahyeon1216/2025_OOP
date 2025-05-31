@@ -4,6 +4,7 @@ import capstone.dto.DonatedPostInfo;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.model.DonationRecord;
+import capstone.model.VirtualAccount;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,8 +28,11 @@ public class DonationPostService {
     // 기부글 작성
     public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
-        String virtualAccount = generateVirtualAccount(); // 가상계좌 생성
-        post.setVirtualAccount(virtualAccount); // 가상계좌 설정
+
+        String vaAccount = generateVirtualAccount(); // 가상계좌 생성
+        VirtualAccount virtualAccount = new VirtualAccount(writer.getBankType(), vaAccount, writer, post);
+
+        post.setVirtualAccount(virtualAccount);
         posts.add(post);
     }
 
@@ -98,8 +102,12 @@ public class DonationPostService {
     public boolean settlePost(DonationPost post) {
         if (post.isCompleted() && !post.isSettled()) {
             User writer = post.getWriter();
-            if (writer != null) {
-                writer.setPoint(writer.getPoint() + post.getRaisedPoint());
+            VirtualAccount virtualAccount = post.getVirtualAccount();
+
+            if (writer != null && virtualAccount != null) {
+                int actualRaised = post.getRaisedPoint();
+                virtualAccount.setRaisedPoint(actualRaised);
+                virtualAccount.setCurrentPoint(actualRaised);
                 post.settle();
                 return true;
             }
