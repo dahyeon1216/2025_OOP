@@ -4,9 +4,11 @@ import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
+import capstone.model.VirtualAccount;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class DonationPostDetailView extends JFrame {
     public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, ScrapController scrapController, Runnable onPostUpdated) {
@@ -17,6 +19,24 @@ public class DonationPostDetailView extends JFrame {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // 이미지 미리보기 표시
+        String imgFileName = post.getDonationImg(); // 예: "1717208215022_hello.jpg"
+        if (imgFileName != null && !imgFileName.isBlank()) {
+            String imagePath = "resources/images/" + imgFileName;
+            File imgFile = new File(imagePath);
+            if (imgFile.exists()) {
+                ImageIcon icon = new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(300, 200, Image.SCALE_SMOOTH));
+                JLabel imageLabel = new JLabel(icon);
+                imageLabel.setBorder(BorderFactory.createTitledBorder("기부 이미지"));
+                panel.add(imageLabel);
+            } else {
+                panel.add(new JLabel("이미지 파일이 존재하지 않습니다."));
+            }
+        } else {
+            panel.add(new JLabel("이미지 없음"));
+        }
+
 
         panel.add(new JLabel("제목: " + post.getTitle()));
         panel.add(new JLabel("작성자: " + (post.getWriter() != null ? post.getWriter().getUserId() : "익명")));
@@ -45,8 +65,12 @@ public class DonationPostDetailView extends JFrame {
         // 공통 버튼 패널 (왼쪽 정렬)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
+        // 진행 중인 기부글일 때만 보이게
+        // 기부하기, up하기 버튼
         if (!post.isCompleted()) {
             JButton donateButton = new JButton("기부하기");
+            JButton upButton = new JButton("UP 하기");
+
             donateButton.addActionListener(e -> {
                 String input = JOptionPane.showInputDialog(this, "기부할 포인트를 입력하세요:");
                 if (input != null) {
@@ -68,32 +92,6 @@ public class DonationPostDetailView extends JFrame {
                     }
                 }
             });
-            buttonPanel.add(donateButton);
-        }
-
-
-        // 스크랩 버튼
-        if (loginUser != null) {
-            JButton scrapButton = new JButton(
-                    scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
-            );
-            scrapButton.addActionListener(e -> {
-                scrapController.toggleScrap(loginUser, post);
-                scrapButton.setText(
-                        scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
-                );
-                if (onPostUpdated != null) onPostUpdated.run(); // 스크랩 후 갱신
-            });
-            buttonPanel.add(scrapButton);
-        }
-
-        // 수정/삭제 버튼 (작성자일 때만)
-        if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
-            panel.add(new JLabel("가상계좌: " + (post.getVirtualAccount() != null ? post.getVirtualAccount() : "없음")));
-
-            JButton upButton = new JButton("UP 하기");
-            JButton editBtn = new JButton("수정");
-            JButton deleteBtn = new JButton("삭제");
 
             upButton.addActionListener(e -> {
                 int confirm = JOptionPane.showConfirmDialog(this,
@@ -111,6 +109,47 @@ public class DonationPostDetailView extends JFrame {
                     }
                 }
             });
+
+            buttonPanel.add(upButton);
+            buttonPanel.add(donateButton);
+        }
+
+        JButton usageBtn = new JButton("사용내역");
+
+        // 로그인한 유저일 때만 보이게
+        // 스크랩 버튼, 사용내역 버튼
+        if (loginUser != null) {
+            usageBtn.setEnabled(post.isSettled()); // 정산 전에는 비활성화
+            JButton scrapButton = new JButton(
+                    scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
+            );
+
+            scrapButton.addActionListener(e -> {
+                scrapController.toggleScrap(loginUser, post);
+                scrapButton.setText(
+                        scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
+                );
+                if (onPostUpdated != null) onPostUpdated.run(); // 스크랩 후 갱신
+            });
+
+            usageBtn.addActionListener(e -> {
+                new ReceiptView(post.getVirtualAccount(), loginUser);
+            });
+
+            buttonPanel.add(usageBtn);
+            buttonPanel.add(scrapButton);
+        }
+
+        // 기부글의 작성자일 때만 보이게
+        // 수정, 삭제 버튼
+        if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
+
+            // 가상 계좌 정보
+            VirtualAccount virtualAccount = post.getVirtualAccount();
+            panel.add(new JLabel("가상계좌: " + (virtualAccount.getBankAccount() != null ? virtualAccount.getBankAccount() : "없음")));
+
+            JButton editBtn = new JButton("수정");
+            JButton deleteBtn = new JButton("삭제");
 
             editBtn.addActionListener(e -> {
                 new DonationPostEditView(post, loginUser, donationPostController, () -> {
@@ -132,10 +171,18 @@ public class DonationPostDetailView extends JFrame {
 
             if (post.isCompleted() && !post.isSettled()) {
                 JButton settleButton = new JButton("정산하기");
+
                 settleButton.addActionListener(e -> {
                     boolean success = donationPostController.settlePost(post);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
+
+                        // 정산 후 사용내역 추가 버튼 활성화
+                        VirtualAccount va = post.getVirtualAccount();
+                        va.setRaisedPoint(post.getRaisedPoint());
+                        va.setCurrentPoint(post.getRaisedPoint());
+                        usageBtn.setEnabled(true);
+
                         onPostUpdated.run(); // 리스트 패널 새로고침
                         dispose(); // 상세창 닫기
                         new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
@@ -146,7 +193,6 @@ public class DonationPostDetailView extends JFrame {
                 buttonPanel.add(settleButton);
             }
 
-            buttonPanel.add(upButton);
             buttonPanel.add(editBtn);
             buttonPanel.add(deleteBtn);
         }

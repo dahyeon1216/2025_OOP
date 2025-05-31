@@ -16,28 +16,8 @@ public class DonationPost {
     private int goalPoint; // 목표 기부 포인트
     private int raisedPoint; // 누적 기부 포인트
     private String billImg;
-    private String virtualAccount;
+    private VirtualAccount virtualAccount;
     private boolean settled = false; // 포인트 정산 여부
-
-    // 기본 생성자
-    public DonationPost() {
-    }
-
-    // 전체 필드 생성자
-    public DonationPost(User writer, String title, String content, String donationImg,
-                        LocalDateTime createdAt, LocalDateTime upFuncAt, LocalDate endAt,
-                        int goalPoint, int raisedPoint, String billImg) {
-        this.writer = writer;
-        this.title = title;
-        this.content = content;
-        this.donationImg = donationImg;
-        this.createdAt = createdAt;
-        this.upFuncAt = upFuncAt;
-        this.endAt = endAt;
-        this.goalPoint = goalPoint;
-        this.raisedPoint = raisedPoint;
-        this.billImg = billImg;
-    }
 
     // 기부글 쓰기 생성자
     public DonationPost(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content){
@@ -83,6 +63,14 @@ public class DonationPost {
     public int getGoalPoint() { return goalPoint; }
     public void setGoalPoint(int goalPoint) { this.goalPoint = goalPoint; }
 
+    public VirtualAccount getVirtualAccount() {
+        return virtualAccount;
+    }
+
+    public void setVirtualAccount(VirtualAccount virtualAccount) {
+        this.virtualAccount = virtualAccount;
+    }
+
     public void donate(int amount) {
         this.raisedPoint += amount;
     }
@@ -92,14 +80,6 @@ public class DonationPost {
 
     public String getBillImg() { return billImg; }
     public void setBillImg(String billImg) { this.billImg = billImg; }
-
-    public void setVirtualAccount(String virtualAccount) {
-        this.virtualAccount = virtualAccount;
-    }
-
-    public String getVirtualAccount() {
-        return virtualAccount;
-    }
 
     public boolean isInProgress() {
         return !LocalDate.now().isAfter(endAt); // 오늘(endAt 포함)까지는 진행 중
