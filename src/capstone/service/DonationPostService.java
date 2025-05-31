@@ -70,4 +70,29 @@ public class DonationPostService {
     public void delete(int id) {
         posts.removeIf(p -> p.getId() == id);
     }
+
+    // 기부글에 기부하기
+    public boolean donateToPost(DonationPost post, User donor, int donatePpoint) {
+        if (post.isCompleted()) return false; // 이미 종료된 기부글
+        if (donor.getPoint() < donatePpoint) return false;
+
+        donor.setPoint(donor.getPoint() - donatePpoint); // 포인트 차감
+        post.donate(donatePpoint); // 포스트에 기부 반영
+        return true;
+    }
+
+    // 기부글 정산하기
+    public boolean settlePost(DonationPost post) {
+        if (post.isCompleted() && !post.isSettled()) {
+            User writer = post.getWriter();
+            if (writer != null) {
+                writer.setPoint(writer.getPoint() + post.getRaisedPoint());
+                post.settle();
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

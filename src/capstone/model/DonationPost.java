@@ -16,9 +16,8 @@ public class DonationPost {
     private int goalPoint;
     private int raisedPoint;
     private String billImg;
-
-
     private String virtualAccount;
+    private boolean settled = false; // 포인트 정산 여부
 
     // 기본 생성자
     public DonationPost() {
@@ -104,6 +103,14 @@ public class DonationPost {
 
     public boolean isCompleted() {
         return LocalDate.now().isAfter(endAt); // endAt 이후면 완료
+    }
+
+    public boolean isSettled() {
+        return settled;
+    }
+
+    public void settle() {
+        this.settled = true;
     }
 
     @Override

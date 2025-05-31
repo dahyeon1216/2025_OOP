@@ -38,4 +38,15 @@ public class DonationPostController {
     public void deletePost(int postId) {
         donationPostService.delete(postId);
     }
+
+    // 기부글에 기부하기
+    public boolean donate(DonationPost post, User user, int donatePpoint) {
+        return donationPostService.donateToPost(post, user, donatePpoint);
+    }
+
+    // 기부글 정산하기
+    public boolean settlePost(DonationPost post) {
+        return donationPostService.settlePost(post);
+    }
+
 }

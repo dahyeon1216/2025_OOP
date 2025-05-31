@@ -77,6 +77,22 @@ public class DonationPostDetailView extends JFrame {
                 }
             });
 
+            if (post.isCompleted() && !post.isSettled()) {
+                JButton settleButton = new JButton("정산하기");
+                settleButton.addActionListener(e -> {
+                    boolean success = donationPostController.settlePost(post);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
+                        onPostUpdated.run(); // 리스트 패널 새로고침
+                        dispose(); // 상세창 닫기
+                        new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
+                    } else {
+                        JOptionPane.showMessageDialog(this, "정산에 실패했습니다.");
+                    }
+                });
+                buttonPanel.add(settleButton);
+            }
+
             buttonPanel.add(editBtn);
             buttonPanel.add(deleteBtn);
         }
