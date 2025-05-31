@@ -72,7 +72,7 @@ public class User {
     public int getPoint() { return point; }
     public void setPoint(int point) { this.point = point; }
 
-    public String getTier() { return String.valueOf(tier); }
+    public String getTier() { return tier.getMsg(); }
     public void setTier(Tier tier) { this.tier = tier; }
 
     @Override

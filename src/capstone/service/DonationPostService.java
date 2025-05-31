@@ -1,15 +1,14 @@
 package capstone.service;
 
+import capstone.dto.DonatedPostInfo;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.model.DonationRecord;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DonationPostService {
     private final List<DonationPost> posts = new ArrayList<>();
@@ -46,7 +45,9 @@ public class DonationPostService {
 
     // 전체 기부글 조회
     public List<DonationPost> getAll() {
-        return new ArrayList<>(posts);
+        return posts.stream()
+                .sorted(Comparator.comparing(DonationPost::getUpFuncAt).reversed()) // 최신 up 순
+                .collect(Collectors.toList());
     }
 
     // 기부글 수정
@@ -73,6 +74,48 @@ public class DonationPostService {
 
         donor.setPoint(donor.getPoint() - donatePpoint); // 포인트 차감
         post.donate(donatePpoint); // 포스트에 기부 반영
+
+        // 사용자의 기부 기록 저장
+        DonationRecord record = new DonationRecord(donor, post, donatePpoint, LocalDateTime.now());
+        donationRecords.add(record);
+        return true;
+    }
+
+    // 사용자의 기부한 내역 조회
+    public List<DonatedPostInfo> getDonatedPostInfos(User user) {
+        return donationRecords.stream()
+                .filter(record -> record.getUser().equals(user))
+                .map(record -> new DonatedPostInfo(
+                        record.getDonationPost(),
+                        record.getPoint(),
+                        record.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+    // 기부글 정산하기
+    public boolean settlePost(DonationPost post) {
+        if (post.isCompleted() && !post.isSettled()) {
+            User writer = post.getWriter();
+            if (writer != null) {
+                writer.setPoint(writer.getPoint() + post.getRaisedPoint());
+                post.settle();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 기부글 up하기
+    public boolean upPost(DonationPost post, User user) {
+        int upCost = 300;
+
+        if (user.getPoint() < upCost) {
+            return false;
+        }
+        user.setPoint(user.getPoint() - upCost);
+        post.setUpFuncAt(LocalDateTime.now());
         return true;
     }
 }

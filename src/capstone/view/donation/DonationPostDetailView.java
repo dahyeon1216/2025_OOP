@@ -91,8 +91,26 @@ public class DonationPostDetailView extends JFrame {
         if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
             panel.add(new JLabel("가상계좌: " + (post.getVirtualAccount() != null ? post.getVirtualAccount() : "없음")));
 
+            JButton upButton = new JButton("UP 하기");
             JButton editBtn = new JButton("수정");
             JButton deleteBtn = new JButton("삭제");
+
+            upButton.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "300포인트를 사용하여 기부글을 상단에 노출하시겠습니까?",
+                        "UP 하기 확인",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    boolean success = donationPostController.upPost(post, loginUser);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "기부글이 상단에 노출되었습니다!");
+                        onPostUpdated.run();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "포인트가 부족합니다. 최소 300P가 필요합니다.");
+                    }
+                }
+            });
 
             editBtn.addActionListener(e -> {
                 new DonationPostEditView(post, loginUser, donationPostController, () -> {
@@ -112,6 +130,23 @@ public class DonationPostDetailView extends JFrame {
                 }
             });
 
+            if (post.isCompleted() && !post.isSettled()) {
+                JButton settleButton = new JButton("정산하기");
+                settleButton.addActionListener(e -> {
+                    boolean success = donationPostController.settlePost(post);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
+                        onPostUpdated.run(); // 리스트 패널 새로고침
+                        dispose(); // 상세창 닫기
+                        new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
+                    } else {
+                        JOptionPane.showMessageDialog(this, "정산에 실패했습니다.");
+                    }
+                });
+                buttonPanel.add(settleButton);
+            }
+
+            buttonPanel.add(upButton);
             buttonPanel.add(editBtn);
             buttonPanel.add(deleteBtn);
         }

@@ -16,9 +16,8 @@ public class DonationPost {
     private int goalPoint; // 목표 기부 포인트
     private int raisedPoint; // 누적 기부 포인트
     private String billImg;
-
-
     private String virtualAccount;
+    private boolean settled = false; // 포인트 정산 여부
 
     // 기본 생성자
     public DonationPost() {
@@ -50,6 +49,8 @@ public class DonationPost {
         this.goalPoint = goalPoint;
         this.createdAt = LocalDateTime.now();
         this.endAt = endAt;
+        this.createdAt = LocalDateTime.now();
+        this.upFuncAt = this.createdAt;
     }
 
     // Getter and Setter
@@ -70,6 +71,14 @@ public class DonationPost {
 
     public LocalDate getEndAt() { return endAt; }
     public void setEndAt(LocalDate endAt) { this.endAt = endAt; }
+
+    public LocalDateTime getUpFuncAt() {
+        return upFuncAt;
+    }
+
+    public void setUpFuncAt(LocalDateTime upFuncAt) {
+        this.upFuncAt = upFuncAt;
+    }
 
     public int getGoalPoint() { return goalPoint; }
     public void setGoalPoint(int goalPoint) { this.goalPoint = goalPoint; }
@@ -100,8 +109,17 @@ public class DonationPost {
         return LocalDate.now().isAfter(endAt); // endAt 이후면 완료
     }
 
+    public boolean isSettled() {
+        return settled;
+    }
+
+    public void settle() {
+        this.settled = true;
+    }
+
     @Override
      public String toString() {
          return id + ". " + title + " (작성자: " + writer.getUserId() + ")";
      }
+
 }
