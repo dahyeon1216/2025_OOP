@@ -78,7 +78,7 @@ public class MainView extends JFrame {
                 setTitle("메인 메뉴 (비로그인)");
                 sessionMenu.setText("로그인/회원가입");
                 updateMenuAccess();
-                centerPanel.removeAll(); // ✅ 로그아웃 시 화면 초기화
+                centerPanel.removeAll(); // 로그아웃 시 화면 초기화
                 centerPanel.revalidate();
                 centerPanel.repaint();
                 JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
