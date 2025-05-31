@@ -45,7 +45,9 @@ public class DonationPostService {
 
     // 전체 기부글 조회
     public List<DonationPost> getAll() {
-        return new ArrayList<>(posts);
+        return posts.stream()
+                .sorted(Comparator.comparing(DonationPost::getUpFuncAt).reversed()) // 최신 up 순
+                .collect(Collectors.toList());
     }
 
     // 기부글 수정
@@ -105,4 +107,15 @@ public class DonationPostService {
         return false;
     }
 
+    // 기부글 up하기
+    public boolean upPost(DonationPost post, User user) {
+        int upCost = 300;
+
+        if (user.getPoint() < upCost) {
+            return false;
+        }
+        user.setPoint(user.getPoint() - upCost);
+        post.setUpFuncAt(LocalDateTime.now());
+        return true;
+    }
 }

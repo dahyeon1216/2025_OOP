@@ -45,10 +45,14 @@ public class DonationPostController {
         return donationPostService.getDonatedPostInfos(user);
     }
 
-
     // 기부글 정산하기
     public boolean settlePost(DonationPost post) {
         return donationPostService.settlePost(post);
+    }
+
+    // 기부글 up하기
+    public boolean upPost(DonationPost post, User user) {
+        return donationPostService.upPost(post, user);
     }
 
 }

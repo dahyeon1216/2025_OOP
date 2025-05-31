@@ -49,6 +49,8 @@ public class DonationPost {
         this.goalPoint = goalPoint;
         this.createdAt = LocalDateTime.now();
         this.endAt = endAt;
+        this.createdAt = LocalDateTime.now();
+        this.upFuncAt = this.createdAt;
     }
 
     // Getter and Setter
@@ -69,6 +71,14 @@ public class DonationPost {
 
     public LocalDate getEndAt() { return endAt; }
     public void setEndAt(LocalDate endAt) { this.endAt = endAt; }
+
+    public LocalDateTime getUpFuncAt() {
+        return upFuncAt;
+    }
+
+    public void setUpFuncAt(LocalDateTime upFuncAt) {
+        this.upFuncAt = upFuncAt;
+    }
 
     public int getGoalPoint() { return goalPoint; }
     public void setGoalPoint(int goalPoint) { this.goalPoint = goalPoint; }
@@ -111,4 +121,5 @@ public class DonationPost {
      public String toString() {
          return id + ". " + title + " (작성자: " + writer.getUserId() + ")";
      }
+
 }
