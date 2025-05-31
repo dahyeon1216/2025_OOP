@@ -13,8 +13,8 @@ public class DonationPost {
     private LocalDateTime createdAt;
     private LocalDateTime upFuncAt;
     private LocalDate endAt;
-    private int goalPoint;
-    private int raisedPoint;
+    private int goalPoint; // 목표 기부 포인트
+    private int raisedPoint; // 누적 기부 포인트
     private String billImg;
     private String virtualAccount;
     private boolean settled = false; // 포인트 정산 여부
@@ -67,27 +67,21 @@ public class DonationPost {
     public String getDonationImg() { return donationImg; }
     public void setDonationImg(String donationImg) { this.donationImg = donationImg; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpFuncAt() { return upFuncAt; }
-    public void setUpFuncAt(LocalDateTime upFuncAt) { this.upFuncAt = upFuncAt; }
-
     public LocalDate getEndAt() { return endAt; }
     public void setEndAt(LocalDate endAt) { this.endAt = endAt; }
 
     public int getGoalPoint() { return goalPoint; }
     public void setGoalPoint(int goalPoint) { this.goalPoint = goalPoint; }
 
+    public void donate(int amount) {
+        this.raisedPoint += amount;
+    }
+
     public int getRaisedPoint() { return raisedPoint; }
     public void setRaisedPoint(int raisedPoint) { this.raisedPoint = raisedPoint; }
 
     public String getBillImg() { return billImg; }
     public void setBillImg(String billImg) { this.billImg = billImg; }
-
-    public void setWriter(User writer) {
-        this.writer = writer;
-    }
 
     public void setVirtualAccount(String virtualAccount) {
         this.virtualAccount = virtualAccount;

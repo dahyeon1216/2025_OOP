@@ -24,11 +24,6 @@ public class DonationPostController {
         return donationPostService.getAll();
     }
 
-    // 사용자 ID로 필터링된 기부글 조회 (추후 확장 가능)
-    public List<DonationPost> getPostsByUser(User user) {
-        return donationPostService.getByUser(user);
-    }
-
     // 기부글 수정
     public void updatePost(int id, String title, String content, String img, int goal, LocalDate endAt) {
         donationPostService.update(id, title, content, img, goal, endAt);
