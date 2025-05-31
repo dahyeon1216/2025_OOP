@@ -25,6 +25,7 @@ public class MainView extends JFrame {
 
     private JPanel centerPanel;
     private DonationPostListPanel donationPostListPanel;
+    private OngoingDonationPostListPanel ongoingDonationPostListPanel;
 
 
     public MainView(User loginUser, UserController userController, DonationPostController donationPostController) {
@@ -54,11 +55,8 @@ public class MainView extends JFrame {
                 sessionMenu.setText(user.getUserId());
                 updateMenuAccess();
 
-                donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController);
-                centerPanel.removeAll();
-                centerPanel.add(donationPostListPanel, BorderLayout.CENTER);
-                centerPanel.revalidate();
-                centerPanel.repaint();
+                donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController, scrapController);
+                swapCenterPanel(donationPostListPanel);
 
                 JOptionPane.showMessageDialog(this, "로그인 성공");
             }).setVisible(true);
@@ -74,7 +72,7 @@ public class MainView extends JFrame {
                 setTitle("메인 메뉴 (비로그인)");
                 sessionMenu.setText("로그인/회원가입");
                 updateMenuAccess();
-                centerPanel.removeAll(); // ✅ 로그아웃 시 화면 초기화
+                centerPanel.removeAll(); // 로그아웃 시 화면 초기화
                 centerPanel.revalidate();
                 centerPanel.repaint();
                 JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
@@ -132,7 +130,14 @@ public class MainView extends JFrame {
 
         writePost.addActionListener(e -> {
             if (this.loginUser != null) {
-                new DonationPostWriteView(this.loginUser, donationPostController).setVisible(true);
+                // 현재 centerPanel 안에 어떤 패널이 있는지 확인해서 refresh 가능한 경우만 콜백으로 전달
+                Runnable onPostWritten = () -> {
+                    OngoingDonationPostListPanel panel = new OngoingDonationPostListPanel(this.loginUser, donationPostController, scrapController);
+                    swapCenterPanel(panel);
+                    panel.refresh();
+                };
+
+                new DonationPostWriteView(this.loginUser, donationPostController, onPostWritten).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }

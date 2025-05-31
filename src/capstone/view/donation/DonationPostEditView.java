@@ -59,7 +59,6 @@ public class DonationPostEditView extends JFrame {
 
                 controller.updatePost(post.getId(), title, content, image, goal, endAt);
 
-                JOptionPane.showMessageDialog(this, "수정 완료되었습니다.");
                 if (callback != null) callback.onEdited();
                 dispose();
             } catch (Exception ex) {

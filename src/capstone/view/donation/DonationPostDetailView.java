@@ -33,8 +33,26 @@ public class DonationPostDetailView extends JFrame {
         panel.add(new JLabel("목표 금액: " + post.getGoalPoint() + "P"));
         panel.add(new JLabel("마감일: " + (post.getEndAt() != null ? post.getEndAt().toString() : "없음")));
 
+        // 공통 버튼 패널 (왼쪽 정렬)
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        // 스크랩 버튼
+        if (loginUser != null) {
+            JButton scrapButton = new JButton(
+                    scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
+            );
+            scrapButton.addActionListener(e -> {
+                scrapController.toggleScrap(loginUser, post);
+                scrapButton.setText(
+                        scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
+                );
+                if (onPostUpdated != null) onPostUpdated.run(); // 스크랩 후 갱신
+            });
+            buttonPanel.add(scrapButton);
+        }
+
+        // 수정/삭제 버튼 (작성자일 때만)
         if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
-//            panel.add(Box.createVerticalStrut(10)); // 여백
             panel.add(new JLabel("가상계좌: " + (post.getVirtualAccount() != null ? post.getVirtualAccount() : "없음")));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -64,9 +82,8 @@ public class DonationPostDetailView extends JFrame {
                 }
             });
 
-
-        }
-
+        // 버튼 패널 전체에 추가
+        panel.add(buttonPanel);
         add(panel);
     }
 }

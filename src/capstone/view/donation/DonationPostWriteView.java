@@ -8,7 +8,7 @@ import java.awt.*;
 import java.time.LocalDate;
 
 public class DonationPostWriteView extends JFrame {
-    public DonationPostWriteView(User user, DonationPostController controller) {
+    public DonationPostWriteView(User user, DonationPostController controller, Runnable onPostWritten) {
 
         setTitle("기부글 작성");
         setSize(500, 400);
@@ -73,6 +73,7 @@ public class DonationPostWriteView extends JFrame {
                 LocalDate endAt = LocalDate.parse(endDateField.getText());
                 controller.createPost(user, img, goal, endAt, title, content);
                 JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
+                if (onPostWritten != null) onPostWritten.run();
                 dispose();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "입력값을 확인해주세요: " + ex.getMessage());

@@ -2,6 +2,7 @@ package capstone.service;
 
 import capstone.model.DonationPost;
 import capstone.model.User;
+import capstone.model.DonationRecord;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.Random;
 
 public class DonationPostService {
     private final List<DonationPost> posts = new ArrayList<>();
+    private final List<DonationRecord> donationRecords = new ArrayList<>();
 
     public DonationPost findById(int id) {
         for (DonationPost post : posts) {

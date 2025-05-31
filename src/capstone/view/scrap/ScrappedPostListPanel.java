@@ -1,6 +1,7 @@
-package capstone.view.main;
+package capstone.view.scrap;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.view.donation.DonationPostDetailView;
@@ -12,43 +13,39 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-public class DonationPostListPanel extends JPanel {
+public class ScrappedPostListPanel extends JPanel {
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
     private final User loginUser;
-    private final DonationPostController controller;
+    private final DonationPostController donationPostController;
     private final ScrapController scrapController;
 
     private JPanel postListPanel;
 
-    public DonationPostListPanel(User loginUser, DonationPostController controller) {
+    public ScrappedPostListPanel(User loginUser,
+                                 DonationPostController donationPostController,
+                                 ScrapController scrapController) {
         this.loginUser = loginUser;
-        this.controller = controller;
+        this.donationPostController = donationPostController;
         this.scrapController = scrapController;
 
         setLayout(new BorderLayout());
 
-        // 리스트 UI
-        postList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane scrollPane = new JScrollPane(postList);
-        add(scrollPane, BorderLayout.CENTER);
-
-        // 포스트 목록 패널
+        // 기부글 목록 패널
         postListPanel = new JPanel(new BorderLayout());
         add(postListPanel, BorderLayout.CENTER);
 
         refresh(); // 초기 로딩
     }
-
     public void refresh() {
         postListPanel.removeAll();
 
-        List<DonationPost> posts = controller.getAllPosts();
+        List<DonationPost> posts = scrapController.getScrappedPosts(loginUser);
 
-        Runnable onPostUpdated = this::refresh;
+        Runnable onPostUpdated = this::refresh; // 상세 보기에서 스크랩 취소 시 자동 새로고침
 
         JPanel listPanel = DonationPostPanelFactory.createPostListPanel(
-                "전체 기부글 목록", posts, loginUser, controller, scrapController, onPostUpdated
+                "스크랩한 기부글 목록", posts, loginUser, donationPostController, scrapController, onPostUpdated
         );
 
         postListPanel.add(listPanel, BorderLayout.CENTER);
