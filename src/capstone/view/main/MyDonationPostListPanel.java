@@ -4,57 +4,51 @@ import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
-import capstone.view.donation.DonationPostDetailView;
-
+import capstone.view.donation.DonationPostPanelFactory;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class MyDonationPostListPanel extends JPanel {
     private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
     private final JList<DonationPost> postList = new JList<>(listModel);
+    private final User loginUser;
+    private final DonationPostController controller;
+    private final ScrapController scrapController;
+
+    private JPanel postListPanel;
 
     public MyDonationPostListPanel(DonationPostController controller,
                                    ScrapController scrapController,
                                    User loginUser) {
+        this.loginUser = loginUser;
+        this.controller = controller;
+        this.scrapController = scrapController;
+
         setLayout(new BorderLayout());
 
-        JScrollPane scrollPane = new JScrollPane(postList);
+        postListPanel = new JPanel(new BorderLayout());
+        add(postListPanel, BorderLayout.CENTER);
 
-        JButton refreshBtn = new JButton("새로고침");
-        refreshBtn.addActionListener(e -> {
-            List<DonationPost> userPosts = controller.getPostsByUser(loginUser);
-            listModel.clear();
-            for (DonationPost post : userPosts) {
-                listModel.addElement(post);
-            }
-        });
+        refresh();
+    }
 
-        // 더블 클릭 시 상세보기
-        postList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && postList.getSelectedValue() != null) {
-                    DonationPost selected = postList.getSelectedValue();
-                    new DonationPostDetailView(
-                            selected,
-                            loginUser,
-                            controller,
-                            scrapController,
-                            refreshBtn::doClick
-                    ).setVisible(true);
-                }
-            }
-        });
+    public void refresh() {
+        postListPanel.removeAll();
 
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.add(refreshBtn);
+        List<DonationPost> posts = controller.getAllPosts().stream()
+                .filter(post -> post.getWriter() != null && post.getWriter().equals(loginUser)) // 내가 쓴 글만
+                .toList();
 
-        add(scrollPane, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
+        Runnable onPostUpdated = this::refresh;
 
-        // 초기 로딩
-        refreshBtn.doClick();
+        JPanel listPanel = DonationPostPanelFactory.createPostListPanel(
+                "내가 작성한 기부글 목록", posts, loginUser, controller, scrapController, onPostUpdated
+        );
+
+        postListPanel.add(listPanel, BorderLayout.CENTER);
+        postListPanel.revalidate();
+        postListPanel.repaint();
     }
 }
+
