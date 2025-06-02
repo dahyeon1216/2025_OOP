@@ -266,13 +266,15 @@ public class DonationPostListView extends BaseView {
                 // 더블 클릭 감지 (두 번 클릭 간격 400ms 이하)
                 if (clickTime - lastClickTime < 400) {
                     JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(card);
+                    DonationPostListView previousView = null;
+                    //나중에 이전 화면 : main 화면으로 넣기
 
                     new DonationPostDetailView(
                             post,
                             loginUser,
                             controller,
                             () -> refreshCardList(),
-                            currentFrame
+                            previousView
                     ).setVisible(true);
                 }
 

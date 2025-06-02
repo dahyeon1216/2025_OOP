@@ -8,6 +8,7 @@ import capstone.service.DonationPostService;
 import capstone.view.BaseView;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
+import capstone.view.main.DonationPostListView;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -26,13 +27,14 @@ public class DonationPostDetailView extends BaseView {
     private final User loginUser;
     private final DonationPostController controller;
     private final Runnable refreshAction;
+    private DonationPostListView postListView;
 
     public DonationPostDetailView(DonationPost post,
                                   User loginUser,
                                   DonationPostController controller,
                                   Runnable refreshAction,
-                                  JFrame previousView) {
-        super(post.getTitle(), previousView);
+                                  DonationPostListView listView) {
+        super(post.getTitle(), listView);
 
         this.post = post;
         this.loginUser = loginUser;
@@ -45,12 +47,18 @@ public class DonationPostDetailView extends BaseView {
         mainPanel.setPreferredSize(new Dimension(393, 900));
 
         // 헤더
-        JPanel header = createHeader(post.getTitle()); // ← 여기도 바꿈
+        JPanel header = createHeader(post.getTitle());
         header.setBounds(0, 0, 393, 45);
-        JButton editButton = createMenuBarButton();
+        JButton optionButton = createMenuBarButton();
+
+        // 팝업 메뉴 생성
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem editMenuItem = new JMenuItem("수정하기");
+        JMenuItem deleteMenuItem = new JMenuItem("삭제하기");
+
 
         //버튼 리스너
-        editButton.addActionListener(e -> {
+        editMenuItem.addActionListener(e -> {
             dispose(); // 현재 상세 뷰 닫기
 
             // 콜백 정의: 수정 완료 후 새 상세 뷰 열기
@@ -67,17 +75,44 @@ public class DonationPostDetailView extends BaseView {
                         loginUser,
                         controller,
                         refreshAction,
-                        null
-                );
+                        postListView
+                ).setVisible(true); // 새 상세 뷰를 보이도록 설정;
             };
 
             // 수정 화면 열기
             new DonationPostEditView(post, loginUser, controller, callback).setVisible(true);
         });
 
+        // "삭제하기" 메뉴 아이템 액션 리스너
+        deleteMenuItem.addActionListener(e -> {
+            // 사용자에게 삭제 확인을 받는 것이 좋습니다.
+            int confirm = JOptionPane.showConfirmDialog(
+                    null,
+                    "정말로 이 게시글을 삭제하시겠습니까?",
+                    "삭제 확인",
+                    JOptionPane.YES_NO_OPTION
+            );
 
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.deletePost(post.getId()); // controller를 통해 deletePost 호출
+                dispose(); // 현재 상세 뷰 닫기
+                if (refreshAction != null) {
+                    refreshAction.run(); // 목록 새로고침 등의 액션 수행
+                }
+                JOptionPane.showMessageDialog(null, "게시글이 삭제되었습니다.");
+            }
+        });
 
-        header.add(editButton);
+        popupMenu.add(editMenuItem);
+        popupMenu.add(deleteMenuItem);
+
+        // 버튼 리스너: 버튼 클릭 시 팝업 메뉴 표시
+        optionButton.addActionListener(e -> {
+            // 버튼 아래에 팝업 메뉴가 나타나도록 위치를 조정합니다.
+            popupMenu.show(optionButton, 0, optionButton.getHeight());
+        });
+
+        header.add(optionButton);
         mainPanel.add(header);
 
         //이미지 영역
