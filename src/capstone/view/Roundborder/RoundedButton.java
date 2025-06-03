@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class RoundedButton extends JButton {
 
-    private final Color backgroundColor;
+    private Color backgroundColor;
     private final int radius;
 
     public RoundedButton(String text, Color backgroundColor, int radius) {
@@ -35,4 +35,11 @@ public class RoundedButton extends JButton {
     protected void paintBorder(Graphics g) {
         // 테두리 없음
     }
+
+    // setButtonColor 메소드 추가
+    public void setButtonColor(Color color) {
+        this.backgroundColor = color;
+        repaint(); // 색상 변경 후 다시 그리기
+    }
+
 }

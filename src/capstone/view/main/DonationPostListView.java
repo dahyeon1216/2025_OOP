@@ -231,7 +231,7 @@ public class DonationPostListView extends BaseView {
         int percent = post.getGoalPoint() == 0 ? 0 :
                 (int) ((double) post.getRaisedPoint() / post.getGoalPoint() * 100);
 
-        JLabel progressLabel = new JLabel("진행률 " + percent + "%    " + post.getGoalPoint() + "P");
+        JLabel progressLabel = new JLabel("진행률 " + percent + "%    " + post.getRaisedPoint() + "P");
         progressLabel.setFont(customFont.deriveFont(Font.PLAIN, 20f));
 
 // 제목 바로 아래에 진행률 위치 고정
@@ -311,7 +311,7 @@ public class DonationPostListView extends BaseView {
                     return List.of(
                             new DonationPost(dummyUser, "images/dog1.jpg", 10000000, LocalDate.now().plusDays(10), "아기 유기견들을 도와주세요", "내용 없음"),
                             new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음"),
-                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음"),
+                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(22), "기부글 제목을 적어요", "내용 없음"),
                             new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음")
                     );
                 }

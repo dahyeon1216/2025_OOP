@@ -6,6 +6,7 @@ import capstone.model.User;
 import capstone.service.DonationPostService;
 import capstone.service.UserService;
 import capstone.view.Roundborder.RoundedButton;
+import capstone.view.main.DonationPostListView;
 import capstone.view.main.MainView;
 
 import java.awt.*;import javax.swing.*;
@@ -85,7 +86,8 @@ public class DonationPostCompleteView extends JFrame {
 
         mainBtn.addActionListener(e -> {
             dispose(); // 현재 완료 화면 닫기
-            new MainView(loginUser, userController, donationPostController); // 메인 화면 실행
+            // DonationPostListView로 이동. 현재 DonationPostCompleteView 인스턴스를 previousView로 전달
+            new DonationPostListView(loginUser, donationPostController, this);
         });
 
         JPanel footer = new JPanel(new BorderLayout());

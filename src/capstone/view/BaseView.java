@@ -33,6 +33,8 @@ public abstract class BaseView extends JFrame {
         setSize(393, 698); // 9:16 비율
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.WHITE);
+
+        setVisible(true);
     }
 
     /**
