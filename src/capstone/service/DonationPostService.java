@@ -6,6 +6,7 @@ import capstone.model.User;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // UserService 임포트 (더미 데이터 생성에 필요)
 import capstone.service.UserService;
@@ -91,6 +92,17 @@ public class DonationPostService {
             post.setDonationImg(donationImg);
             post.setGoalPoint(goalPoint);
             post.setEndAt(endAt);
+            System.out.println("Service: 게시물 ID " + id + " 정보 업데이트됨 (제목 등)"); // 디버깅용
+        }
+    }
+
+    //기부 포인트 업데이트
+    public void updateRaisedPoint(int postId, int donatedAmount) {
+        DonationPost post = findById(postId);
+        if (post != null) {
+            post.setRaisedPoint(post.getRaisedPoint() + donatedAmount);
+            // 필요하다면, 목표 달성 여부 등 상태 업데이트 로직 추가
+            System.out.println("Service: 게시물 ID " + postId + "에 " + donatedAmount + "P 기부됨. 현재 모금액: " + post.getRaisedPoint()); // 디버깅용
         }
     }
 
@@ -98,25 +110,21 @@ public class DonationPostService {
         posts.removeIf(p -> p.getId() == id);
     }
 
-    // 진행중 기부글 (마감일이 오늘 이후)
+    // --- 진행중 기부글 (마감일이 오늘 이후 AND 목표 금액 미달성) ---
     public List<DonationPost> getOngoingPosts() {
-        List<DonationPost> result = new ArrayList<>();
-        for (DonationPost post : posts) {
-            if (post.getEndAt().isAfter(LocalDate.now())) {
-                result.add(post);
-            }
-        }
-        return result;
+        // posts 리스트에서 필터링 조건을 적용하여 반환
+        return posts.stream()
+                .filter(post -> post.getEndAt().isAfter(LocalDate.now()) && // 마감일이 아직 남았고
+                        post.getRaisedPoint() < post.getGoalPoint()) // 목표 금액에 도달하지 않았을 때
+                .collect(Collectors.toList());
     }
 
-    // 완료된 기부글 (마감일이 오늘이거나 이전)
+    // --- 완료된 기부글 (마감일이 오늘이거나 이전 OR 목표 금액 달성) ---
     public List<DonationPost> getCompletedPosts() {
-        List<DonationPost> result = new ArrayList<>();
-        for (DonationPost post : posts) {
-            if (!post.getEndAt().isAfter(LocalDate.now())) {
-                result.add(post);
-            }
-        }
-        return result;
+        // posts 리스트에서 필터링 조건을 적용하여 반환
+        return posts.stream()
+                .filter(post -> !post.getEndAt().isAfter(LocalDate.now()) || // 마감일이 지났거나 (오늘 포함)
+                        post.getRaisedPoint() >= post.getGoalPoint()) // 목표 금액에 도달했을 때
+                .collect(Collectors.toList());
     }
 }

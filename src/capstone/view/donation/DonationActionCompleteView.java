@@ -33,15 +33,21 @@ public class DonationActionCompleteView extends JFrame {
     private final UserController userController;
     private final DonationPostController donationPostController;
     private final DonationPost uploadedPost; //업로드된 게시물 객체
+    private final DonationPostListView donationPostListView;
 
 
-    public DonationActionCompleteView(User loginUser, UserController userController, DonationPostController donationPostController,int donatedPoint, DonationPost uploadedPost) {
+    public DonationActionCompleteView(User loginUser,
+                                      UserController userController,
+                                      DonationPostController donationPostController,
+                                      int donatedPoint, DonationPost uploadedPost,
+                                      DonationPostListView donationPostListView) {
         super("기부글 업로드 완료");
 
         this.loginUser = loginUser;
         this.userController = userController;
         this.donationPostController = donationPostController;
         this.uploadedPost = uploadedPost;
+        this.donationPostListView = donationPostListView;
 
         setSize(393, 698);
         setLocationRelativeTo(null);
@@ -95,8 +101,12 @@ public class DonationActionCompleteView extends JFrame {
                     uploadedPost,          // 업로드된 게시물
                     loginUser,             // 로그인 유저
                     donationPostController,// 컨트롤러
-                    () -> {},              // refreshAction (이 시점에서는 특별히 할 것 없음, 필요시 구현)
-                    null                   // previousView (현재 CompleteView 뒤에는 다른 뷰가 없음)
+                    () -> {                // DonationPostListView의 refreshCardList()
+                        if (this.donationPostListView != null) {
+                            this.donationPostListView.refreshCardList(); // DonationPostListView 새로고침
+                        }
+                    },
+                    this.donationPostListView // DonationPostListView 참조를 전달
             ).setVisible(true);
 
         });
@@ -114,23 +124,4 @@ public class DonationActionCompleteView extends JFrame {
         setVisible(true);
     }
 
-
-    // 테스트용 메인
-    /*public static void main(String[] args) {
-        // 더미 유저
-        User dummyUser = new User("sally1023", "Sally", "프로필 URL 예시", Tier.SILVER); // Tier 추가
-
-        // 서비스 → 컨트롤러 (더미)
-        UserService dummyUserService = new UserService();
-        UserController dummyUserController = new UserController(dummyUserService);
-        DonationPostService dummyPostService = new DonationPostService();
-        DonationPostController dummyPostController = new DonationPostController(dummyPostService);
-
-        int testDonatedPoint = 5000; // 테스트를 위한 기부 포인트 (예: 5000원 기부)
-
-        // 완료화면 실행
-        SwingUtilities.invokeLater(() ->
-                new DonationActionCompleteView(dummyUser, dummyUserController, dummyPostController, testDonatedPoint)
-        );
-    }*/
 }

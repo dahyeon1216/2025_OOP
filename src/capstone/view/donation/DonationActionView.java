@@ -9,6 +9,7 @@ import capstone.service.DonationPostService;
 import capstone.service.UserService;
 import capstone.view.BaseView;
 import capstone.view.Roundborder.RoundedButton;
+import capstone.view.main.DonationPostListView;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -33,16 +34,22 @@ public class DonationActionView extends BaseView {
     private final DonationPost donationPost;
     private final User loginUser;
     private final DonationPostController donationPostController;
+    private final DonationPostListView donationPostListView;
+
     private int selectedPoint = 0; // 선택된 기부 포인트
     private JLabel currentDonationPointLabel; // 기부 포인트 표시 라벨
     private JCheckBox anonymousCheckBox; // 익명 기부 체크박스
 
-    public DonationActionView(DonationPost donationPost, User loginUser, DonationPostController donationPostController, JFrame previousView) {
+    public DonationActionView(DonationPost donationPost, User loginUser,
+                              DonationPostController donationPostController,
+                              DonationPostListView donationPostListView,
+                              JFrame previousView) {
         super("기부하기", previousView); // BaseView의 생성자 호출
 
         this.donationPost = donationPost;
         this.loginUser = loginUser;
         this.donationPostController = donationPostController;
+        this.donationPostListView = donationPostListView;
 
         setupUI();
     }
@@ -305,10 +312,16 @@ public class DonationActionView extends BaseView {
                 return;
             }
 
+            // 1. 메모리 상의 객체 업데이트
             loginUser.setPoint(loginUser.getPoint() - selectedPoint);
-            donationPost.setRaisedPoint(donationPost.getRaisedPoint() + selectedPoint);
+
+            // 2. DonationPostService를 통해 실제 데이터 저장소 업데이트 (핵심!)
+            this.donationPostController.addDonationToPost(donationPost.getId(), selectedPoint);
 
             String donorName = anonymousCheckBox.isSelected() ? "익명" : loginUser.getNickName();
+
+            // 업데이트된 정보를 다시 가져와서 메시지에 반영 (선택 사항, 바로 위에서 업데이트 했으므로)
+            DonationPost updatedPostAfterDonation = donationPostController.getPostById(donationPost.getId()); // 최신 정보 가져오기
 
             JOptionPane.showMessageDialog(this,
                     donorName + "님, " + selectedPoint + " P 기부가 완료되었습니다!\n" +
@@ -320,8 +333,15 @@ public class DonationActionView extends BaseView {
 
             UserService userServiceInstance = UserService.getInstance();
             UserController userControllerInstance = new UserController(userServiceInstance);
-            new DonationActionCompleteView(loginUser, userControllerInstance, donationPostController, selectedPoint, donationPost);
 
+            new DonationActionCompleteView(
+                    loginUser,
+                    userControllerInstance,
+                    donationPostController,
+                    selectedPoint,
+                    updatedPostAfterDonation,
+                    this.donationPostListView
+            ).setVisible(true);
         });
 
         buttonWrapper.add(donateButton); // donateButton을 buttonWrapper에 추가
@@ -330,34 +350,4 @@ public class DonationActionView extends BaseView {
         return buttonPanel;
     }
 
-    // --- 테스트용 메인 함수 ---
-    /*public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // 1. 더미 사용자
-            User dummyUser = new User("sally1023", "기부자1", "images/profile.jpg", Tier.SILVER);
-            dummyUser.setPoint(50000); // 테스트를 위해 충분한 포인트 부여
-
-            // 2. 더미 기부글
-            DonationPost dummyPost = new DonationPost();
-            dummyPost.setTitle("유기견 아이들을 도와주세요");
-            dummyPost.setContent("이 아이들은 추운 겨울을 이겨내야 합니다. 따뜻한 손길이 필요해요.");
-            dummyPost.setDonationImg("images/sample.jpg"); // 실제 이미지 경로로 변경 필요
-            dummyPost.setGoalPoint(100000);
-            dummyPost.setRaisedPoint(3500);
-            dummyPost.setWriter(dummyUser);
-
-            DonationPostService service = new DonationPostService();
-            // 3. 더미 컨트롤러
-            DonationPostController dummyController = new DonationPostController(service); // 필요 시 수정
-
-            // 4. 이전 화면 없음 (null) 또는 DonationPostDetailView 더미 인스턴스
-            JFrame dummyPreviousView = new JFrame("이전 화면 더미");
-            dummyPreviousView.setSize(300, 300);
-            dummyPreviousView.setLocationRelativeTo(null);
-            dummyPreviousView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            dummyPreviousView.setVisible(false); // 처음에는 숨김
-
-            new DonationActionView(dummyPost, dummyUser, dummyController, dummyPreviousView);
-        });
-    }*/
 }

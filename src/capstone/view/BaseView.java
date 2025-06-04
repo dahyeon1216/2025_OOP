@@ -13,6 +13,7 @@ public abstract class BaseView extends JFrame {
 
     protected JFrame previousView;
     protected static Font customFont;
+    protected JButton backButton;
 
     static {
         try {
@@ -34,7 +35,7 @@ public abstract class BaseView extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.WHITE);
 
-        setVisible(true);
+        //setVisible(true);
     }
 
     /**
@@ -58,6 +59,19 @@ public abstract class BaseView extends JFrame {
         header.add(titleLbl);
 
         return header;
+    }
+
+    // 뒤로가기 버튼에 접근할 수 있는 getter 추가
+    protected JButton getBackButton() {
+        return backButton;
+    }
+
+
+    // NEW: 뒤로가기 버튼에 실행될 커스텀 액션을 설정하는 Runnable 필드 및 setter
+    private Runnable onBackAction;
+
+    public void setOnBackAction(Runnable action) {
+        this.onBackAction = action;
     }
 
     // 메뉴바 버튼 만드는 메소드
@@ -89,12 +103,20 @@ public abstract class BaseView extends JFrame {
         backBtn.setBounds(5, 6, 40, 30);
 
         backBtn.addActionListener(e -> {
-            if (previousView != null) previousView.setVisible(true);
-            dispose();
+            // 하위 클래스에서 setOnBackAction(Runnable)으로 액션을 설정할 수 있도록 합니다.
+            if (onBackAction != null) {
+                onBackAction.run(); // 커스텀 뒤로가기 액션 실행
+            }
+
+            if (previousView != null) {
+                previousView.setVisible(true);
+            }
+            dispose(); // 현재 뷰 닫기
         });
 
         return backBtn;
     }
+
 
     //뒤로 가기 흰색 버튼 만드는 메소드
     protected JButton createBackWhiteButton() {

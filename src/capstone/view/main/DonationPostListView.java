@@ -231,6 +231,10 @@ public class DonationPostListView extends BaseView {
         titleLabel.setBounds(80, 30, 230, titleHeight);
         card.add(titleLabel);
 
+        System.out.println("DonationPostListView: createDonationCard 호출됨. 게시물 ID: "
+                + post.getId() + ", 제목: " + post.getTitle() + ", 전달받은 raisedPoint: "
+                + post.getRaisedPoint() + "P");
+
 // 4. 진행률 계산 (raisedPoint / goalPoint)
         int percent = post.getGoalPoint() == 0 ? 0 :
                 (int) ((double) post.getRaisedPoint() / post.getGoalPoint() * 100);
@@ -296,46 +300,5 @@ public class DonationPostListView extends BaseView {
 
         return wrapper;
     }
-
-
-
-    //UI 테스트 용
-    /*public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // 더미 사용자
-            User dummyUser = new User(
-                    "dummy01", "pass1234", "홍길동", "길동이",
-                    BankType.KB, "123-456-7890"
-            );
-
-            // 더미 서비스
-            DonationPostService dummyService = new DonationPostService() {
-                //@Override
-                public List<DonationPost> getOngoingPosts() {
-                    return List.of(
-                            new DonationPost(dummyUser, "images/dog1.jpg", 10000000, LocalDate.now().plusDays(10), "아기 유기견들을 도와주세요", "내용 없음"),
-                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음"),
-                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(22), "기부글 제목을 적어요", "내용 없음"),
-                            new DonationPost(dummyUser, "images/dog2.jpg", 8000000, LocalDate.now().plusDays(31), "기부글 제목을 적어요", "내용 없음")
-                    );
-                }
-
-                //@Override
-                public List<DonationPost> getCompletedPosts() {
-                    return List.of(
-                            new DonationPost(dummyUser, "images/dog3.jpg", 5000000, LocalDate.now().minusDays(1), "완료된 기부입니다", "내용 없음")
-                    );
-                }
-
-                // 필요하면 다른 메서드도 override
-            };
-
-            // 컨트롤러에 서비스 주입
-            DonationPostController dummyController = new DonationPostController(dummyService);
-
-            // UI 실행
-            new DonationPostListView(dummyUser, dummyController, null);
-        });
-    }*/
 
 }

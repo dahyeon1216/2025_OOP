@@ -37,6 +37,11 @@ public class DonationPostController {
         return donationPostService.getAll();
     }
 
+    // 게시물 모금액 업데이트
+    public void addDonationToPost(int postId, int donatedAmount) {
+        donationPostService.updateRaisedPoint(postId, donatedAmount);
+    }
+
     // 사용자 ID로 필터링된 기부글 조회 (추후 확장 가능)
     public List<DonationPost> getPostsByUser(User user) {
         return donationPostService.getByUser(user);

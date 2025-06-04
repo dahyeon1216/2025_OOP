@@ -50,6 +50,19 @@ public class DonationPostDetailView extends BaseView {
         // 헤더
         JPanel header = createHeader(post.getTitle());
         header.setBounds(0, 0, 393, 45);
+
+        //뒤로가기 버튼 액션 리스너 재정의
+        setOnBackAction(() -> { // BaseView에 추가한 setOnBackAction 메서드 호출
+            // DonationPostListView가 유효한지 확인하고 새로 고칩니다.
+            if (this.postListView != null) {
+                this.postListView.refreshCardList(); // <-- 핵심: 목록 뷰의 데이터를 새로 고침
+                System.out.println("DonationPostDetailView: 뒤로가기 액션 - refreshCardList() 호출됨."); // 디버깅 로그
+                // this.postListView.setVisible(true); // BaseView의 리스너가 이미 setVisible(true)를 처리
+            } else {
+                System.out.println("DonationPostDetailView: 뒤로가기 액션 - postListView가 null이라 새로고침 못함."); // 디버깅 로그
+            }
+        });
+
         JButton optionButton = createMenuBarButton();
         optionButton.setBounds(335, 6, 40, 30);
 
@@ -248,7 +261,8 @@ public class DonationPostDetailView extends BaseView {
         donationBtn.addActionListener(e -> {
             // DonationActionView로 이동
             // 현재 DonationPostDetailView를 previousView로 전달
-            new DonationActionView(post, loginUser, controller, this).setVisible(true);
+            new DonationActionView(
+                    post, loginUser, controller, this.postListView,this).setVisible(true);
             this.setVisible(false); // DonationActionView가 닫히면 다시 이 화면이 보이게 하려면
         });
 
@@ -302,34 +316,6 @@ public class DonationPostDetailView extends BaseView {
             return null;
         }
     }
-
-    //테스트용 UI
-    /*public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            //1. 더미 사용자
-            User dummyUser = new User("sally1023", "기부자1","images/profile.jpg", Tier.SILVER);
-
-            // 2. 더미 기부글
-            DonationPost dummyPost = new DonationPost();
-            dummyPost.setTitle("유기견 아이들을 도와주세요");
-            dummyPost.setContent("이 아이들은 추운 겨울을 이겨내야 합니다. 따뜻한 손길이 필요해요.");
-            dummyPost.setDonationImg("images/sample.jpg");
-            dummyPost.setGoalPoint(10000);
-            dummyPost.setRaisedPoint(3500);
-            dummyPost.setWriter(dummyUser);
-
-            DonationPostService service = new DonationPostService();
-            // 3. 더미 컨트롤러
-            DonationPostController dummyController = new DonationPostController(service); // 필요 시 수정
-
-            // 4. 새로고침 액션
-            Runnable refreshAction = () -> System.out.println("새로고침됨");
-
-            // 5. 이전 화면 없음 (null)
-            new DonationPostDetailView(dummyPost, dummyUser, dummyController, refreshAction, null);
-
-        });
-    }*/
 
 }
 
