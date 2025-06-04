@@ -40,6 +40,7 @@ public class DonationPostDetailView extends BaseView {
         this.loginUser = loginUser;
         this.controller = controller;
         this.refreshAction = refreshAction;
+        this.postListView = listView;
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE);
@@ -50,44 +51,66 @@ public class DonationPostDetailView extends BaseView {
         JPanel header = createHeader(post.getTitle());
         header.setBounds(0, 0, 393, 45);
         JButton optionButton = createMenuBarButton();
+        optionButton.setBounds(335, 6, 40, 30);
 
         // 팝업 메뉴 생성
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem editMenuItem = new JMenuItem("수정하기");
         JMenuItem deleteMenuItem = new JMenuItem("삭제하기");
 
+        // 로그인한 유저의 ID와 게시글 작성자의 ID를 비교
+        if (loginUser != null && post.getWriter() != null && loginUser.getUserId().equals(post.getWriter().getUserId())) {
+            popupMenu.add(editMenuItem);
+            popupMenu.add(deleteMenuItem);
+            header.add(optionButton);
+        } else {
+            // 본인 글이 아닐 경우, 메뉴 버튼을을 팝업 메뉴에 추가하지 않음
+        }
 
-        //버튼 리스너
+        // "수정하기" 메뉴 아이템 액션 리스너
         editMenuItem.addActionListener(e -> {
             dispose(); // 현재 상세 뷰 닫기
 
             // 콜백 정의: 수정 완료 후 새 상세 뷰 열기
             DonationPostEditView.EditCallback callback = (int updatedPostId) -> {
+                // 수정된 게시글 정보를 서비스에서 다시 불러옴
                 DonationPost updatedPost = controller.getPostById(updatedPostId);
 
                 if (updatedPost == null) {
-                    JOptionPane.showMessageDialog(null, "수정된 글 정보를 불러올 수 없습니다.");
+                    JOptionPane.showMessageDialog(this, "수정된 글 정보를 불러올 수 없습니다."); // this 사용
+                    if (postListView != null) {
+                        postListView.refreshCardList();
+                        postListView.setVisible(true);
+                    }
                     return;
                 }
 
+                // 새 상세 뷰를 보이도록 설정
                 new DonationPostDetailView(
                         updatedPost,
                         loginUser,
                         controller,
                         refreshAction,
-                        postListView
-                ).setVisible(true); // 새 상세 뷰를 보이도록 설정;
+                        postListView // ListView 참조 전달
+                ).setVisible(true);
+
+                if (postListView != null) {
+                    postListView.refreshCardList();
+                    postListView.setVisible(false); // 이미 숨겨져 있거나 DetailView가 활성화되면서 숨겨짐
+                }
+
             };
+
 
             // 수정 화면 열기
             new DonationPostEditView(post, loginUser, controller, callback).setVisible(true);
         });
 
+
         // "삭제하기" 메뉴 아이템 액션 리스너
         deleteMenuItem.addActionListener(e -> {
-            // 사용자에게 삭제 확인을 받는 것이 좋습니다.
             int confirm = JOptionPane.showConfirmDialog(
-                    null,
+                    this, // 부모 컴포넌트: null 대신 this(JFrame)를 사용
                     "정말로 이 게시글을 삭제하시겠습니까?",
                     "삭제 확인",
                     JOptionPane.YES_NO_OPTION
@@ -95,24 +118,31 @@ public class DonationPostDetailView extends BaseView {
 
             if (confirm == JOptionPane.YES_OPTION) {
                 controller.deletePost(post.getId()); // controller를 통해 deletePost 호출
+                JOptionPane.showMessageDialog(this, "게시글이 삭제되었습니다."); // 메시지 먼저 표시 (this 사용)
+
                 dispose(); // 현재 상세 뷰 닫기
-                if (refreshAction != null) {
-                    refreshAction.run(); // 목록 새로고침 등의 액션 수행
+
+                // 삭제 후 목록으로 돌아가야 합니다.
+                if (postListView != null) {
+                    postListView.refreshCardList(); // 목록 새로고침
+                    postListView.setVisible(true); // 목록 뷰를 다시 보이게
+                } else if (refreshAction != null) { // 백업으로 refreshAction 실행
+                    refreshAction.run();
+                    if (previousView != null) previousView.setVisible(true); // 이전 뷰로 돌아감
+                } else {
+                    // 돌아갈 뷰가 없는 경우 (오류 처리 또는 앱 종료)
+                    JOptionPane.showMessageDialog(this, "돌아갈 화면을 찾을 수 없습니다.");
+                    // System.exit(0);
                 }
-                JOptionPane.showMessageDialog(null, "게시글이 삭제되었습니다.");
             }
         });
 
-        popupMenu.add(editMenuItem);
-        popupMenu.add(deleteMenuItem);
-
-        // 버튼 리스너: 버튼 클릭 시 팝업 메뉴 표시
+        // 버튼 리스너: 옵션 버튼 클릭 시 팝업 메뉴 표시
         optionButton.addActionListener(e -> {
-            // 버튼 아래에 팝업 메뉴가 나타나도록 위치를 조정합니다.
+            // 버튼 아래에 팝업 메뉴가 나타나도록 위치를 조정
             popupMenu.show(optionButton, 0, optionButton.getHeight());
         });
 
-        header.add(optionButton);
         mainPanel.add(header);
 
         //이미지 영역
@@ -167,6 +197,7 @@ public class DonationPostDetailView extends BaseView {
        // 티어
         JLabel tierLabel = new JLabel("⭐ " + loginUser.getTier() + "티어");
 //나중에 티어마다 임티 가져오는거 설정하기
+
 // getTier()는 String or int
         tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
         tierLabel.setBounds(290, 10, 100, 25);
@@ -192,7 +223,6 @@ public class DonationPostDetailView extends BaseView {
         contentPanel.setLayout(null);
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBounds(15, 545, 348, 400); // 좌우 여백 15씩 정확히 맞춤
-        //contentPanel.setBorder(null); // 명시적으로 테두리 제거
 
 
 // 내용 텍스트
@@ -214,6 +244,13 @@ public class DonationPostDetailView extends BaseView {
         donationBtn.setFont(customFont.deriveFont(Font.BOLD, 20f));
         donationBtn.setForeground(Color.WHITE);
         donationBtn.setBounds(245, 270, 100, 44);
+
+        donationBtn.addActionListener(e -> {
+            // DonationActionView로 이동
+            // 현재 DonationPostDetailView를 previousView로 전달
+            new DonationActionView(post, loginUser, controller, this).setVisible(true);
+            this.setVisible(false); // DonationActionView가 닫히면 다시 이 화면이 보이게 하려면
+        });
 
         contentPanel.add(donationBtn);
 
@@ -267,7 +304,7 @@ public class DonationPostDetailView extends BaseView {
     }
 
     //테스트용 UI
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             //1. 더미 사용자
             User dummyUser = new User("sally1023", "기부자1","images/profile.jpg", Tier.SILVER);
@@ -292,7 +329,7 @@ public class DonationPostDetailView extends BaseView {
             new DonationPostDetailView(dummyPost, dummyUser, dummyController, refreshAction, null);
 
         });
-    }
+    }*/
 
 }
 

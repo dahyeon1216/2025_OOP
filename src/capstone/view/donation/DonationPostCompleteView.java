@@ -31,13 +31,16 @@ public class DonationPostCompleteView extends JFrame {
     private final User loginUser;
     private final UserController userController;
     private final DonationPostController donationPostController;
+    private final DonationPostListView donationPostListView;
 
-    public DonationPostCompleteView(User loginUser, UserController userController, DonationPostController donationPostController) {
+    public DonationPostCompleteView(User loginUser, UserController userController,
+                                    DonationPostController donationPostController, DonationPostListView donationPostListView) {
         super("기부글 업로드 완료");
 
         this.loginUser = loginUser;
         this.userController = userController;
         this.donationPostController = donationPostController;
+        this.donationPostListView = donationPostListView;
 
         setSize(393, 698);
         setLocationRelativeTo(null);
@@ -61,7 +64,7 @@ public class DonationPostCompleteView extends JFrame {
         // 텍스트
         JLabel successLabel = new JLabel("기부글 업로드 완료 !");
         successLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        successLabel.setFont(customFont.deriveFont(Font.BOLD, 28f));
+        successLabel.setFont(customFont.deriveFont(Font.BOLD, 33f));
         successLabel.setForeground(Color.BLACK);
         successLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
 
@@ -86,15 +89,21 @@ public class DonationPostCompleteView extends JFrame {
 
         mainBtn.addActionListener(e -> {
             dispose(); // 현재 완료 화면 닫기
-            // DonationPostListView로 이동. 현재 DonationPostCompleteView 인스턴스를 previousView로 전달
-            new DonationPostListView(loginUser, donationPostController, this);
+
+            // 이전에 저장했던 DonationPostListView 인스턴스를 사용
+            if (this.donationPostListView != null) {
+                this.donationPostListView.refreshCardList(); // <-- 목록 새로 고침 요청
+                this.donationPostListView.setVisible(true); // <-- 목록 뷰 다시 보이게 함
+            } else {
+                // 만약 참조가 없다면, 새로운 뷰를 생성하는 백업 로직 (하지만 가급적이면 참조를 전달하는 것이 좋음)
+                new DonationPostListView(loginUser, donationPostController, null).setVisible(true);
+            }
         });
 
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBorder(new EmptyBorder(20, 20, 20, 20));
         footer.setOpaque(false); // 바깥 회색 박스 없애기
         footer.add(mainBtn, BorderLayout.CENTER);
-
 
         //  전체 조립
         getContentPane().add(centerPanel, BorderLayout.CENTER);
@@ -105,7 +114,7 @@ public class DonationPostCompleteView extends JFrame {
 
 
     // 테스트용 메인
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         // 더미 유저
         User dummyUser = new User("sally1023", "Sally", "프로필 URL 예시");
 
@@ -120,7 +129,7 @@ public class DonationPostCompleteView extends JFrame {
         SwingUtilities.invokeLater(() ->
                 new DonationPostCompleteView(dummyUser, dummyUserController, dummyPostController)
         );
-    }
+    }*/
 }
 
 

@@ -24,9 +24,7 @@ public class MainView extends JFrame {
     private JMenuItem writePost, listPosts;
 
     private JPanel centerPanel;
-    private DonationPostListView donationPostListView
-            ;
-
+    private DonationPostListView donationPostListView;
 
     public MainView(User loginUser, UserController userController, DonationPostController donationPostController) {
         this.loginUser = loginUser;
@@ -123,7 +121,7 @@ public class MainView extends JFrame {
 
         writePost.addActionListener(e -> {
             if (this.loginUser != null) {
-                new DonationPostWriteView(this,this.loginUser, donationPostController).setVisible(true);
+                new DonationPostWriteView(this.donationPostListView,this.loginUser, donationPostController).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }

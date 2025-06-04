@@ -317,7 +317,11 @@ public class DonationActionView extends BaseView {
                     JOptionPane.INFORMATION_MESSAGE);
 
             dispose();
-            new DonationPostCompleteView(loginUser, new UserController(new UserService()), donationPostController);
+
+            UserService userServiceInstance = UserService.getInstance();
+            UserController userControllerInstance = new UserController(userServiceInstance);
+            new DonationActionCompleteView(loginUser, userControllerInstance, donationPostController, selectedPoint, donationPost);
+
         });
 
         buttonWrapper.add(donateButton); // donateButton을 buttonWrapper에 추가
@@ -327,7 +331,7 @@ public class DonationActionView extends BaseView {
     }
 
     // --- 테스트용 메인 함수 ---
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // 1. 더미 사용자
             User dummyUser = new User("sally1023", "기부자1", "images/profile.jpg", Tier.SILVER);
@@ -355,5 +359,5 @@ public class DonationActionView extends BaseView {
 
             new DonationActionView(dummyPost, dummyUser, dummyController, dummyPreviousView);
         });
-    }
+    }*/
 }

@@ -13,7 +13,7 @@ public class User {
     private Tier tier;
 
     // 기본 생성자
-    public User(String sally1023, String sally, String 프로필_url_예시) {
+    public User(String userId, String name, String nickName, String profileImg, Tier silver) {
     }
 
     // 전체 필드 생성자

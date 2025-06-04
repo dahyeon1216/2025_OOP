@@ -98,7 +98,12 @@ public class DonationPostListView extends BaseView {
         writeBtn.setForeground(Color.WHITE);
         writeBtn.setPreferredSize(new Dimension(130, 45)); // 너비, 높이
         writeBtn.setFont(customFont.deriveFont(Font.BOLD, 22f));
-        writeBtn.addActionListener(e -> new DonationPostWriteView(this, null, null)); // controller는 예시로 null
+        writeBtn.addActionListener(e ->
+        {
+            //DonationPostWriteView 호출 시 현재 뷰 숨기기
+            new DonationPostWriteView(this, this.loginUser, this.controller).setVisible(true);
+            this.setVisible(false); // 현재 목록 뷰 숨기기
+        });
 
         JPanel writeBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 20)); // 오른쪽 정렬, 여백 약간
         writeBtnPanel.setOpaque(false);
@@ -162,8 +167,7 @@ public class DonationPostListView extends BaseView {
         profileBtn.setContentAreaFilled(false);
         profileBtn.setFocusPainted(false);
 
-        // UserService와 UserController 직접 생성
-        UserService userService = new UserService();
+        UserService userService = UserService.getInstance();
         UserController profileController = new UserController(userService);
 
 
@@ -174,8 +178,8 @@ public class DonationPostListView extends BaseView {
         header.add(profileBtn);
     }
 
-    private void refreshCardList() {
-        cardListPanel.removeAll();
+    public void refreshCardList() {
+        cardListPanel.removeAll(); // 기존 카드들 모두 제거
 
          List<DonationPost> posts = isOngoing
                 ? controller.getOngoingPosts()
@@ -266,7 +270,6 @@ public class DonationPostListView extends BaseView {
                 // 더블 클릭 감지 (두 번 클릭 간격 400ms 이하)
                 if (clickTime - lastClickTime < 400) {
                     JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(card);
-                    DonationPostListView previousView = null;
                     //나중에 이전 화면 : main 화면으로 넣기
 
                     new DonationPostDetailView(
@@ -274,8 +277,9 @@ public class DonationPostListView extends BaseView {
                             loginUser,
                             controller,
                             () -> refreshCardList(),
-                            previousView
+                            DonationPostListView.this
                     ).setVisible(true);
+                    DonationPostListView.this.setVisible(false); // 현재 목록 뷰 숨기기
                 }
 
                 lastClickTime = clickTime;
@@ -296,7 +300,7 @@ public class DonationPostListView extends BaseView {
 
 
     //UI 테스트 용
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // 더미 사용자
             User dummyUser = new User(
@@ -332,6 +336,6 @@ public class DonationPostListView extends BaseView {
             // UI 실행
             new DonationPostListView(dummyUser, dummyController, null);
         });
-    }
+    }*/
 
 }

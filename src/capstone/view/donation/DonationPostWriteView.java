@@ -1,10 +1,13 @@
 package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.UserController;
 import capstone.model.User;
 import capstone.service.DonationPostService;
+import capstone.service.UserService;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
+import capstone.view.main.DonationPostListView;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,7 +21,10 @@ import java.util.stream.IntStream;
 
 public class DonationPostWriteView extends JFrame {
 
-    private JFrame previousView; //전 화면
+    private final User user;
+    private final DonationPostListView previousListView;
+    private final DonationPostController donationPostController;
+
     private static Font customFont;
     static {
         try {
@@ -31,9 +37,13 @@ public class DonationPostWriteView extends JFrame {
         }
     }
 
-    public DonationPostWriteView(JFrame previousView,User user, DonationPostController controller) {
+
+    public DonationPostWriteView(DonationPostListView previousListView,User user, DonationPostController controller) {
         super("기부글 쓰기");
-        this.previousView = previousView;
+        this.previousListView = previousListView;
+        this.donationPostController = controller;
+        this.user = user;
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(393, 698); // 9:16 비율 적용
         setLocationRelativeTo(null);
@@ -44,9 +54,7 @@ public class DonationPostWriteView extends JFrame {
         header.setPreferredSize(new Dimension(393, 45)); // 높이 45px
         header.setBackground(new Color(120, 230, 170));
 
-
         //뒤로가기 버튼
-
         ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
         Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImg);
@@ -64,7 +72,6 @@ public class DonationPostWriteView extends JFrame {
         titleLbl.setFont(customFont.deriveFont(Font.BOLD, 23f));
         titleLbl.setBounds(13, 7, 360, 30);
         header.add(titleLbl);
-        //header.add(Box.createHorizontalGlue());  // 오른쪽 여백
 
         // Body
         JPanel body = new JPanel(null);
@@ -236,7 +243,9 @@ public class DonationPostWriteView extends JFrame {
         getContentPane().add(footer, BorderLayout.SOUTH);
 
         backBtn.addActionListener(e -> {
-            previousView.setVisible(true); // 이전 화면 다시 보여주기
+            if (this.previousListView != null) {
+                this.previousListView.setVisible(true); // 이전 목록 화면 다시 보여주기
+            }
             dispose(); // 현재 화면 닫기
         });
 
@@ -254,11 +263,30 @@ public class DonationPostWriteView extends JFrame {
                 LocalDate endAt = LocalDate.of(year, month, day);
 
                 String content = contentArea.getText();
-                controller.createPost(user, imgPath, goalAmount, endAt, title, content);
+
+                //1. 기부글 생성
+                this.donationPostController.createPost(this.user, imgPath, goalAmount, endAt, title, content);
                 JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
+
+                // 2. 현재 작성 뷰 닫기
                 dispose();
+
+                // 3. DonationPostCompleteView를 띄우면서 DonationPostListView 인스턴스 전달
+                UserService userServiceForCompleteView = UserService.getInstance();
+                UserController userControllerForCompleteView = new UserController(userServiceForCompleteView);
+
+                new DonationPostCompleteView(
+                        this.user,
+                        userControllerForCompleteView,
+                        this.donationPostController,
+                        this.previousListView // <-- DonationPostListView 인스턴스 전달
+                ).setVisible(true);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "목표 금액은 숫자로 입력해주세요.");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "입력값을 확인해주세요: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "기부글 등록에 실패했습니다: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
@@ -303,7 +331,7 @@ public class DonationPostWriteView extends JFrame {
 
 
     //UI 테스트용 main
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // 테스트용 사용자
             User testUser = new User("sally1023", "Sally", "프로필 URL 예시");
@@ -320,17 +348,5 @@ public class DonationPostWriteView extends JFrame {
             DonationPostController testController = new DonationPostController(mockService);
             new DonationPostWriteView(null,testUser, testController);
         });
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+    }*/
 }
