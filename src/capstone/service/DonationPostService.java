@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// UserService 임포트 (더미 데이터 생성에 필요)
-import capstone.service.UserService;
 import capstone.model.Tier; // Tier 임포트 (더미 데이터 생성에 필요)
 
 public class DonationPostService {
@@ -110,7 +108,7 @@ public class DonationPostService {
         posts.removeIf(p -> p.getId() == id);
     }
 
-    // --- 진행중 기부글 (마감일이 오늘 이후 AND 목표 금액 미달성) ---
+    // 진행중 기부글 (마감일이 오늘 이후 AND 목표 금액 미달성)
     public List<DonationPost> getOngoingPosts() {
         // posts 리스트에서 필터링 조건을 적용하여 반환
         return posts.stream()
@@ -119,7 +117,7 @@ public class DonationPostService {
                 .collect(Collectors.toList());
     }
 
-    // --- 완료된 기부글 (마감일이 오늘이거나 이전 OR 목표 금액 달성) ---
+    // 완료된 기부글 (마감일이 오늘이거나 이전 OR 목표 금액 달성)
     public List<DonationPost> getCompletedPosts() {
         // posts 리스트에서 필터링 조건을 적용하여 반환
         return posts.stream()

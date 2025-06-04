@@ -208,15 +208,15 @@ public class DonationPostDetailView extends BaseView {
         profilePanel.add(nicknameLabel);
 
        // 티어
-        JLabel tierLabel = new JLabel("⭐ " + loginUser.getTier() + "티어");
-//나중에 티어마다 임티 가져오는거 설정하기
+        JLabel tierLabel = new JLabel( loginUser.getTier() + "티어");
+       //나중에 티어마다 임티 가져오는거 설정하기
 
-// getTier()는 String or int
+       // getTier()는 String or int
         tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
         tierLabel.setBounds(290, 10, 100, 25);
         profilePanel.add(tierLabel);
 
-// 목표 금액
+        // 목표 금액
         JLabel goalLabel = new JLabel("목표금액 " + post.getGoalPoint() + "P");
         goalLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
         goalLabel.setBounds(100, 37, 200, 20);
