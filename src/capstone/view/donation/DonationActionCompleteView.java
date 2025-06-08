@@ -1,19 +1,24 @@
 package capstone.view.donation;
 
+//기부 완료시 보이는 화면
+//피그마- 기부글_포인트 지급
+
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.controller.UserController;
 import capstone.model.DonationPost;
 import capstone.model.Tier;
 import capstone.model.User;
-import capstone.service.DonationPostService;
-import capstone.service.UserService;
 import capstone.view.Roundborder.RoundedButton;
-import capstone.view.main.DonationPostListView;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static capstone.model.BankType.KB;
 
 public class DonationActionCompleteView extends JFrame {
 
@@ -29,25 +34,11 @@ public class DonationActionCompleteView extends JFrame {
         }
     }
 
-    private final User loginUser;
-    private final UserController userController;
-    private final DonationPostController donationPostController;
-    private final DonationPost uploadedPost; //업로드된 게시물 객체
-    private final DonationPostListView donationPostListView;
-
-
-    public DonationActionCompleteView(User loginUser,
-                                      UserController userController,
-                                      DonationPostController donationPostController,
-                                      int donatedPoint, DonationPost uploadedPost,
-                                      DonationPostListView donationPostListView) {
+    public DonationActionCompleteView(DonationPost post, User loginUser,
+                                      DonationPostController donationPostController, ScrapController scrapController,
+                                      Runnable onPostUpdated,int donatedPoint) {
         super("기부글 업로드 완료");
 
-        this.loginUser = loginUser;
-        this.userController = userController;
-        this.donationPostController = donationPostController;
-        this.uploadedPost = uploadedPost;
-        this.donationPostListView = donationPostListView;
 
         setSize(393, 698);
         setLocationRelativeTo(null);
@@ -94,28 +85,10 @@ public class DonationActionCompleteView extends JFrame {
         mainBtn.setPreferredSize(new Dimension(0, 44));
         mainBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
 
-
-        mainBtn.addActionListener(e -> {
-            dispose(); // 현재 완료 화면 닫기
-            new DonationPostDetailView(
-                    uploadedPost,          // 업로드된 게시물
-                    loginUser,             // 로그인 유저
-                    donationPostController,// 컨트롤러
-                    () -> {                // DonationPostListView의 refreshCardList()
-                        if (this.donationPostListView != null) {
-                            this.donationPostListView.refreshCardList(); // DonationPostListView 새로고침
-                        }
-                    },
-                    this.donationPostListView // DonationPostListView 참조를 전달
-            ).setVisible(true);
-
-        });
-
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBorder(new EmptyBorder(20, 20, 20, 20));
         footer.setOpaque(false); // 바깥 회색 박스 없애기
         footer.add(mainBtn, BorderLayout.CENTER);
-
 
         //  전체 조립
         getContentPane().add(centerPanel, BorderLayout.CENTER);
@@ -123,5 +96,4 @@ public class DonationActionCompleteView extends JFrame {
 
         setVisible(true);
     }
-
 }

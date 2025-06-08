@@ -1,5 +1,7 @@
 package capstone.view;
 
+//기본 뷰
+
 import capstone.model.DonationPost;
 import capstone.view.donation.DonationPostDetailView;
 import capstone.view.donation.DonationPostEditView;
@@ -15,6 +17,7 @@ public abstract class BaseView extends JFrame {
     protected static Font customFont;
     protected JButton backButton;
 
+    //폰트
     static {
         try {
             customFont = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/font1.ttf")).deriveFont(15f);
@@ -25,30 +28,23 @@ public abstract class BaseView extends JFrame {
         }
     }
 
-    public BaseView(String title, JFrame previousView) {
+    public BaseView(String title) {
         super(title);
-        this.previousView = previousView;
 
         // 공통 프레임 설정
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(393, 698); // 9:16 비율
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.WHITE);
-
-        //setVisible(true);
     }
 
-    /**
-     * 공통 헤더 패널 생성
-     * @param title 텍스트
-     * @return JPanel (헤더)
-     */
+    //공통 헤더 패널 생성 메소드
     public JPanel createHeader(String title) {
         JPanel header = new JPanel(null);
         header.setPreferredSize(new Dimension(393, 45));
         header.setBackground(new Color(120, 230, 170));
 
-        // 뒤로가기 버튼 - 공통 메서드 사용
+        // 뒤로가기 버튼
         JButton backBtn = createBackButton();
         header.add(backBtn);
 
@@ -61,20 +57,7 @@ public abstract class BaseView extends JFrame {
         return header;
     }
 
-    // 뒤로가기 버튼에 접근할 수 있는 getter 추가
-    protected JButton getBackButton() {
-        return backButton;
-    }
-
-
-    // NEW: 뒤로가기 버튼에 실행될 커스텀 액션을 설정하는 Runnable 필드 및 setter
-    private Runnable onBackAction;
-
-    public void setOnBackAction(Runnable action) {
-        this.onBackAction = action;
-    }
-
-    // 메뉴바 버튼 만드는 메소드
+    // 삭제,수정할 수 있는 버튼 만드는 메소드
     protected JButton createMenuBarButton() {
         ImageIcon editIcon = new ImageIcon("icons/menuVertical.png");
         Image scaledImg = editIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
@@ -86,11 +69,10 @@ public abstract class BaseView extends JFrame {
         editBtn.setFocusPainted(false);
         editBtn.setBounds(335, 6, 40, 30);
 
-        //리스너는 하위클래스에서 붙일거임
         return editBtn;
     }
 
-    //뒤로 가기 검정버튼 만드는 메소드
+    //뒤로 가기 버튼 만드는 메소드
     protected JButton createBackButton() {
         ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
         Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
@@ -102,41 +84,9 @@ public abstract class BaseView extends JFrame {
         backBtn.setFocusPainted(false);
         backBtn.setBounds(5, 6, 40, 30);
 
-        backBtn.addActionListener(e -> {
-            // 하위 클래스에서 setOnBackAction(Runnable)으로 액션을 설정할 수 있도록 합니다.
-            if (onBackAction != null) {
-                onBackAction.run(); // 커스텀 뒤로가기 액션 실행
-            }
-
-            if (previousView != null) {
-                previousView.setVisible(true);
-            }
-            dispose(); // 현재 뷰 닫기
-        });
-
         return backBtn;
     }
 
-
-    //뒤로 가기 흰색 버튼 만드는 메소드
-    protected JButton createBackWhiteButton() {
-        ImageIcon backIcon = new ImageIcon("icons/arrow-leftw.png");
-        Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
-        ImageIcon resizedIcon = new ImageIcon(scaledImg);
-
-        JButton backBtn = new JButton(resizedIcon);
-        backBtn.setBorderPainted(false);
-        backBtn.setContentAreaFilled(false);
-        backBtn.setFocusPainted(false);
-        backBtn.setOpaque(false);
-        backBtn.setBounds(5, 6, 40, 30);
-
-        backBtn.addActionListener(e -> {
-            if (previousView != null) previousView.setVisible(true);
-            dispose();
-        });
-
-        return backBtn;
-    }
 
 }
+

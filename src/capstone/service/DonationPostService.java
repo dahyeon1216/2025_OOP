@@ -1,55 +1,21 @@
 package capstone.service;
 
+import capstone.dto.DonatedPostInfo;
 import capstone.model.DonationPost;
 import capstone.model.User;
+import capstone.model.DonationRecord;
+import capstone.model.VirtualAccount;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import capstone.model.Tier; // Tier 임포트 (더미 데이터 생성에 필요)
-
 public class DonationPostService {
-    private static DonationPostService instance;
+    private final List<DonationPost> posts = new ArrayList<>();
+    private final List<DonationRecord> donationRecords = new ArrayList<>();
 
-    // 2. 모든 게시글을 저장하는 리스트 (인메모리 데이터베이스 역할)
-    private final List<DonationPost> posts;
-    private int sequence = 1; // 게시글 ID를 위한 시퀀스
-
-    // 3. private 생성자로 외부에서 직접 생성 방지
-    private DonationPostService() {
-        posts = new ArrayList<>();
-        // 서비스 생성 시 초기 데이터 로드
-        initializeDummyData();
-    }
-
-    // 4. 싱글톤 인스턴스를 반환하는 public static 메소드
-    public static DonationPostService getInstance() {
-        if (instance == null) {
-            instance = new DonationPostService();
-        }
-        return instance;
-    }
-
-    // 5. 더미 데이터 초기화 메소드 추가
-    private void initializeDummyData() {
-        // 더미 사용자 생성 (UserService의 싱글톤 인스턴스를 활용하거나 직접 생성)
-        User dummyWriter = new User("writerId", "name", "글쓴이1", "images/profile.jpg", Tier.SILVER);
-        dummyWriter.setPoint(100000); // 더미 유저에게 포인트 부여
-
-        // 진행중 더미 글
-        create(dummyWriter, "images/dog1.jpg", 10000000, LocalDate.now().plusDays(10), "아기 유기견들을 도와주세요", "차가운 길거리에서 발견된 아기 유기견들을 위해 따뜻한 보금자리와 사료를 기부해주세요.");
-        create(dummyWriter, "images/cat1.jpg", 5000000, LocalDate.now().plusDays(20), "길고양이 사료 기부 프로젝트", "매일 배고픈 길고양이들에게 사료를 지원하고 싶습니다. 많은 참여 부탁드립니다.");
-
-        // 완료된 더미 글 (마감일이 지난 글)
-        DonationPost completedPost1 = new DonationPost(dummyWriter, "images/dog2.jpg", 3000000, LocalDate.now().minusDays(5), "성공적으로 완료된 수술비 모금", "아픈 강아지의 수술이 성공적으로 마무리되었습니다. 감사합니다!");
-        completedPost1.setRaisedPoint(completedPost1.getGoalPoint()); // 목표 달성 상태로 설정
-        posts.add(completedPost1);
-        completedPost1.setId(sequence++); // 시퀀스 수동 증가
-    }
-
-
+    // id인 특정 기부글 상세조회
     public DonationPost findById(int id) {
         for (DonationPost post : posts) {
             if (post.getId() == id) {
@@ -59,29 +25,36 @@ public class DonationPostService {
         return null;
     }
 
-
+    // 기부글 작성
     public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
-        post.setId(sequence++);
-        System.out.println("생성된 post ID = " + post.getId());
-        System.out.println("새 게시물 생성: " + post.getTitle());
+
+        String vaAccount = generateVirtualAccount(); // 가상계좌 생성
+        VirtualAccount virtualAccount = new VirtualAccount(writer.getBankType(), vaAccount, writer, post);
+
+        post.setVirtualAccount(virtualAccount);
         posts.add(post);
     }
 
-    public List<DonationPost> getAll() {
-        return new ArrayList<>(posts);
-    }
-
-    public List<DonationPost> getByUser(User user) {
-        List<DonationPost> result = new ArrayList<>();
-        for (DonationPost post : posts) {
-            if (post.getWriter().getUserId().equals(user.getUserId())) {
-                result.add(post);
-            }
+    // 랜덤 가상계좌 생성
+    public String generateVirtualAccount() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        sb.append("VA-"); // prefix (예: 가상계좌의 의미)
+        for (int i = 0; i < 12; i++) {
+            sb.append(random.nextInt(10)); // 0~9 숫자 12자리
         }
-        return result;
+        return sb.toString();
     }
 
+    // 전체 기부글 조회
+    public List<DonationPost> getAll() {
+        return posts.stream()
+                .sorted(Comparator.comparing(DonationPost::getUpFuncAt).reversed()) // 최신 up 순
+                .collect(Collectors.toList());
+    }
+
+    // 기부글 수정
     public void update(int id, String title, String content, String donationImg, int goalPoint, LocalDate endAt) {
         DonationPost post = findById(id);
         if (post != null) {
@@ -90,39 +63,67 @@ public class DonationPostService {
             post.setDonationImg(donationImg);
             post.setGoalPoint(goalPoint);
             post.setEndAt(endAt);
-            System.out.println("Service: 게시물 ID " + id + " 정보 업데이트됨 (제목 등)"); // 디버깅용
         }
     }
 
-    //기부 포인트 업데이트
-    public void updateRaisedPoint(int postId, int donatedAmount) {
-        DonationPost post = findById(postId);
-        if (post != null) {
-            post.setRaisedPoint(post.getRaisedPoint() + donatedAmount);
-            // 필요하다면, 목표 달성 여부 등 상태 업데이트 로직 추가
-            System.out.println("Service: 게시물 ID " + postId + "에 " + donatedAmount + "P 기부됨. 현재 모금액: " + post.getRaisedPoint()); // 디버깅용
-        }
-    }
-
+    // 기부글 삭제
     public void delete(int id) {
         posts.removeIf(p -> p.getId() == id);
     }
 
-    // 진행중 기부글 (마감일이 오늘 이후 AND 목표 금액 미달성)
-    public List<DonationPost> getOngoingPosts() {
-        // posts 리스트에서 필터링 조건을 적용하여 반환
-        return posts.stream()
-                .filter(post -> post.getEndAt().isAfter(LocalDate.now()) && // 마감일이 아직 남았고
-                        post.getRaisedPoint() < post.getGoalPoint()) // 목표 금액에 도달하지 않았을 때
+    // 기부글에 기부하기
+    public boolean donateToPost(DonationPost post, User donor, int donatePpoint) {
+        if (post.isCompleted()) return false; // 이미 종료된 기부글
+        if (donor.getPoint() < donatePpoint) return false;
+
+        donor.setPoint(donor.getPoint() - donatePpoint); // 포인트 차감
+        post.donate(donatePpoint); // 포스트에 기부 반영
+
+        // 사용자의 기부 기록 저장
+        DonationRecord record = new DonationRecord(donor, post, donatePpoint, LocalDateTime.now());
+        donationRecords.add(record);
+        return true;
+    }
+
+    // 사용자의 기부한 내역 조회
+    public List<DonatedPostInfo> getDonatedPostInfos(User user) {
+        return donationRecords.stream()
+                .filter(record -> record.getUser().equals(user))
+                .map(record -> new DonatedPostInfo(
+                        record.getDonationPost(),
+                        record.getPoint(),
+                        record.getCreatedAt()
+                ))
                 .collect(Collectors.toList());
     }
 
-    // 완료된 기부글 (마감일이 오늘이거나 이전 OR 목표 금액 달성)
-    public List<DonationPost> getCompletedPosts() {
-        // posts 리스트에서 필터링 조건을 적용하여 반환
-        return posts.stream()
-                .filter(post -> !post.getEndAt().isAfter(LocalDate.now()) || // 마감일이 지났거나 (오늘 포함)
-                        post.getRaisedPoint() >= post.getGoalPoint()) // 목표 금액에 도달했을 때
-                .collect(Collectors.toList());
+
+    // 기부글 정산하기
+    public boolean settlePost(DonationPost post) {
+        if (post.isCompleted() && !post.isSettled()) {
+            User writer = post.getWriter();
+            VirtualAccount virtualAccount = post.getVirtualAccount();
+
+            if (writer != null && virtualAccount != null) {
+                int actualRaised = post.getRaisedPoint();
+                virtualAccount.setRaisedPoint(actualRaised);
+                virtualAccount.setCurrentPoint(actualRaised);
+                post.settle();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 기부글 up하기
+    public boolean upPost(DonationPost post, User user) {
+        int upCost = 300;
+
+        if (user.getPoint() < upCost) {
+            return false;
+        }
+        user.setPoint(user.getPoint() - upCost);
+        post.setUpFuncAt(LocalDateTime.now());
+        return true;
     }
 }

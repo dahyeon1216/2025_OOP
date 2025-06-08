@@ -1,5 +1,7 @@
 package capstone.view.Roundborder;
 
+//버튼 테두리 동그랗게 만드는 클래스
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -17,6 +19,11 @@ public class RoundedButton extends JButton {
         setBorderPainted(false);
         setOpaque(false); // 배경 투명 처리
         setForeground(Color.WHITE);
+    }
+
+    public RoundedButton(String text, int radius) {
+        super(text);
+        this.radius = radius;
     }
 
     @Override
@@ -41,5 +48,5 @@ public class RoundedButton extends JButton {
         this.backgroundColor = color;
         repaint(); // 색상 변경 후 다시 그리기
     }
-
 }
+

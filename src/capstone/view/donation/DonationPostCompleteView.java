@@ -1,13 +1,14 @@
 package capstone.view.donation;
 
+//기부글 업로드시 보이는 화면
+//피그마 - 기부글 업로드 완료
+
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
 import capstone.model.User;
 import capstone.service.DonationPostService;
-import capstone.service.UserService;
 import capstone.view.Roundborder.RoundedButton;
-import capstone.view.main.DonationPostListView;
-import capstone.view.main.MainView;
+
 
 import java.awt.*;import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -31,16 +32,18 @@ public class DonationPostCompleteView extends JFrame {
     private final User loginUser;
     private final UserController userController;
     private final DonationPostController donationPostController;
-    private final DonationPostListView donationPostListView;
+
+    private DonationPostService donationPostService;
 
     public DonationPostCompleteView(User loginUser, UserController userController,
-                                    DonationPostController donationPostController, DonationPostListView donationPostListView) {
+                                    DonationPostController donationPostController) {
         super("기부글 업로드 완료");
 
         this.loginUser = loginUser;
         this.userController = userController;
         this.donationPostController = donationPostController;
-        this.donationPostListView = donationPostListView;
+        this.donationPostService = new DonationPostService();
+
 
         setSize(393, 698);
         setLocationRelativeTo(null);
@@ -68,9 +71,14 @@ public class DonationPostCompleteView extends JFrame {
         successLabel.setForeground(Color.BLACK);
         successLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
 
-        JLabel accountLabel = new JLabel("모금통장: 12310294234");
+        String virtualAccountNum = "가상계좌 생성 실패";
+        if (this.donationPostService != null) {
+            virtualAccountNum = this.donationPostService.generateVirtualAccount();
+        }
+
+        JLabel accountLabel = new JLabel("모금통장: " + virtualAccountNum);
         accountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        accountLabel.setFont(customFont.deriveFont(Font.BOLD, 24f));
+        accountLabel.setFont(customFont.deriveFont(Font.BOLD, 21f));
         accountLabel.setForeground(Color.GRAY);
         accountLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
 
@@ -86,20 +94,6 @@ public class DonationPostCompleteView extends JFrame {
         mainBtn.setPreferredSize(new Dimension(0, 44));
         mainBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
 
-
-        mainBtn.addActionListener(e -> {
-            dispose(); // 현재 완료 화면 닫기
-
-            // 이전에 저장했던 DonationPostListView 인스턴스를 사용
-            if (this.donationPostListView != null) {
-                this.donationPostListView.refreshCardList(); // <-- 목록 새로 고침 요청
-                this.donationPostListView.setVisible(true); // <-- 목록 뷰 다시 보이게 함
-            } else {
-                // 만약 참조가 없다면, 새로운 뷰를 생성하는 백업 로직 (하지만 가급적이면 참조를 전달하는 것이 좋음)
-                new DonationPostListView(loginUser, donationPostController, null).setVisible(true);
-            }
-        });
-
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBorder(new EmptyBorder(20, 20, 20, 20));
         footer.setOpaque(false); // 바깥 회색 박스 없애기
@@ -111,6 +105,34 @@ public class DonationPostCompleteView extends JFrame {
 
         setVisible(true);
     }
+
+    /*public static void main(String[] args) {
+        // Create dummy User object
+        // Based on the User constructor you provided:
+        // public User(String userId, String password, String name, String nickName,
+        //            String profileImg, BankType bankType, String bankAccount,
+        //            int point, Tier tier)
+        User dummyUser = new User(
+                "testuser",              // userId
+                "password123",           // password
+                "테스트 사용자",           // name
+                "테스트닉네임",            // nickName
+                "profile.jpg",           // profileImg
+                KB,        // bankType
+                "123-4567-8901",         // bankAccount
+                5000,                    // point
+                BRONZE              // tier
+        );
+
+        // Create dummy controller objects (can be null or minimal mocks for UI testing)
+        UserController dummyUserController = new UserController(null); // Pass null or a mock DAO if needed
+        DonationPostController dummyDonationPostController = new DonationPostController(null); // Pass null or mock DAOs
+
+        // Run the UI on the Event Dispatch Thread
+        SwingUtilities.invokeLater(() -> {
+            new DonationPostCompleteView(dummyUser, dummyUserController, dummyDonationPostController);
+        });
+    }*/
 }
 
 

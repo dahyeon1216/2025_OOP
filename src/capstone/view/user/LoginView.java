@@ -5,11 +5,26 @@ import capstone.model.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class LoginView extends JFrame {
     public interface LoginCallback {
         void onLoginSuccess(User user);
     }
+
+    //글씨체 적용
+    private static Font customFont;
+    static {
+        try {
+            customFont = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/font1.ttf")).deriveFont(15f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(customFont);
+        } catch (Exception e) {
+            customFont = new Font("SansSerif", Font.PLAIN, 15); // fallback
+            e.printStackTrace();
+        }
+    }
+
 
     public LoginView(UserController userController, LoginCallback callback) {
         setTitle("로그인");

@@ -1,13 +1,12 @@
 package capstone.view.donation;
 
+//기부글 쓰기 view
+//피그마 --기부글_M_기부글 쓰기
+
 import capstone.controller.DonationPostController;
-import capstone.controller.UserController;
 import capstone.model.User;
-import capstone.service.DonationPostService;
-import capstone.service.UserService;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
-import capstone.view.main.DonationPostListView;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,16 +14,14 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.stream.IntStream;
 
 
 public class DonationPostWriteView extends JFrame {
 
-    private final User user;
-    private final DonationPostListView previousListView;
-    private final DonationPostController donationPostController;
-
+    //커스텀 폰트 로딩
     private static Font customFont;
     static {
         try {
@@ -37,13 +34,9 @@ public class DonationPostWriteView extends JFrame {
         }
     }
 
+    public DonationPostWriteView(User user, DonationPostController controller, Runnable onPostWritten) {
 
-    public DonationPostWriteView(DonationPostListView previousListView,User user, DonationPostController controller) {
         super("기부글 쓰기");
-        this.previousListView = previousListView;
-        this.donationPostController = controller;
-        this.user = user;
-
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(393, 698); // 9:16 비율 적용
         setLocationRelativeTo(null);
@@ -54,17 +47,18 @@ public class DonationPostWriteView extends JFrame {
         header.setPreferredSize(new Dimension(393, 45)); // 높이 45px
         header.setBackground(new Color(120, 230, 170));
 
-        //뒤로가기 버튼
+        //뒤로가기 버튼 생성
         ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
         Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImg);
-
         JButton backBtn = new JButton(resizedIcon);
         backBtn.setBorderPainted(false);
         backBtn.setContentAreaFilled(false);
         backBtn.setFocusPainted(false);
         backBtn.setBounds(5, 6, 40, 30);
-        backBtn.addActionListener(e -> dispose());
+
+        //뒤로가기 버튼 액션 리스너
+        //backBtn.addActionListener(e -> dispose());
         header.add(backBtn);
 
         //헤더 내 텍스트
@@ -75,43 +69,48 @@ public class DonationPostWriteView extends JFrame {
 
         // Body
         JPanel body = new JPanel(null);
-        body.setPreferredSize(new Dimension(393, 653)); // 필요 시 조정
+        body.setPreferredSize(new Dimension(393, 653));
         body.setBackground(Color.WHITE);
 
         // 이미지 박스 (회색 사각형)
-        JLabel imageLabel = new JLabel();
-        imageLabel.setOpaque(true); //내부 채우기 활성화
-        imageLabel.setBackground(new Color(240, 240, 240));
-        imageLabel.setBorder(new RoundedBorder(15));
-        imageLabel.setBounds(20,20,70,70);
+        JLabel imagePreviewLabel = new JLabel();
+        imagePreviewLabel.setOpaque(true); //내부 채우기 활성화
+        imagePreviewLabel.setBackground(new Color(240, 240, 240));
+        imagePreviewLabel.setBorder(new RoundedBorder(15));
+        imagePreviewLabel.setBounds(20,20,70,70);
 
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        imageLabel.setLayout(null); // 내부 버튼을 위해 유지
+        imagePreviewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imagePreviewLabel.setVerticalAlignment(SwingConstants.CENTER);
+        imagePreviewLabel.setLayout(null);
 
-// ➕ 버튼
+        // ➕ 버튼
         ImageIcon plusIcon = new ImageIcon("icons/plus-icon.png");
         Image scaledPlus = plusIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-        JButton addImgBtn = new JButton(new ImageIcon(scaledPlus));
-        addImgBtn.setBounds(75, 20, 80, 60);
-        addImgBtn.setFocusPainted(false);
-        addImgBtn.setContentAreaFilled(false);
-        addImgBtn.setBorderPainted(false);
+        JButton chooseImageBtn = new JButton(new ImageIcon(scaledPlus));
+        chooseImageBtn.setBounds(75, 20, 80, 60);
+        chooseImageBtn.setFocusPainted(false);
+        chooseImageBtn.setContentAreaFilled(false);
+        chooseImageBtn.setBorderPainted(false);
 
-        addImgBtn.addActionListener(e -> {
-            JFileChooser chooser = new JFileChooser();
-            int result = chooser.showOpenDialog(null);
+        final File[] selectedImageFile = {null}; // 선택된 이미지 파일 저장
+
+        //사진 선택 액션리스너
+        /*chooseImageBtn.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("이미지 선택");
+            int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = chooser.getSelectedFile();
-                ImageIcon img = new ImageIcon(selectedFile.getAbsolutePath());
-                Image scaled = img.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                imageLabel.setIcon(new ImageIcon(scaled));
-                imageLabel.setText(null);
-            }
-        });
+                selectedImageFile[0] = fileChooser.getSelectedFile();
+                //imageField.setText(selectedImageFile[0].getName());
 
-        body.add(addImgBtn);
-        body.add(imageLabel); // 위치 조정된 라벨 추가
+                // 미리보기
+                ImageIcon icon = new ImageIcon(new ImageIcon(selectedImageFile[0].getAbsolutePath()).getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH));
+                imagePreviewLabel.setIcon(icon);
+            }
+        });*/
+
+        body.add(chooseImageBtn);
+        body.add(imagePreviewLabel);
 
         // 제목 필드
         JLabel titleLabel = new JLabel("제목");
@@ -136,12 +135,12 @@ public class DonationPostWriteView extends JFrame {
 
         //목표금액 텍스트 필드
         JPanel moneyPanel = new JPanel(new BorderLayout());
-        JTextField goalField = new JTextField("목표 금액을 입력하세요");
-        goalField.setBackground(new Color(240, 240, 240)); //배경색
-        goalField.setForeground(Color.BLACK); //텍스트 색
-        goalField.setBorder(new RoundedBorder(15)); // 둥근 테두리
-        goalField.addFocusListener(placeholderAdapter("목표 금액을 입력하세요"));
-        goalField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        JTextField goalPointField = new JTextField("목표 금액을 입력하세요");
+        goalPointField.setBackground(new Color(240, 240, 240)); //배경색
+        goalPointField.setForeground(Color.BLACK); //텍스트 색
+        goalPointField.setBorder(new RoundedBorder(15)); // 둥근 테두리
+        goalPointField.addFocusListener(placeholderAdapter("목표 금액을 입력하세요"));
+        goalPointField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
 
         // P 텍스트
         JLabel currencyLbl = new JLabel(" P");
@@ -150,7 +149,7 @@ public class DonationPostWriteView extends JFrame {
         currencyLbl.setBackground(Color.WHITE);
         currencyLbl.setFont(new Font("맑은 고딕", Font.BOLD, 18));
 
-        moneyPanel.add(goalField, BorderLayout.CENTER);
+        moneyPanel.add(goalPointField, BorderLayout.CENTER);
         moneyPanel.add(currencyLbl, BorderLayout.EAST);
         moneyPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         moneyPanel.setBounds(18,205, 330, 35);
@@ -163,13 +162,13 @@ public class DonationPostWriteView extends JFrame {
         dateLabel.setBounds(18, 250, 100, 22);
         body.add(dateLabel);
 
-       // 날짜 패널 (Null layout로 배치 수동 조정)
+        // 날짜 패널 (Null layout로 배치 수동 조정)
         JPanel datePanel = new JPanel(null);
         datePanel.setBounds(18, 278, 330, 40);
         datePanel.setBackground(Color.WHITE); // 배경 흰색
         body.add(datePanel);
 
-       // 콤보박스 스타일용 폰트
+        // 콤보박스 스타일용 폰트
         Font comboFont = customFont.deriveFont(Font.PLAIN, 18f);
         Color bgColor = new Color(240, 240, 240);
 
@@ -184,7 +183,7 @@ public class DonationPostWriteView extends JFrame {
         yearCb.setFocusable(false);
         datePanel.add(yearCb);
 
-// 월 콤보박스
+       // 월 콤보박스
         JComboBox<Integer> monthCb = new JComboBox<>();
         IntStream.rangeClosed(1, 12)
                 .forEach(monthCb::addItem);
@@ -195,7 +194,7 @@ public class DonationPostWriteView extends JFrame {
         monthCb.setFocusable(false);
         datePanel.add(monthCb);
 
-// 일 콤보박스
+        // 일 콤보박스
         JComboBox<Integer> dayCb = new JComboBox<>();
         IntStream.rangeClosed(1, 31)
                 .forEach(dayCb::addItem);
@@ -205,7 +204,6 @@ public class DonationPostWriteView extends JFrame {
         dayCb.setFont(comboFont);
         dayCb.setFocusable(false);
         datePanel.add(dayCb);
-
 
         // 설명 필드
         JLabel descLabel = new JLabel("자세한 설명");
@@ -242,51 +240,42 @@ public class DonationPostWriteView extends JFrame {
         getContentPane().add(body, BorderLayout.CENTER);
         getContentPane().add(footer, BorderLayout.SOUTH);
 
-        backBtn.addActionListener(e -> {
-            if (this.previousListView != null) {
-                this.previousListView.setVisible(true); // 이전 목록 화면 다시 보여주기
-            }
-            dispose(); // 현재 화면 닫기
-        });
+        //이 코드는 뒤로가기버튼 리스너를 통해서 구현 가능할 듯 합니다
+        // cancelBtn.addActionListener(e -> dispose());
 
         submitBtn.addActionListener(e -> {
             try {
-                String imgPath = "donationImg.jpg";
                 String title = titleField.getText();
-                String input = goalField.getText();
-                int goalAmount = Integer.parseInt(input); // 숫자로 변환
+                String content = contentArea.getText();
+                int goal = Integer.parseInt(goalPointField.getText());
 
+                //기한을 콤보박스로 받아서 이 코드 필요함
                 int year = (Integer) yearCb.getSelectedItem();
                 int month = (Integer) monthCb.getSelectedItem();
                 int day = (Integer) dayCb.getSelectedItem();
 
                 LocalDate endAt = LocalDate.of(year, month, day);
 
-                String content = contentArea.getText();
+                //이 부분은 제 view 구현 코드에 맞게 사진 받아올 수 있도록 수정했습니다
+                String savedFileName = null;
+                if (selectedImageFile[0] != null) {
+                    String uploadDir = "resources/images";
+                    File targetDir = new File(uploadDir);
+                    if (!targetDir.exists()) targetDir.mkdirs();
 
-                //1. 기부글 생성
-                this.donationPostController.createPost(this.user, imgPath, goalAmount, endAt, title, content);
+                    // 파일명 중복 방지 (타임스탬프 등으로)
+                    String fileName = System.currentTimeMillis() + "_" + selectedImageFile[0].getName();
+                    File destFile = new File(targetDir, fileName);
+                    Files.copy(selectedImageFile[0].toPath(), destFile.toPath());
+                    savedFileName = fileName;
+                }
+
+                controller.createPost(user, savedFileName, goal, endAt, title, content);
                 JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
-
-                // 2. 현재 작성 뷰 닫기
+                if (onPostWritten != null) onPostWritten.run();
                 dispose();
-
-                // 3. DonationPostCompleteView를 띄우면서 DonationPostListView 인스턴스 전달
-                UserService userServiceForCompleteView = UserService.getInstance();
-                UserController userControllerForCompleteView = new UserController(userServiceForCompleteView);
-
-                new DonationPostCompleteView(
-                        this.user,
-                        userControllerForCompleteView,
-                        this.donationPostController,
-                        this.previousListView // <-- DonationPostListView 인스턴스 전달
-                ).setVisible(true);
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "목표 금액은 숫자로 입력해주세요.");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "기부글 등록에 실패했습니다: " + ex.getMessage());
-                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "입력값을 확인해주세요: " + ex.getMessage());
             }
         });
 
@@ -302,6 +291,7 @@ public class DonationPostWriteView extends JFrame {
         setVisible(true);
     }
 
+    //여기부터는 부가적으로 view에 필요한 코드입니다
     private FocusAdapter placeholderAdapter(String placeholder) {
         return new FocusAdapter() {
             @Override
@@ -329,24 +319,42 @@ public class DonationPostWriteView extends JFrame {
         };
     }
 
-
-    //UI 테스트용 main
     /*public static void main(String[] args) {
+        // 1. 더미 User 객체 생성
+        //    User 생성자: public User(String userId, String password, String name, String nickName,
+        //               String profileImg, BankType bankType, String bankAccount,
+        //               int point, Tier tier)
+        User dummyUser = new User(
+                "testuser",              // userId
+                "password123",           // password
+                "테스트 사용자",           // name
+                "테스트닉네임",            // nickName
+                "profile.jpg",           // profileImg (실제 파일이 없어도 UI 테스트에 영향 없음)
+                KB,        // BankType (위에 임시 정의된 enum 사용)
+                "123-4567-8901",         // bankAccount
+                10000,                   // point
+                Tier.SILVER              // Tier (위에 임시 정의된 enum 사용)
+        );
+
+        // 2. 더미 DonationPostController 객체 생성
+        //    컨트롤러의 생성자가 DAO나 Service를 필요로 한다면, 해당 더미 객체들을 전달합니다.
+        //    여기에 예시로 더미 Service와 DAO를 주입합니다.
+        DonationPostController dummyController = new DonationPostController(
+                new DonationPostService() // DummyDonationPostService 인스턴스
+                //new DonationPostDAO(),     // DummyDonationPostDAO 인스턴스
+                //new DummyUserDAO()              // DummyUserDAO 인스턴스
+        );
+
+        // 3. onPostWritten Runnable (게시글 작성 완료 후 호출될 콜백)
+        //    UI 테스트용이므로 간단히 메시지만 출력합니다.
+        Runnable dummyOnPostWritten = () -> {
+            System.out.println("DEBUG: 기부글 작성 완료 콜백이 호출되었습니다 (실제 동작 없음).");
+        };
+
+        // 4. UI를 이벤트 디스패치 스레드에서 실행
         SwingUtilities.invokeLater(() -> {
-            // 테스트용 사용자
-            User testUser = new User("sally1023", "Sally", "프로필 URL 예시");
-            testUser.setUserId("1L");
-            testUser.setNickName("테스트 사용자");
-
-            DonationPostService mockService = new DonationPostService() {
-                //@Override
-                public void createPost(User user, String title, int goal, LocalDate end, String content, String category) {
-                    System.out.println("Mock post created by " + user.getNickName());
-                }
-            };
-
-            DonationPostController testController = new DonationPostController(mockService);
-            new DonationPostWriteView(null,testUser, testController);
+            new DonationPostWriteView(dummyUser, dummyController, dummyOnPostWritten).setVisible(true);
         });
-    }*/
+    }
+*/
 }

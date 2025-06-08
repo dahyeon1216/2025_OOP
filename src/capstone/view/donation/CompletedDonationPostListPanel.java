@@ -1,26 +1,24 @@
-package capstone.view.main;
+package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.User;
-import capstone.view.donation.DonationPostPanelFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class MyDonationPostListPanel extends JPanel {
-    private final DefaultListModel<DonationPost> listModel = new DefaultListModel<>();
-    private final JList<DonationPost> postList = new JList<>(listModel);
+public class CompletedDonationPostListPanel extends JPanel {
     private final User loginUser;
     private final DonationPostController controller;
     private final ScrapController scrapController;
 
     private JPanel postListPanel;
 
-    public MyDonationPostListPanel(DonationPostController controller,
-                                   ScrapController scrapController,
-                                   User loginUser) {
+    public CompletedDonationPostListPanel(User loginUser,
+                                          DonationPostController controller,
+                                          ScrapController scrapController) {
         this.loginUser = loginUser;
         this.controller = controller;
         this.scrapController = scrapController;
@@ -37,13 +35,13 @@ public class MyDonationPostListPanel extends JPanel {
         postListPanel.removeAll();
 
         List<DonationPost> posts = controller.getAllPosts().stream()
-                .filter(post -> post.getWriter() != null && post.getWriter().equals(loginUser)) // 내가 쓴 글만
+                .filter(DonationPost::isCompleted) // 완료된 기부글만
                 .toList();
 
         Runnable onPostUpdated = this::refresh;
 
         JPanel listPanel = DonationPostPanelFactory.createPostListPanel(
-                "내가 작성한 기부글 목록", posts, loginUser, controller, scrapController, onPostUpdated
+                "진행 완료된 기부글 목록", posts, loginUser, controller, scrapController, onPostUpdated
         );
 
         postListPanel.add(listPanel, BorderLayout.CENTER);
@@ -51,4 +49,3 @@ public class MyDonationPostListPanel extends JPanel {
         postListPanel.repaint();
     }
 }
-

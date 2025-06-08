@@ -1,168 +1,122 @@
 package capstone.view.donation;
 
+//기부글 진행중/ 진행완료 세부 조회
+//피그마-기부글_세부내역P
+
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
 import capstone.model.Tier;
 import capstone.model.User;
+import capstone.model.VirtualAccount;
 import capstone.service.DonationPostService;
+import capstone.service.ScrapService;
 import capstone.view.BaseView;
 import capstone.view.Roundborder.RoundedBorder;
 import capstone.view.Roundborder.RoundedButton;
-import capstone.view.main.DonationPostListView;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+
+import static capstone.model.BankType.KB;
+import static capstone.model.BankType.SHINHAN;
 
 public class DonationPostDetailView extends BaseView {
-
-    private final DonationPost post;
-    private final User loginUser;
-    private final DonationPostController controller;
-    private final Runnable refreshAction;
-    private DonationPostListView postListView;
-
-    public DonationPostDetailView(DonationPost post,
-                                  User loginUser,
-                                  DonationPostController controller,
-                                  Runnable refreshAction,
-                                  DonationPostListView listView) {
-        super(post.getTitle(), listView);
-
-        this.post = post;
-        this.loginUser = loginUser;
-        this.controller = controller;
-        this.refreshAction = refreshAction;
-        this.postListView = listView;
+    public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, ScrapController scrapController, Runnable onPostUpdated) {
+        super(post.getTitle());
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setLayout(null);  // 자유 배치
+        mainPanel.setLayout(null);
         mainPanel.setPreferredSize(new Dimension(393, 900));
 
-        // 헤더
+        // 1. 헤더
         JPanel header = createHeader(post.getTitle());
         header.setBounds(0, 0, 393, 45);
 
-        //뒤로가기 버튼 액션 리스너 재정의
-        setOnBackAction(() -> { // BaseView에 추가한 setOnBackAction 메서드 호출
-            // DonationPostListView가 유효한지 확인하고 새로 고칩니다.
-            if (this.postListView != null) {
-                this.postListView.refreshCardList(); // <-- 핵심: 목록 뷰의 데이터를 새로 고침
-                System.out.println("DonationPostDetailView: 뒤로가기 액션 - refreshCardList() 호출됨."); // 디버깅 로그
-                // this.postListView.setVisible(true); // BaseView의 리스너가 이미 setVisible(true)를 처리
-            } else {
-                System.out.println("DonationPostDetailView: 뒤로가기 액션 - postListView가 null이라 새로고침 못함."); // 디버깅 로그
-            }
-        });
+        //삭제, 수정, 정산 버튼
+        //기부글 작성자의 경우에만 나오게 설정
+        if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
 
-        JButton optionButton = createMenuBarButton();
-        optionButton.setBounds(335, 6, 40, 30);
+            JButton optionButton = createMenuBarButton();
+            optionButton.setBounds(335, 6, 40, 30);
 
-        // 팝업 메뉴 생성
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem editMenuItem = new JMenuItem("수정하기");
-        JMenuItem deleteMenuItem = new JMenuItem("삭제하기");
+            // 팝업 메뉴 생성
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem editMenuItem = new JMenuItem("수정하기");
+            JMenuItem deleteMenuItem = new JMenuItem("삭제하기");
+            JMenuItem settleMenuItem = new JMenuItem("정산하기");
 
-        // 로그인한 유저의 ID와 게시글 작성자의 ID를 비교
-        if (loginUser != null && post.getWriter() != null && loginUser.getUserId().equals(post.getWriter().getUserId())) {
             popupMenu.add(editMenuItem);
             popupMenu.add(deleteMenuItem);
-            header.add(optionButton);
-        } else {
-            // 본인 글이 아닐 경우, 메뉴 버튼을을 팝업 메뉴에 추가하지 않음
-        }
 
-        // "수정하기" 메뉴 아이템 액션 리스너
-        editMenuItem.addActionListener(e -> {
-            dispose(); // 현재 상세 뷰 닫기
+            //수정 기능 Item 액션 리스너
+            editMenuItem.addActionListener(e -> {
+                new DonationPostEditView(post, loginUser, donationPostController, () -> {
+                    JOptionPane.showMessageDialog(this, "기부글이 수정되었습니다.");
+                    if (onPostUpdated != null) onPostUpdated.run();
+                    dispose();
+                }).setVisible(true);
+            });
 
-            // 콜백 정의: 수정 완료 후 새 상세 뷰 열기
-            DonationPostEditView.EditCallback callback = (int updatedPostId) -> {
-                // 수정된 게시글 정보를 서비스에서 다시 불러옴
-                DonationPost updatedPost = controller.getPostById(updatedPostId);
+            //삭제 기능 Item 액션 리스너
+            deleteMenuItem.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(this, "정말 삭제하시겠습니까?");
+                if (confirm == JOptionPane.YES_OPTION) {
+                    donationPostController.deletePost(post.getId());
+                    JOptionPane.showMessageDialog(this, "삭제 완료");
+                    if (onPostUpdated != null) onPostUpdated.run();
+                    dispose();
+                }
+            });
 
-                if (updatedPost == null) {
-                    JOptionPane.showMessageDialog(this, "수정된 글 정보를 불러올 수 없습니다."); // this 사용
-                    if (postListView != null) {
-                        postListView.refreshCardList();
-                        postListView.setVisible(true);
+            //정산버튼 액션리스너
+            //진행완료인 기부글인 경우에만 나오게
+            if (post.isCompleted() && !post.isSettled()) {
+
+                settleMenuItem.addActionListener(e -> {
+                    boolean success = donationPostController.settlePost(post);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
+
+                        // 정산 후 사용내역 추가 버튼 활성화
+                        VirtualAccount va = post.getVirtualAccount();
+                        va.setRaisedPoint(post.getRaisedPoint());
+                        va.setCurrentPoint(post.getRaisedPoint());
+                        //usageButton.setEnabled(true);
+                        //-> 이 부분은 아래 사용내역 코드에 존재해서 주석처리했습니다
+
+                        onPostUpdated.run(); // 리스트 패널 새로고침
+                        dispose(); // 상세창 닫기
+                        new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
+                    } else {
+                        JOptionPane.showMessageDialog(this, "정산에 실패했습니다.");
                     }
-                    return;
-                }
-
-                // 새 상세 뷰를 보이도록 설정
-                new DonationPostDetailView(
-                        updatedPost,
-                        loginUser,
-                        controller,
-                        refreshAction,
-                        postListView // ListView 참조 전달
-                ).setVisible(true);
-
-                if (postListView != null) {
-                    postListView.refreshCardList();
-                    postListView.setVisible(false); // 이미 숨겨져 있거나 DetailView가 활성화되면서 숨겨짐
-                }
-
-            };
-
-
-            // 수정 화면 열기
-            new DonationPostEditView(post, loginUser, controller, callback).setVisible(true);
-        });
-
-
-        // "삭제하기" 메뉴 아이템 액션 리스너
-        deleteMenuItem.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(
-                    this, // 부모 컴포넌트: null 대신 this(JFrame)를 사용
-                    "정말로 이 게시글을 삭제하시겠습니까?",
-                    "삭제 확인",
-                    JOptionPane.YES_NO_OPTION
-            );
-
-            if (confirm == JOptionPane.YES_OPTION) {
-                controller.deletePost(post.getId()); // controller를 통해 deletePost 호출
-                JOptionPane.showMessageDialog(this, "게시글이 삭제되었습니다."); // 메시지 먼저 표시 (this 사용)
-
-                dispose(); // 현재 상세 뷰 닫기
-
-                // 삭제 후 목록으로 돌아가야 합니다.
-                if (postListView != null) {
-                    postListView.refreshCardList(); // 목록 새로고침
-                    postListView.setVisible(true); // 목록 뷰를 다시 보이게
-                } else if (refreshAction != null) { // 백업으로 refreshAction 실행
-                    refreshAction.run();
-                    if (previousView != null) previousView.setVisible(true); // 이전 뷰로 돌아감
-                } else {
-                    // 돌아갈 뷰가 없는 경우 (오류 처리 또는 앱 종료)
-                    JOptionPane.showMessageDialog(this, "돌아갈 화면을 찾을 수 없습니다.");
-                    // System.exit(0);
-                }
+                });
+                popupMenu.add(settleMenuItem);
             }
-        });
+            header.add(optionButton);
 
-        // 버튼 리스너: 옵션 버튼 클릭 시 팝업 메뉴 표시
-        optionButton.addActionListener(e -> {
-            // 버튼 아래에 팝업 메뉴가 나타나도록 위치를 조정
-            popupMenu.show(optionButton, 0, optionButton.getHeight());
-        });
+            // optionButton 버튼 리스너: 옵션 버튼 클릭 시 팝업 메뉴 표시
+            optionButton.addActionListener(e -> {
+                popupMenu.show(optionButton, 0, optionButton.getHeight());
+            });
+        }
 
         mainPanel.add(header);
 
-        //이미지 영역
+        // 2. 이미지 영역
         JLabel imageLabel = new JLabel();
         imageLabel.setBounds(0, 45, 393, 393);
 
-        String imagePath = post.getDonationImg();
+        String imgFileName = post.getDonationImg(); // 예: "1717208215022_hello.jpg"
+        String imagePath = "resources/images/" + imgFileName;
         if (imagePath != null && !imagePath.isEmpty()) {
             ImageIcon imageIcon = new ImageIcon(imagePath);
             Image scaled = imageIcon.getImage().getScaledInstance(393, 393, Image.SCALE_SMOOTH);
@@ -178,9 +132,9 @@ public class DonationPostDetailView extends BaseView {
 
         mainPanel.add(imageLabel);
 
-        // 프로필 영역
+        // 3. 프로필 영역
         JPanel profilePanel = new JPanel(null);
-        profilePanel.setBounds(0, 445, 393, 100); // 사진 영역(393) + 헤더(45) 아래
+        profilePanel.setBounds(0, 445, 393, 100);
         profilePanel.setBackground(Color.WHITE);
 
         // 프로필 이미지
@@ -207,11 +161,8 @@ public class DonationPostDetailView extends BaseView {
         nicknameLabel.setBounds(100, 10, 200, 25);
         profilePanel.add(nicknameLabel);
 
-       // 티어
-        JLabel tierLabel = new JLabel( loginUser.getTier() + "티어");
-       //나중에 티어마다 임티 가져오는거 설정하기
-
-       // getTier()는 String or int
+        // 티어
+        JLabel tierLabel = new JLabel(loginUser.getTier() + "티어");
         tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
         tierLabel.setBounds(290, 10, 100, 25);
         profilePanel.add(tierLabel);
@@ -222,7 +173,7 @@ public class DonationPostDetailView extends BaseView {
         goalLabel.setBounds(100, 37, 200, 20);
         profilePanel.add(goalLabel);
 
-// 현재 금액
+        // 현재 금액
         JLabel raisedLabel = new JLabel("현재금액 " + post.getRaisedPoint() + "P");
         raisedLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
         raisedLabel.setBounds(100, 57, 200, 20);
@@ -230,17 +181,17 @@ public class DonationPostDetailView extends BaseView {
 
         mainPanel.add(profilePanel);
 
-        //본문 영역
+        //4. 본문 영역
+
         // 본문 전체를 감쌀 둥근 패널
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(null);
         contentPanel.setBackground(Color.WHITE);
-        contentPanel.setBounds(15, 545, 348, 400); // 좌우 여백 15씩 정확히 맞춤
+        contentPanel.setBounds(15, 545, 348, 400);
 
-
-// 내용 텍스트
+        // 내용 텍스트
         JTextArea contentArea = new JTextArea(post.getContent());
-        contentArea.setBounds(5, 0,340 , 250); // ← 좌우 여백 20px
+        contentArea.setBounds(5, 0, 340, 250); // ← 좌우 여백 20px
         contentArea.setBorder(new RoundedBorder(15));
         contentArea.setBackground(new Color(240, 240, 240));
         contentArea.setLineWrap(true);
@@ -250,27 +201,101 @@ public class DonationPostDetailView extends BaseView {
 
         contentPanel.add(contentArea);
 
-        // 기부하기 버튼 생성 및 설정
-        RoundedButton donationBtn = new RoundedButton("기부하기", new Color(60, 60, 60), 30);
-        donationBtn.setPreferredSize(new Dimension(0, 44));
-        donationBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        donationBtn.setFont(customFont.deriveFont(Font.BOLD, 20f));
-        donationBtn.setForeground(Color.WHITE);
-        donationBtn.setBounds(245, 270, 100, 44);
 
-        donationBtn.addActionListener(e -> {
-            // DonationActionView로 이동
-            // 현재 DonationPostDetailView를 previousView로 전달
-            new DonationActionView(
-                    post, loginUser, controller, this.postListView,this).setVisible(true);
-            this.setVisible(false); // DonationActionView가 닫히면 다시 이 화면이 보이게 하려면
-        });
+        //여기서 up 버튼은 '나의 기부글 패널'에서 구현해야할 것 같습니다!
+        // 기부하기 버튼
+        // 진행 중인 기부글일 때 & 로그인한 유저일 때만 보이게
+        if (!post.isCompleted() && loginUser != null) {
+            //JButton upButton = new JButton("UP 하기");
 
-        contentPanel.add(donationBtn);
+            // 기부하기 버튼 생성 및 설정
+            RoundedButton donateButton = new RoundedButton("기부하기", new Color(60, 60, 60), 30);
+            donateButton.setPreferredSize(new Dimension(0, 44));
+            donateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            donateButton.setFont(customFont.deriveFont(Font.BOLD, 20f));
+            donateButton.setForeground(Color.WHITE);
+            donateButton.setBounds(245, 270, 100, 44);
+
+            donateButton.addActionListener(e -> {
+                String input = JOptionPane.showInputDialog(this, "기부할 포인트를 입력하세요:");
+                if (input != null) {
+                    try {
+                        int amount = Integer.parseInt(input);
+                        if (amount <= 0) throw new NumberFormatException();
+                        boolean success = donationPostController.donate(post, loginUser, amount);
+                        if (success) {
+                            JOptionPane.showMessageDialog(this, "기부 완료!");
+                            onPostUpdated.run(); // 화면 새로고침
+                            dispose();
+
+                            new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "기부 실패. 포인트 부족합니다.");
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "올바른 숫자를 입력하세요.");
+                    }
+                }
+            });
+
+           /* upButton.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "300포인트를 사용하여 기부글을 상단에 노출하시겠습니까?",
+                        "UP 하기 확인",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    boolean success = donationPostController.upPost(post, loginUser);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "기부글이 상단에 노출되었습니다!");
+                        onPostUpdated.run();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "포인트가 부족합니다. 최소 300P가 필요합니다.");
+                    }
+                }
+            })
+            */
+
+            contentPanel.add(donateButton);
+        }
+
+        // 사용내역 버튼
+        // 진행완료된 포스트 && 로그인한 유저일 때만 보이게
+        if (post.isCompleted() && loginUser != null) {
+
+            // 사용내역 버튼 생성 및 설정
+            RoundedButton usageButton = new RoundedButton("사용내역", new Color(60, 60, 60), 30);
+            usageButton.setPreferredSize(new Dimension(0, 44));
+            usageButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            usageButton.setFont(customFont.deriveFont(Font.BOLD, 20f));
+            usageButton.setForeground(Color.WHITE);
+            usageButton.setBounds(245, 270, 100, 44);
+
+            usageButton.setEnabled(post.isSettled()); // 정산 전에는 비활성화
+
+            //이 부분(스크랩)은 DonationPostListPanel로 옮겨야합니다!
+            /*JButton scrapButton = new JButton(
+                    scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
+            );
+
+            scrapButton.addActionListener(e -> {
+                scrapController.toggleScrap(loginUser, post);
+                scrapButton.setText(
+                        scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
+                );
+                if (onPostUpdated != null) onPostUpdated.run(); // 스크랩 후 갱신
+            });*/
+
+            usageButton.addActionListener(e -> {
+                new ReceiptView(post.getVirtualAccount(), loginUser);
+            });
+
+            contentPanel.add(usageButton);
+        }
 
         mainPanel.add(contentPanel);
 
-        //스크롤
+        //스크롤 기능 추가
         JScrollPane scrollPane = new JScrollPane(mainPanel);
         scrollPane.setBounds(0, 0, 393, 698); // 프레임 크기와 동일
         scrollPane.setBorder(null);
@@ -280,8 +305,9 @@ public class DonationPostDetailView extends BaseView {
         add(scrollPane);
 
         setVisible(true);
-        }
+    }
 
+    //----view 부가적인 코드----
     //이미지 둥글게 하는 코드
     private ImageIcon getRoundedImageIcon(String imagePath, int diameter) {
         try {
@@ -317,5 +343,160 @@ public class DonationPostDetailView extends BaseView {
         }
     }
 
-}
+
+    /*
+    public static void main(String[] args) {
+
+        DonationPostService dummyService = new DonationPostService();
+        ScrapService scrapService = new ScrapService();
+        //DonationPostService dummyService = new DonationPostService();
+        //DummyDonationPostDAO dummyPostDAO = new DummyDonationPostDAO();
+        //DummyUserDAO dummyUserDAO = new DummyUserDAO();
+
+        // 컨트롤러의 생성자 파라미터에 맞춰 더미 객체들을 주입
+        DonationPostController dummyController = new DonationPostController(
+                dummyService
+        );
+        ScrapController dummyScrapController = new ScrapController(scrapService);
+
+        // 1. 더미 사용자 (게시글 작성자)
+        User postWriter = new User(
+                "writer123", "pass", "기부글작성자", "작성닉네임",
+                "resources/images/profile_writer.png", KB, "111-222-3333", 5000, Tier.GOLD
+        );
+
+        // 2. 더미 로그인 사용자 (게시글 작성자와 동일한 경우와 다른 경우를 테스트하기 위함)
+        User loggedInUserIsWriter = postWriter; // 로그인 유저가 작성자와 동일
+        User loggedInUserIsNotWriter = new User(
+                "viewer456", "pass", "일반사용자", "뷰어닉",
+                "resources/images/profile_viewer.png", SHINHAN, "444-555-6666", 2000, Tier.BRONZE
+        );
+
+        // 3. onPostUpdated Runnable (UI 갱신 콜백)
+        Runnable dummyOnPostUpdated = () -> {
+            System.out.println("DEBUG: UI 갱신 콜백이 호출되었습니다.");
+        };
+
+        // =========================================================================
+        // 케이스 1: 진행 중인 기부글 (로그인 유저가 작성자인 경우)
+        // - '옵션' 버튼 (수정, 삭제) 보임
+        // - '기부하기' 버튼 보임
+        // - '사용내역' 버튼 안 보임
+        // =========================================================================
+        DonationPost ongoingPostByWriter = new DonationPost(
+                postWriter, "sample_post_ongoing.png", 10000,
+                LocalDate.now().plusWeeks(2), "진행 중인 기부글 (작성자)", "아직 목표에 도달하지 않은 기부글입니다."
+        );
+        ongoingPostByWriter.setRaisedPoint(3000); // 현재 모금액
+
+        System.out.println("\n--- 테스트 케이스 1: 진행 중인 기부글 (작성자 로그인) ---");
+        SwingUtilities.invokeLater(() -> {
+            new DonationPostDetailView(
+                    ongoingPostByWriter,
+                    loggedInUserIsWriter, // 작성자가 로그인
+                    dummyController,
+                    dummyScrapController,
+                    dummyOnPostUpdated
+            ).setVisible(true);
+        });
+
+        // =========================================================================
+        // 케이스 2: 진행 완료 (미정산) 기부글 (로그인 유저가 작성자인 경우)
+        // - '옵션' 버튼 (수정, 삭제, 정산) 보임
+        // - '기부하기' 버튼 안 보임
+        // - '사용내역' 버튼 보임 (비활성화 상태)
+        // =========================================================================
+        DonationPost completedNotSettledPostByWriter = new DonationPost(
+                postWriter, "sample_post_completed.png", 10000,
+                LocalDate.now().minusDays(5), "완료된 기부글 (미정산 - 작성자)", "목표 달성 및 기한 만료되었으나 아직 정산 안됨."
+        );
+        completedNotSettledPostByWriter.setRaisedPoint(10000);
+        completedNotSettledPostByWriter.isCompleted(); // 완료 상태
+
+        System.out.println("\n--- 테스트 케이스 2: 진행 완료 (미정산) 기부글 (작성자 로그인) ---");
+        SwingUtilities.invokeLater(() -> {
+            new DonationPostDetailView(
+                    completedNotSettledPostByWriter,
+                    loggedInUserIsWriter, // 작성자가 로그인
+                    dummyController,
+                    dummyScrapController,
+                    dummyOnPostUpdated
+            ).setVisible(true);
+        });
+
+        // =========================================================================
+        // 케이스 3: 진행 완료 (정산 완료) 기부글 (로그인 유저가 작성자인 경우)
+        // - '옵션' 버튼 (정산은 안 보임) 보임
+        // - '기부하기' 버튼 안 보임
+        // - '사용내역' 버튼 보임 (활성화 상태)
+        // =========================================================================
+        DonationPost completedSettledPostByWriter = new DonationPost(
+                postWriter, "sample_post_completed.png", 10000,
+                LocalDate.now().minusWeeks(1), "완료된 기부글 (정산 완료 - 작성자)", "목표 달성, 기한 만료, 정산 완료됨."
+        );
+        completedSettledPostByWriter.setRaisedPoint(10000);
+        completedSettledPostByWriter.isCompleted();
+        completedSettledPostByWriter.settle(); // 정산 완료 상태
+
+        System.out.println("\n--- 테스트 케이스 3: 진행 완료 (정산 완료) 기부글 (작성자 로그인) ---");
+        SwingUtilities.invokeLater(() -> {
+            new DonationPostDetailView(
+                    completedSettledPostByWriter,
+                    loggedInUserIsWriter, // 작성자가 로그인
+                    dummyController,
+                    dummyScrapController,
+                    dummyOnPostUpdated
+            ).setVisible(true);
+        });
+
+
+
+        // =========================================================================
+        // 케이스 4: 진행 중인 기부글 (로그인 유저가 작성자가 아닌 경우)
+        // - '옵션' 버튼 안 보임
+        // - '기부하기' 버튼 보임
+        // - '사용내역' 버튼 안 보임
+        // =========================================================================
+        DonationPost ongoingPostByOther = new DonationPost(
+                postWriter, "sample_post_ongoing.png", 10000,
+                LocalDate.now().plusWeeks(3), "진행 중인 기부글 (다른 유저)", "다른 사람이 올린 기부글입니다."
+        );
+        ongoingPostByOther.setRaisedPoint(5000);
+
+        System.out.println("\n--- 테스트 케이스 4: 진행 중인 기부글 (다른 유저 로그인) ---");
+        SwingUtilities.invokeLater(() -> {
+            new DonationPostDetailView(
+                    ongoingPostByOther,
+                    loggedInUserIsNotWriter, // 다른 유저가 로그인
+                    dummyController,
+                    dummyScrapController,
+                    dummyOnPostUpdated
+            ).setVisible(true);
+        });
+
+        // =========================================================================
+        // 케이스 5: 진행 완료 (정산 완료) 기부글 (로그인 유저가 작성자가 아닌 경우)
+        // - '옵션' 버튼 안 보임
+        // - '기부하기' 버튼 안 보임
+        // - '사용내역' 버튼 보임 (활성화 상태)
+        // =========================================================================
+        DonationPost completedSettledPostByOther = new DonationPost(
+                postWriter, "1749025729745_package.png", 10000,
+                LocalDate.now().minusDays(10), "완료된 기부글 (정산 완료 - 다른 유저)", "다른 사람이 올린 정산 완료 글."
+        );
+        completedSettledPostByOther.setRaisedPoint(10000);
+        completedSettledPostByOther.isCompleted();
+        completedSettledPostByOther.settle();
+
+        System.out.println("\n--- 테스트 케이스 5: 진행 완료 (정산 완료) 기부글 (다른 유저 로그인) ---");
+        SwingUtilities.invokeLater(() -> {
+            new DonationPostDetailView(
+                    completedSettledPostByOther,
+                    loggedInUserIsNotWriter, // 다른 유저가 로그인
+                    dummyController,
+                    dummyScrapController,
+                    dummyOnPostUpdated
+            ).setVisible(true);
+        });*/
+    }
 

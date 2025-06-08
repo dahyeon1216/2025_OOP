@@ -1,5 +1,6 @@
 package capstone.controller;
 
+import capstone.dto.DonatedPostInfo;
 import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.service.DonationPostService;
@@ -14,19 +15,6 @@ public class DonationPostController {
         this.donationPostService = donationPostService;
     }
 
-    // ID 하나로 특정 post 하나만 가져오는 기능
-    public DonationPost getPostById(int id) {
-        return donationPostService.findById(id);
-    }
-
-    public List<DonationPost> getOngoingPosts() {
-        return donationPostService.getOngoingPosts();
-    }
-
-    public List<DonationPost> getCompletedPosts() {
-        return donationPostService.getCompletedPosts();
-    }
-
     // 기부글 작성
     public void createPost(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         donationPostService.create(writer, donationImg, goalPoint, endAt, title, content);
@@ -35,16 +23,6 @@ public class DonationPostController {
     // 전체 기부글 조회
     public List<DonationPost> getAllPosts() {
         return donationPostService.getAll();
-    }
-
-    // 게시물 모금액 업데이트
-    public void addDonationToPost(int postId, int donatedAmount) {
-        donationPostService.updateRaisedPoint(postId, donatedAmount);
-    }
-
-    // 사용자 ID로 필터링된 기부글 조회 (추후 확장 가능)
-    public List<DonationPost> getPostsByUser(User user) {
-        return donationPostService.getByUser(user);
     }
 
     // 기부글 수정
@@ -56,4 +34,25 @@ public class DonationPostController {
     public void deletePost(int postId) {
         donationPostService.delete(postId);
     }
+
+    // 기부글에 기부하기
+    public boolean donate(DonationPost post, User user, int donatePpoint) {
+        return donationPostService.donateToPost(post, user, donatePpoint);
+    }
+
+    // 사용자의 기부한 내역 조회
+    public List<DonatedPostInfo> getDonatedPostInfos(User user) {
+        return donationPostService.getDonatedPostInfos(user);
+    }
+
+    // 기부글 정산하기
+    public boolean settlePost(DonationPost post) {
+        return donationPostService.settlePost(post);
+    }
+
+    // 기부글 up하기
+    public boolean upPost(DonationPost post, User user) {
+        return donationPostService.upPost(post, user);
+    }
+
 }

@@ -1,5 +1,8 @@
 package capstone.view.Roundborder;
 
+
+//테두리 둥글하게 바꾸는 클래스 (버튼 제외)
+
 import javax.swing.border.Border;
 import java.awt.*;
 

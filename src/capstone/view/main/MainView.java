@@ -1,14 +1,14 @@
 package capstone.view.main;
 
 import capstone.controller.DonationPostController;
+import capstone.controller.ScrapController;
 import capstone.controller.UserController;
 import capstone.model.User;
+import capstone.view.donation.CompletedDonationPostListPanel;
 import capstone.view.donation.DonationPostWriteView;
-import capstone.view.user.LoginView;
-import capstone.view.user.PointChargeView;
-import capstone.view.user.SignupView;
-import capstone.view.user.UserProfileEditView;
-import capstone.view.user.UserProfileView;
+import capstone.view.donation.OngoingDonationPostListPanel;
+import capstone.view.scrap.ScrappedPostListPanel;
+import capstone.view.user.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +17,7 @@ public class MainView extends JFrame {
     private User loginUser;
     private final UserController userController;
     private final DonationPostController donationPostController;
+    private final ScrapController scrapController;
     private JMenu sessionMenu;
 
     private JMenuItem profileView, profileEdit, pointCharge;
@@ -24,12 +25,15 @@ public class MainView extends JFrame {
     private JMenuItem writePost, listPosts;
 
     private JPanel centerPanel;
-    private DonationPostListView donationPostListView;
+    private DonationPostListPanel donationPostListPanel;
+    private OngoingDonationPostListPanel ongoingDonationPostListPanel;
 
-    public MainView(User loginUser, UserController userController, DonationPostController donationPostController) {
+
+    public MainView(User loginUser, UserController userController, DonationPostController donationPostController, ScrapController scrapController) {
         this.loginUser = loginUser;
         this.userController = userController;
         this.donationPostController = donationPostController;
+        this.scrapController = scrapController;
 
         setTitle("메인 메뉴" + (loginUser != null ? " - " + loginUser.getUserId() : " (비로그인)"));
         setSize(600, 400);
@@ -49,10 +53,14 @@ public class MainView extends JFrame {
         loginItem.addActionListener(e -> {
             new LoginView(userController, user -> {
                 this.loginUser = user;
-                setTitle("메인 메뉴(" + user.getUserId()+")");
+                setTitle("메인 메뉴(" + user.getUserId() + ")");
                 sessionMenu.setText(user.getUserId());
-                JOptionPane.showMessageDialog(this, "로그인 성공");
                 updateMenuAccess();
+
+                donationPostListPanel = new DonationPostListPanel(this.loginUser, donationPostController, scrapController);
+                swapCenterPanel(donationPostListPanel);
+
+                JOptionPane.showMessageDialog(this, "로그인 성공");
             }).setVisible(true);
         });
 
@@ -65,8 +73,11 @@ public class MainView extends JFrame {
                 this.loginUser = null;
                 setTitle("메인 메뉴 (비로그인)");
                 sessionMenu.setText("로그인/회원가입");
-                JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
                 updateMenuAccess();
+                centerPanel.removeAll(); // 로그아웃 시 화면 초기화
+                centerPanel.revalidate();
+                centerPanel.repaint();
+                JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
             } else {
                 JOptionPane.showMessageDialog(this, "현재 로그인 상태가 아닙니다.");
             }
@@ -101,19 +112,37 @@ public class MainView extends JFrame {
 
         JMenu myDonationMenu = new JMenu("나의 기부글");
         myPosts = new JMenuItem("내가 쓴 기부글 조회");
-        myScraps = new JMenuItem("스크랩한 기부글 조회 (구현 예정)");
-        myDonations = new JMenuItem("기부 내역 조회 (구현 예정)");
+        myScraps = new JMenuItem("스크랩한 기부글 조회");
+        myDonations = new JMenuItem("기부 내역 조회");
         myDonationMenu.add(myPosts);
         myDonationMenu.add(myScraps);
         myDonationMenu.add(myDonations);
 
         myPosts.addActionListener(e -> {
             if (this.loginUser != null) {
-                swapCenterPanel(new MyDonationPostListPanel(donationPostController, this.loginUser));
+                swapCenterPanel(new MyDonationPostListPanel(donationPostController, scrapController, this.loginUser));
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }
         });
+
+        myScraps.addActionListener(e -> {
+            if (this.loginUser != null) {
+                swapCenterPanel(new ScrappedPostListPanel(this.loginUser, donationPostController, scrapController));
+            } else {
+                JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
+            }
+        });
+
+        myDonations.addActionListener(e -> {
+            if (this.loginUser != null) {
+                swapCenterPanel(new DonationHistoryPanel(this.loginUser, donationPostController, scrapController));
+                revalidate();
+            } else {
+                JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
+            }
+        });
+
 
         JMenu writeMenu = new JMenu("기부글 쓰기");
         writePost = new JMenuItem("기부글 작성하기");
@@ -121,18 +150,38 @@ public class MainView extends JFrame {
 
         writePost.addActionListener(e -> {
             if (this.loginUser != null) {
-                new DonationPostWriteView(this.donationPostListView,this.loginUser, donationPostController).setVisible(true);
+                // 현재 centerPanel 안에 어떤 패널이 있는지 확인해서 refresh 가능한 경우만 콜백으로 전달
+                Runnable onPostWritten = () -> {
+                    OngoingDonationPostListPanel panel = new OngoingDonationPostListPanel(this.loginUser, donationPostController, scrapController);
+                    swapCenterPanel(panel);
+                    panel.refresh();
+                };
+
+                new DonationPostWriteView(this.loginUser, donationPostController, onPostWritten).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "로그인 후 이용 가능합니다.");
             }
         });
 
-        JMenu detailMenu = new JMenu("기부글 상세보기 (구현 예정)");
+        JMenu detailMenu = new JMenu("기부글 상세보기");
+        JMenuItem ongoingItem = new JMenuItem("진행 중인 기부글 보기");
+        JMenuItem completedItem = new JMenuItem("진행 완료된 기부글 보기");
         JMenuItem allPostsItem = new JMenuItem("기부글 전체보기");
+
+        detailMenu.add(ongoingItem);
+        detailMenu.add(completedItem);
         detailMenu.add(allPostsItem);
 
+        ongoingItem.addActionListener(e -> {
+            swapCenterPanel(new OngoingDonationPostListPanel(this.loginUser, donationPostController, scrapController));
+        });
+        completedItem.addActionListener(e -> {
+            swapCenterPanel(new CompletedDonationPostListPanel(this.loginUser, donationPostController, scrapController));
+        });
+
         allPostsItem.addActionListener(e -> {
-            swapCenterPanel(new DonationPostListView(this.loginUser, donationPostController, this));
+            DonationPostListPanel panel = new DonationPostListPanel(this.loginUser, donationPostController, scrapController);
+            swapCenterPanel(panel);
         });
 
         menuBar.add(sessionMenu);
@@ -144,9 +193,7 @@ public class MainView extends JFrame {
         setJMenuBar(menuBar);
 
         // 메인 패널 설정
-        donationPostListView = new DonationPostListView(this.loginUser, donationPostController, this);
         centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(donationPostListView, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
         updateMenuAccess();
     }
