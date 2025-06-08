@@ -106,33 +106,6 @@ public class DonationPostCompleteView extends JFrame {
         setVisible(true);
     }
 
-    /*public static void main(String[] args) {
-        // Create dummy User object
-        // Based on the User constructor you provided:
-        // public User(String userId, String password, String name, String nickName,
-        //            String profileImg, BankType bankType, String bankAccount,
-        //            int point, Tier tier)
-        User dummyUser = new User(
-                "testuser",              // userId
-                "password123",           // password
-                "테스트 사용자",           // name
-                "테스트닉네임",            // nickName
-                "profile.jpg",           // profileImg
-                KB,        // bankType
-                "123-4567-8901",         // bankAccount
-                5000,                    // point
-                BRONZE              // tier
-        );
-
-        // Create dummy controller objects (can be null or minimal mocks for UI testing)
-        UserController dummyUserController = new UserController(null); // Pass null or a mock DAO if needed
-        DonationPostController dummyDonationPostController = new DonationPostController(null); // Pass null or mock DAOs
-
-        // Run the UI on the Event Dispatch Thread
-        SwingUtilities.invokeLater(() -> {
-            new DonationPostCompleteView(dummyUser, dummyUserController, dummyDonationPostController);
-        });
-    }*/
 }
 
 

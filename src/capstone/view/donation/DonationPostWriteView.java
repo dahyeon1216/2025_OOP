@@ -319,42 +319,4 @@ public class DonationPostWriteView extends JFrame {
         };
     }
 
-    /*public static void main(String[] args) {
-        // 1. 더미 User 객체 생성
-        //    User 생성자: public User(String userId, String password, String name, String nickName,
-        //               String profileImg, BankType bankType, String bankAccount,
-        //               int point, Tier tier)
-        User dummyUser = new User(
-                "testuser",              // userId
-                "password123",           // password
-                "테스트 사용자",           // name
-                "테스트닉네임",            // nickName
-                "profile.jpg",           // profileImg (실제 파일이 없어도 UI 테스트에 영향 없음)
-                KB,        // BankType (위에 임시 정의된 enum 사용)
-                "123-4567-8901",         // bankAccount
-                10000,                   // point
-                Tier.SILVER              // Tier (위에 임시 정의된 enum 사용)
-        );
-
-        // 2. 더미 DonationPostController 객체 생성
-        //    컨트롤러의 생성자가 DAO나 Service를 필요로 한다면, 해당 더미 객체들을 전달합니다.
-        //    여기에 예시로 더미 Service와 DAO를 주입합니다.
-        DonationPostController dummyController = new DonationPostController(
-                new DonationPostService() // DummyDonationPostService 인스턴스
-                //new DonationPostDAO(),     // DummyDonationPostDAO 인스턴스
-                //new DummyUserDAO()              // DummyUserDAO 인스턴스
-        );
-
-        // 3. onPostWritten Runnable (게시글 작성 완료 후 호출될 콜백)
-        //    UI 테스트용이므로 간단히 메시지만 출력합니다.
-        Runnable dummyOnPostWritten = () -> {
-            System.out.println("DEBUG: 기부글 작성 완료 콜백이 호출되었습니다 (실제 동작 없음).");
-        };
-
-        // 4. UI를 이벤트 디스패치 스레드에서 실행
-        SwingUtilities.invokeLater(() -> {
-            new DonationPostWriteView(dummyUser, dummyController, dummyOnPostWritten).setVisible(true);
-        });
-    }
-*/
 }
