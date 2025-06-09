@@ -43,6 +43,7 @@ public abstract class BaseView extends JFrame {
 
         // 뒤로가기 버튼
         JButton backBtn = createBackButton();
+        backBtn.addActionListener(e -> dispose());
         header.add(backBtn);
 
         // 타이틀 라벨

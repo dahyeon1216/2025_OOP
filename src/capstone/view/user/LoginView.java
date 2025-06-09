@@ -8,6 +8,8 @@ import capstone.view.style.RoundedBorder;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 
 public class LoginView extends JFrame {
@@ -63,21 +65,68 @@ public class LoginView extends JFrame {
         welcomeLabel2.setFont(customFont.deriveFont(Font.BOLD, 25));
         welcomeLabel2.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JTextField idField = new JTextField();
+        JTextField idField = new JTextField("아이디");
+        idField.setForeground(Color.GRAY);
         idField.setMaximumSize(new Dimension(700, 40));
         idField.setAlignmentX(Component.LEFT_ALIGNMENT);
         idField.setBorder(new RoundedBorder(15));
         idField.setFont(customFont.deriveFont(Font.PLAIN, 14));
         idField.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        idField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (idField.getText().equals("아이디")) {
+                    idField.setText("");
+                    idField.setForeground(Color.BLACK);
+                }
+            }
 
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (idField.getText().isEmpty()) {
+                    idField.setText("아이디");
+                    idField.setForeground(Color.GRAY);
+                }
+            }
+        });
+
+
+        // 기본 생성자로 만들기
         JPasswordField pwField = new JPasswordField();
+
+        // placeholder 설정
+        pwField.setText("비밀번호");
+        pwField.setEchoChar((char) 0); // 가림 문자 제거 (보이게)
+        pwField.setForeground(Color.GRAY);
+
+        // 스타일
         pwField.setMaximumSize(new Dimension(700, 40));
         pwField.setAlignmentX(Component.LEFT_ALIGNMENT);
         pwField.setBorder(new RoundedBorder(15));
         pwField.setFont(customFont.deriveFont(Font.PLAIN, 14));
 
+        // placeholder 동작 구현
+        pwField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (String.valueOf(pwField.getPassword()).equals("비밀번호")) {
+                    pwField.setText("");
+                    pwField.setEchoChar('*'); // 입력 시 가림 문자 적용
+                    pwField.setForeground(Color.BLACK);
+                }
+            }
 
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (String.valueOf(pwField.getPassword()).isEmpty()) {
+                    pwField.setText("비밀번호");
+                    pwField.setEchoChar((char) 0); // 다시 보이게
+                    pwField.setForeground(Color.GRAY);
+                }
+            }
+        });
+        
 
         JButton loginBtn = new JButton("로그인");
         loginBtn.setForeground(Color.BLACK);
@@ -133,9 +182,17 @@ public class LoginView extends JFrame {
         add(panel);
         setVisible(true);
 
+        // 더미 포커스 주기
+        JPanel dummyPanel = new JPanel();
+        dummyPanel.setFocusable(true);
+        add(dummyPanel, BorderLayout.NORTH);
+        SwingUtilities.invokeLater(() -> dummyPanel.requestFocusInWindow());
+
         loginBtn.addActionListener(e -> {
             String id = idField.getText();
             String pw = new String(pwField.getPassword());
+            if (id.equals("아이디")) id = "";
+            if (pw.equals("비밀번호")) pw = "";
             User loginUser = userController.login(id, pw);
 
             if (loginUser != null) {
