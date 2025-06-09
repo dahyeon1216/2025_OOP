@@ -7,6 +7,7 @@ import capstone.model.BankType;
 import capstone.service.DonationPostService;
 import capstone.service.ScrapService;
 import capstone.service.UserService;
+import capstone.view.donation.DonationPostListPanel;
 import capstone.view.user.LoginView;
 import capstone.view.user.SignupView;
 
@@ -35,14 +36,24 @@ public class App extends JFrame {
         add(panel);
         setVisible(true);
 
+        LoginView.LoginCallback loginCallback = user -> {
+            new DonationPostListPanel(user, userController, donationPostController, scrapController);
+        };
+
         loginBtn.addActionListener(e -> {
-            dispose(); // App 창 닫기
-            new LoginView(userController,null);
+            new LoginView(userController, donationPostController, scrapController, loginUser -> {
+                new DonationPostListPanel(loginUser, userController, donationPostController, scrapController);
+            }).setVisible(true);
         });
 
+
         signupBtn.addActionListener(e -> {
-            dispose(); // App 창 닫기
-            new SignupView(userController);
+            dispose();
+            new SignupView(userController, () -> {
+                new LoginView(userController, donationPostController, scrapController, loginUser -> {
+                    new DonationPostListPanel(loginUser, userController, donationPostController, scrapController);
+                });
+            });
         });
     }
 
