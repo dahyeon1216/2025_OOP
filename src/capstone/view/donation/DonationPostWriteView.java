@@ -4,7 +4,11 @@ package capstone.view.donation;
 //피그마 --기부글_M_기부글 쓰기
 
 import capstone.controller.DonationPostController;
+import capstone.controller.UserController;
+import capstone.model.Tier;
 import capstone.model.User;
+import capstone.service.DonationPostService;
+import capstone.service.UserService;
 import capstone.view.style.RoundedBorder;
 import capstone.view.style.RoundedButton;
 
@@ -17,6 +21,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.stream.IntStream;
+
+import static capstone.model.BankType.KB;
 
 
 public class DonationPostWriteView extends JFrame {
@@ -34,7 +40,7 @@ public class DonationPostWriteView extends JFrame {
         }
     }
 
-    public DonationPostWriteView(User user, DonationPostController controller, Runnable onPostWritten) {
+    public DonationPostWriteView(User user, UserController userController, DonationPostController donationPostController, Runnable onPostWritten) {
 
         super("기부글 쓰기");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -58,7 +64,7 @@ public class DonationPostWriteView extends JFrame {
         backBtn.setBounds(5, 6, 40, 30);
 
         //뒤로가기 버튼 액션 리스너
-        //backBtn.addActionListener(e -> dispose());
+        backBtn.addActionListener(e -> dispose());
         header.add(backBtn);
 
         //헤더 내 텍스트
@@ -95,7 +101,7 @@ public class DonationPostWriteView extends JFrame {
         final File[] selectedImageFile = {null}; // 선택된 이미지 파일 저장
 
         //사진 선택 액션리스너
-        /*chooseImageBtn.addActionListener(e -> {
+        chooseImageBtn.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("이미지 선택");
             int result = fileChooser.showOpenDialog(this);
@@ -107,7 +113,7 @@ public class DonationPostWriteView extends JFrame {
                 ImageIcon icon = new ImageIcon(new ImageIcon(selectedImageFile[0].getAbsolutePath()).getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH));
                 imagePreviewLabel.setIcon(icon);
             }
-        });*/
+        });
 
         body.add(chooseImageBtn);
         body.add(imagePreviewLabel);
@@ -259,7 +265,7 @@ public class DonationPostWriteView extends JFrame {
                 //이 부분은 제 view 구현 코드에 맞게 사진 받아올 수 있도록 수정했습니다
                 String savedFileName = null;
                 if (selectedImageFile[0] != null) {
-                    String uploadDir = "resources/images";
+                    String uploadDir = "resources/donation/images";
                     File targetDir = new File(uploadDir);
                     if (!targetDir.exists()) targetDir.mkdirs();
 
@@ -270,8 +276,9 @@ public class DonationPostWriteView extends JFrame {
                     savedFileName = fileName;
                 }
 
-                controller.createPost(user, savedFileName, goal, endAt, title, content);
-                JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
+                donationPostController.createPost(user, savedFileName, goal, endAt, title, content);
+//                JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
+                new DonationPostCompleteView(user, userController, donationPostController);
                 if (onPostWritten != null) onPostWritten.run();
                 dispose();
             } catch (Exception ex) {
@@ -319,7 +326,7 @@ public class DonationPostWriteView extends JFrame {
         };
     }
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         // 1. 더미 User 객체 생성
         //    User 생성자: public User(String userId, String password, String name, String nickName,
         //               String profileImg, BankType bankType, String bankAccount,
@@ -345,6 +352,10 @@ public class DonationPostWriteView extends JFrame {
                 //new DummyUserDAO()              // DummyUserDAO 인스턴스
         );
 
+        UserController dummyController2 = new UserController(
+                new UserService()
+        );
+
         // 3. onPostWritten Runnable (게시글 작성 완료 후 호출될 콜백)
         //    UI 테스트용이므로 간단히 메시지만 출력합니다.
         Runnable dummyOnPostWritten = () -> {
@@ -353,8 +364,8 @@ public class DonationPostWriteView extends JFrame {
 
         // 4. UI를 이벤트 디스패치 스레드에서 실행
         SwingUtilities.invokeLater(() -> {
-            new DonationPostWriteView(dummyUser, dummyController, dummyOnPostWritten).setVisible(true);
+            new DonationPostWriteView(dummyUser, dummyController2, dummyController, dummyOnPostWritten).setVisible(true);
         });
     }
-*/
+
 }

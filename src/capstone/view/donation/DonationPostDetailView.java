@@ -114,7 +114,7 @@ public class DonationPostDetailView extends BaseView {
         // 2. 이미지 영역
         JLabel imageLabel = new JLabel();
         imageLabel.setBounds(0, 45, 393, 393);
-        imageLabel.setIcon(loadImageOrDefault("resources/images/" + post.getDonationImg(), 393, 393));
+        imageLabel.setIcon(loadImageOrDefault("resources/donation/images/" + post.getDonationImg(), 393, 393));
         mainPanel.add(imageLabel);
 
         // 3. 프로필 영역

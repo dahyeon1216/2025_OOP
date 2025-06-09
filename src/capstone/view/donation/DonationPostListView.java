@@ -12,11 +12,12 @@ import capstone.view.user.MyPageMainView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-public class DonationPostListPanel extends BaseView {
+public class DonationPostListView extends BaseView {
     private final User loginUser;
     private final UserController userController;
     private final DonationPostController donationPostController;
@@ -27,7 +28,7 @@ public class DonationPostListPanel extends BaseView {
     private JPanel postListPanel;
 
 
-    public DonationPostListPanel(User loginUser,
+    public DonationPostListView(User loginUser,
                                 UserController userController,
                                 DonationPostController donationPostController,
                                 ScrapController scrapController) {
@@ -97,7 +98,7 @@ public class DonationPostListPanel extends BaseView {
         writeBtn.addActionListener(e ->
         {
             //DonationPostWriteView 호출 시 현재 뷰 숨기기
-            new DonationPostWriteView(loginUser, donationPostController, this::refresh).setVisible(true);
+            new DonationPostWriteView(loginUser, userController, donationPostController, this::refresh).setVisible(true);
         });
 
         JPanel writeBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 20));
@@ -157,8 +158,16 @@ public class DonationPostListPanel extends BaseView {
         card.add(dDayLabel);
 
         // 2. 이미지 (donationImg 경로)
-        ImageIcon rawIcon = new ImageIcon(post.getDonationImg());
-        Image scaledImage = rawIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+        String imgPath = "resources/donation/images/" + post.getDonationImg();
+        File imgFile = new File(imgPath);
+
+        ImageIcon icon;
+        if (imgFile.exists()) {
+            icon = new ImageIcon(imgPath);
+        } else {
+            icon = new ImageIcon("icons/image-fail.png"); // 기본 이미지
+        }
+        Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
         imageLabel.setBounds(10, 40, 60, 60);
         imageLabel.setBorder(new RoundedBorder(15));
@@ -204,7 +213,7 @@ public class DonationPostListPanel extends BaseView {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                    new DonationPostDetailView(post, loginUser, donationPostController, scrapController, DonationPostListPanel.this::refresh);
+                    new DonationPostDetailView(post, loginUser, donationPostController, scrapController, DonationPostListView.this::refresh);
                 }
             }
         });
