@@ -165,7 +165,7 @@ public class DonationPostListView extends BaseView {
         if (imgFile.exists()) {
             icon = new ImageIcon(imgPath);
         } else {
-            icon = new ImageIcon("icons/image-fail.png"); // 기본 이미지
+            icon = new ImageIcon("resources/donation/images/default_donation.png"); // 기본 이미지
         }
         Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
@@ -202,11 +202,32 @@ public class DonationPostListView extends BaseView {
         scrapBtn.setContentAreaFilled(false);
         scrapBtn.setBorderPainted(false);
 
-        /*여기에 스크랩 리스너 추가해주세요!
         scrapBtn.addActionListener(e -> {
-            // 스크랩 로직 (DB 저장 or 로컬 저장 등)
-            JOptionPane.showMessageDialog(this, "스크랩에 저장되었습니다.");
-        });*/
+            scrapController.toggleScrap(loginUser, post);
+
+            boolean isScrapped = scrapController.isScrapped(loginUser, post);
+            scrapBtn.setText(isScrapped ? "스크랩 취소" : "스크랩");
+
+            if (isScrapped) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "스크랩이 추가되었습니다.",
+                        "스크랩 완료",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } else {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "스크랩이 해제되었습니다.",
+                        "스크랩 해제",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+
+            refresh();
+        });
+
+
         card.add(scrapBtn);
 
         card.addMouseListener(new java.awt.event.MouseAdapter() {

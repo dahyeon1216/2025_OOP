@@ -275,6 +275,9 @@ public class DonationPostWriteView extends JFrame {
                     Files.copy(selectedImageFile[0].toPath(), destFile.toPath());
                     savedFileName = fileName;
                 }
+                else{
+                    savedFileName="default_donation.png";
+                }
 
                 donationPostController.createPost(user, savedFileName, goal, endAt, title, content);
 //                JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
