@@ -37,7 +37,8 @@ public class User {
     }
 
     // 회원가입 생성자
-    public User(String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+    public User(String profileImg, String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+        this.profileImg = profileImg;
         this.userId = userId;
         this.password = password;
         this.name = name;

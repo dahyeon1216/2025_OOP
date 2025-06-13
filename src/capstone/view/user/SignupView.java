@@ -2,100 +2,30 @@ package capstone.view.user;
 
 import capstone.controller.UserController;
 import capstone.model.BankType;
+import capstone.service.UserService;
+import capstone.view.BaseView;
+import capstone.view.style.RoundedBorder;
 import capstone.view.style.RoundedButton;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
+public class SignupView extends BaseView {
 
-public class SignupView extends JFrame {
+    private final UserController userController;
 
-    //글씨체 적용
-    private static Font customFont;
-    static {
-        try {
-            customFont = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/font1.ttf")).deriveFont(15f);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(customFont);
-        } catch (Exception e) {
-            customFont = new Font("SansSerif", Font.PLAIN, 15); // fallback
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * @param userController
-     */
     public SignupView(UserController userController, Runnable onSignupSuccess) {
-        setTitle("회원가입");
-        setSize(393, 698);  // 9:16 비율 적용
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        getContentPane().setBackground(Color.WHITE);
-        setLayout(new BorderLayout());
+        super("회원가입");
 
+        this.userController = userController;
 
-        // Header
-        JPanel header = new JPanel(null);
-        header.setPreferredSize(new Dimension(393, 45)); // 높이 45px
-        header.setBackground(new Color(120, 230, 170));
-
-        //header title
-        JLabel title = new JLabel("회원가입");
-        title.setFont(customFont.deriveFont(Font.BOLD, 20));
-        title.setBounds(150, 10, 200, 30);
-        header.add(title);
-
-
-        // 뒤로가기 버튼
-        ImageIcon backIcon = new ImageIcon("icons/arrow-left.png");
-        Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
-        ImageIcon resizedIcon = new ImageIcon(scaledImg);
-
-        JButton backBtn = new JButton(resizedIcon);
-        backBtn.setBorderPainted(false);
-        backBtn.setContentAreaFilled(false);
-        backBtn.setFocusPainted(false);
-        backBtn.setBounds(5, 6, 40, 30);
-        backBtn.addActionListener(e -> dispose());
-        header.add(backBtn);
-
-
-        // 체크 아이콘
-        JLabel idCheckIcon = new JLabel(new ImageIcon("icons/checkicon.png"));
-        idCheckIcon.setVisible(false);
-
-
-        JTextField idField = new JTextField();
-        idField.setMaximumSize(new Dimension(700, 40));
-        idField.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.LIGHT_GRAY));
-        idField.setOpaque(false);
-        idField.setBackground(Color.WHITE);
-        idField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        idField.setForeground(Color.GRAY);
-        idField.setText("아이디/이메일");
-
-
-        idField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { check(); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { check(); }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { check(); }
-
-            public void check() {
-                idCheckIcon.setVisible(!idField.getText().trim().isEmpty());
-            }
-        });
-
-
-        JPanel idPanel = new JPanel(new BorderLayout());
-        idPanel.setMaximumSize(new Dimension(700, 40));
-        idPanel.setOpaque(false);
-        idPanel.add(idField, BorderLayout.CENTER);
-        idPanel.add(idCheckIcon, BorderLayout.EAST);
+        JPanel header = createHeader("회원가입");
 
         // 입력 필드 정의
+        JTextField idField = createRoundedTextField("아이디/이메일");
         JPasswordField pwField = createRoundedPasswordField("비밀번호");
         JPasswordField pwConfirmField = createRoundedPasswordField("비밀번호 재확인");
         JTextField nameField = createRoundedTextField("이름");
@@ -103,51 +33,94 @@ public class SignupView extends JFrame {
         JComboBox<BankType> bankCombo = new JComboBox<>(BankType.values());
         JTextField accountField = createRoundedTextField("연동계좌");
 
-        //회원가입 버튼
+        // 회원가입 버튼
         RoundedButton joinBtn = new RoundedButton("회원가입", new Color(60, 60, 60), 30);
         joinBtn.setPreferredSize(new Dimension(327, 44));
         joinBtn.setMaximumSize(new Dimension(327, 50));
-        joinBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         joinBtn.setFont(customFont.deriveFont(Font.BOLD, 18f));
         joinBtn.setForeground(Color.WHITE);
 
-        //메인 패널 구성
+        // 메인 form 패널 구성 (BoxLayout)
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBackground(Color.WHITE);
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 30, 30));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 28, 20, 30));
 
+        // 프로필 이미지 영역
+        JPanel profilePanel = new JPanel(null);
+        profilePanel.setPreferredSize(new Dimension(130, 100));
+        profilePanel.setMaximumSize(new Dimension(130, 100));
+        profilePanel.setOpaque(false);
 
-        formPanel.add(idPanel); // 아이디 입력창 + 체크아이콘
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        JLabel profileCircle = new JLabel();
+        profileCircle.setBounds(25, 10, 80, 80);
+        profileCircle.setOpaque(true);
+        profileCircle.setBackground(Color.LIGHT_GRAY);
+        profileCircle.setBorder(new RoundedBorder(25));
+        profileCircle.setHorizontalAlignment(SwingConstants.CENTER);
 
-        formPanel.add(pwField);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        ImageIcon plusIcon = new ImageIcon("icons/plus-icon.png");
+        Image plusImg = plusIcon.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
+        JButton plusBtn = new JButton(new ImageIcon(plusImg));
+        plusBtn.setBounds(87, 68, 30, 30);
+        plusBtn.setFocusPainted(false);
+        plusBtn.setContentAreaFilled(false);
+        plusBtn.setBorderPainted(false);
 
-        formPanel.add(pwConfirmField);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        final File[] selectedImageFile = {null};
 
-        formPanel.add(nameField);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        plusBtn.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("이미지 선택");
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                selectedImageFile[0] = fileChooser.getSelectedFile();
 
-        formPanel.add(nicknameField);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+                ImageIcon selectedIcon = new ImageIcon(selectedImageFile[0].getAbsolutePath());
+                Image scaled = selectedIcon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                profileCircle.setIcon(new ImageIcon(scaled));
+                profileCircle.setText(null);
+            }
+        });
 
-        formPanel.add(bankCombo);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        profilePanel.add(plusBtn);
+        profilePanel.add(profileCircle);
+        profilePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        formPanel.add(profilePanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        formPanel.add(accountField);
-        formPanel.add(Box.createVerticalGlue());
+        // 공통 필드 추가 메소드
+        addField(formPanel, idField);
+        addField(formPanel, pwField);
+        addField(formPanel, pwConfirmField);
+        addField(formPanel, nameField);
+        addField(formPanel, nicknameField);
 
+        // 은행 + 계좌번호 입력
+        JPanel accountPanel = new JPanel();
+        accountPanel.setLayout(new BoxLayout(accountPanel, BoxLayout.X_AXIS));
+        accountPanel.setOpaque(false);
+        bankCombo.setPreferredSize(new Dimension(120, 40));
+        accountField.setPreferredSize(new Dimension(180, 40));
+        accountPanel.add(bankCombo);
+        accountPanel.add(Box.createHorizontalStrut(20));
+        accountPanel.add(accountField);
+        accountPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        formPanel.add(accountPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        joinBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         formPanel.add(joinBtn);
 
-        //조립
+        // 가운데 정렬을 위한 외부 패널 적용 (FlowLayout 사용)
+        JPanel outerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        outerPanel.setBackground(Color.WHITE);
+        outerPanel.add(formPanel);
+
         add(header, BorderLayout.NORTH);
-        add(formPanel, BorderLayout.CENTER);
-        setVisible(true);
+        add(outerPanel, BorderLayout.CENTER);
 
-
-        //버튼 동작
+        // 회원가입 버튼 동작
         joinBtn.addActionListener(e -> {
             String userId = idField.getText();
             String pw = new String(pwField.getPassword());
@@ -162,27 +135,49 @@ public class SignupView extends JFrame {
                 return;
             }
 
-            boolean success = userController.signUp(userId, pw, name, nickname, bank, account);
+            String savedProfileFileName = null;
+            if (selectedImageFile[0] != null) {
+                try {
+                    String uploadDir = "resources/profile/images";
+                    File targetDir = new File(uploadDir);
+                    if (!targetDir.exists()) targetDir.mkdirs();
+
+                    String fileName = System.currentTimeMillis() + "_" + selectedImageFile[0].getName();
+                    File destFile = new File(targetDir, fileName);
+                    Files.copy(selectedImageFile[0].toPath(), destFile.toPath());
+                    savedProfileFileName = fileName;
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "프로필 이미지 저장 중 오류 발생: " + ex.getMessage());
+                }
+            }
+
+            boolean success = userController.signUp(savedProfileFileName,userId, pw, name, nickname, bank, account);
             if (success) {
                 JOptionPane.showMessageDialog(this, "회원가입 성공");
                 dispose();
-                onSignupSuccess.run();
+                if (onSignupSuccess != null) {
+                    onSignupSuccess.run();  // 회원가입 성공 콜백 호출
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "이미 존재하는 아이디입니다.");
             }
         });
     }
 
+    // 공통 필드 추가 메소드 (중복 줄이기용)
+    private void addField(JPanel formPanel, JComponent field) {
+        field.setAlignmentX(Component.CENTER_ALIGNMENT);
+        formPanel.add(field);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+    }
 
     private JTextField createRoundedTextField(String placeholder) {
         JTextField field = new JTextField();
-        field.setMaximumSize(new Dimension(700, 40));
-        field.setPreferredSize(new Dimension(700, 40));
-
+        field.setMaximumSize(new Dimension(330, 40));
+        field.setPreferredSize(new Dimension(330, 40));
         field.setFont(new Font("SansSerif", Font.PLAIN, 14));
         field.setText(placeholder);
         field.setForeground(Color.GRAY);
-
         field.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.LIGHT_GRAY));
         field.setOpaque(false);
         field.setBackground(Color.WHITE);
@@ -194,7 +189,6 @@ public class SignupView extends JFrame {
                     field.setForeground(Color.BLACK);
                 }
             }
-
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (field.getText().isEmpty()) {
                     field.setForeground(Color.GRAY);
@@ -207,12 +201,11 @@ public class SignupView extends JFrame {
 
     private JPasswordField createRoundedPasswordField(String placeholder) {
         JPasswordField field = new JPasswordField();
-        field.setMaximumSize(new Dimension(700, 40));
-        field.setPreferredSize(new Dimension(700, 40));
+        field.setMaximumSize(new Dimension(330, 40));
+        field.setPreferredSize(new Dimension(330, 40));
         field.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.LIGHT_GRAY));
         field.setOpaque(false);
         field.setBackground(Color.WHITE);
-
         field.setFont(new Font("SansSerif", Font.PLAIN, 14));
         field.setText(placeholder);
         field.setForeground(Color.GRAY);
@@ -226,7 +219,6 @@ public class SignupView extends JFrame {
                     field.setForeground(Color.BLACK);
                 }
             }
-
             public void focusLost(java.awt.event.FocusEvent e) {
                 String current = new String(field.getPassword());
                 if (current.isEmpty()) {
@@ -240,4 +232,13 @@ public class SignupView extends JFrame {
         return field;
     }
 
+    // UI 테스트용 main
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            UserController dummyController = new UserController(new UserService());
+            SignupView view = new SignupView(dummyController, null);
+            view.setVisible(true);
+        });
+    }
 }
+

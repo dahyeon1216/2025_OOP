@@ -12,8 +12,8 @@ public class UserController {
     }
 
     // 회원가입
-    public boolean signUp(String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
-        return userService.signUp(userId, password, name, nickName, bankType, bankAccount);
+    public boolean signUp(String profileImg, String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+        return userService.signUp(profileImg, userId, password, name, nickName, bankType, bankAccount);
     }
 
     // 로그인
