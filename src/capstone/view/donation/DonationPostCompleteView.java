@@ -5,6 +5,7 @@ package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
+import capstone.model.DonationPost;
 import capstone.model.User;
 import capstone.service.DonationPostService;
 import capstone.view.style.RoundedButton;
@@ -32,19 +33,12 @@ public class DonationPostCompleteView extends JFrame {
     }
 
 
-    private final User loginUser;
-    private final UserController userController;
-    private final DonationPostController donationPostController;
 
     private DonationPostService donationPostService;
 
-    public DonationPostCompleteView(User loginUser, UserController userController,
-                                    DonationPostController donationPostController) {
+    public DonationPostCompleteView(DonationPost createdPost) {
         super("기부글 업로드 완료");
 
-        this.loginUser = loginUser;
-        this.userController = userController;
-        this.donationPostController = donationPostController;
         this.donationPostService = new DonationPostService();
 
 
@@ -74,11 +68,8 @@ public class DonationPostCompleteView extends JFrame {
         successLabel.setForeground(Color.BLACK);
         successLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
 
-        String virtualAccountNum = "가상계좌 생성 실패";
-        if (this.donationPostService != null) {
-            virtualAccountNum = this.donationPostService.generateVirtualAccount();
-        }
-
+        String virtualAccountNum = createdPost.getVirtualAccount().getBankAccount();
+        System.out.println(virtualAccountNum);
         JLabel accountLabel = new JLabel("모금통장: " + virtualAccountNum);
         accountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         accountLabel.setFont(customFont.deriveFont(Font.BOLD, 21f));
@@ -110,6 +101,7 @@ public class DonationPostCompleteView extends JFrame {
         setVisible(true);
     }
 
+    /*
     public static void main(String[] args) {
         // Create dummy User object
         // Based on the User constructor you provided:
@@ -134,9 +126,10 @@ public class DonationPostCompleteView extends JFrame {
 
         // Run the UI on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
-            new DonationPostCompleteView(dummyUser, dummyUserController, dummyDonationPostController);
+            new DonationPostCompleteView();
         });
     }
+    */
 }
 
 

@@ -5,6 +5,7 @@ package capstone.view.donation;
 
 import capstone.controller.DonationPostController;
 import capstone.controller.UserController;
+import capstone.model.DonationPost;
 import capstone.model.Tier;
 import capstone.model.User;
 import capstone.service.DonationPostService;
@@ -279,9 +280,9 @@ public class DonationPostWriteView extends JFrame {
                     savedFileName="default_donation.png";
                 }
 
-                donationPostController.createPost(user, savedFileName, goal, endAt, title, content);
+                DonationPost createdPost = donationPostController.createPost(user, savedFileName, goal, endAt, title, content);
 //                JOptionPane.showMessageDialog(this, "기부글이 등록되었습니다.");
-                new DonationPostCompleteView(user, userController, donationPostController);
+                new DonationPostCompleteView(createdPost);
                 if (onPostWritten != null) onPostWritten.run();
                 dispose();
             } catch (Exception ex) {
