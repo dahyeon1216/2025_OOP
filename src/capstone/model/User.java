@@ -62,7 +62,7 @@ public class User {
     public void setNickName(String nickName) { this.nickName = nickName; }
 
     public String getProfileImg() { return profileImg; }
-    public void setProfileImag(String profileImag) { this.profileImg = profileImag; }
+    public void setProfileImg(String profileImag) { this.profileImg = profileImag; }
 
     public BankType getBankType() { return bankType; }
     public void setBankType(BankType bankType) { this.bankType = bankType; }
