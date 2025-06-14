@@ -24,12 +24,14 @@ public class PointChargeView extends JFrame {
     }
 
     private User loginUser; // 생성자에서 전달받은 loginUser를 저장
+    private final Runnable onPointUpdated;
     private int amountToCharge = 0; // 현재 선택되거나 입력된 충전 예정 금액
     private JLabel currentPointLabel; // "보유 포인트"를 표시하는 라벨 (기존 pointLabel)
     private JLabel selectedAmountLabel; // 사용자가 선택한/입력한 금액을 크게 보여주는 라벨 (예: '34040 P')
 
-    public PointChargeView(User loginUser) {
+    public PointChargeView(User loginUser, Runnable onPointUpdated) {
         this.loginUser = loginUser; // 멤버 변수에 로그인 사용자 정보 저장
+        this.onPointUpdated = onPointUpdated;
 
         setTitle("포인트 충전");
         setSize(393, 698);
@@ -184,6 +186,11 @@ public class PointChargeView extends JFrame {
                 // 실제 포인트 충전 로직 (모델 업데이트)
                 this.loginUser.setPoint(this.loginUser.getPoint() + amountToCharge);
 
+                // MyPageMainView 화면 샐고침 콜백 호출
+                if (onPointUpdated != null) {
+                    onPointUpdated.run();
+                }
+
                 // UI 업데이트
                 currentPointLabel.setText("보유 포인트 " + this.loginUser.getPoint() + " P"); // 보유 포인트 업데이트
                 JOptionPane.showMessageDialog(this, amountToCharge + " P가 충전되었습니다.", "충전 완료", JOptionPane.INFORMATION_MESSAGE);
@@ -207,7 +214,7 @@ public class PointChargeView extends JFrame {
             testUser.setBankType(capstone.model.BankType.SHINHAN);
             testUser.setBankAccount("110989191893");
             testUser.setPoint(0);
-            new PointChargeView(testUser).setVisible(true);
+            new PointChargeView(testUser,null).setVisible(true);
         });
     }
 
