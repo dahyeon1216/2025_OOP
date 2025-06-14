@@ -265,7 +265,7 @@ public class DonationPostWriteView extends JFrame {
                 //이 부분은 제 view 구현 코드에 맞게 사진 받아올 수 있도록 수정했습니다
                 String savedFileName = null;
                 if (selectedImageFile[0] != null) {
-                    String uploadDir = "resources/donation/images";
+                    String uploadDir = "resources/images/donation";
                     File targetDir = new File(uploadDir);
                     if (!targetDir.exists()) targetDir.mkdirs();
 

@@ -114,7 +114,7 @@ public class DonationPostDetailView extends BaseView {
         // 2. 이미지 영역
         JLabel imageLabel = new JLabel();
         imageLabel.setBounds(0, 45, 393, 393);
-        imageLabel.setIcon(loadImageOrDefault("resources/donation/images/" + post.getDonationImg(), 393, 393));
+        imageLabel.setIcon(loadImageOrDefault("resources/images/donation/" + post.getDonationImg(), 393, 393));
         mainPanel.add(imageLabel);
 
         // 3. 프로필 영역
@@ -126,14 +126,13 @@ public class DonationPostDetailView extends BaseView {
         JLabel profileImg = new JLabel();
         profileImg.setBounds(15, 15, 70, 70);
 
-        String profilePath = loginUser.getProfileImg();
+        String profilePath = "resources/images/profile/" + loginUser.getProfileImg();
 
-
-        if (profilePath != null && !profilePath.isEmpty()) {
-
-            ImageIcon roundedIcon = getRoundedImageIcon(profilePath, 70);
+        ImageIcon roundedIcon = getRoundedImageIcon(profilePath, 70);
+        if (roundedIcon != null) {
             profileImg.setIcon(roundedIcon);
         } else {
+            // 이미지 파일을 못 읽었을 경우 fallback 색상 적용
             profileImg.setOpaque(true);
             profileImg.setBackground(Color.LIGHT_GRAY);
         }
@@ -323,8 +322,5 @@ public class DonationPostDetailView extends BaseView {
             return null;
         }
     }
-
-
-
 }
 

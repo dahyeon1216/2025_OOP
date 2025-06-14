@@ -7,8 +7,11 @@ import capstone.view.BaseView;
 import capstone.view.style.RoundedBorder;
 import capstone.view.style.RoundedButton;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,15 +57,23 @@ public class SignupView extends BaseView {
 
         JLabel profileCircle = new JLabel();
         profileCircle.setBounds(25, 10, 80, 80);
-        profileCircle.setOpaque(true);
-        profileCircle.setBackground(Color.LIGHT_GRAY);
-        profileCircle.setBorder(new RoundedBorder(25));
+
+        // 이미지 로드 및 스케일링
+        ImageIcon roundedIcon = getRoundedImageIcon("icons/default-profile.png", 80);
+        if (roundedIcon != null) {
+            profileCircle.setIcon(roundedIcon);
+        } else {
+            // 이미지 파일을 못 읽었을 경우 fallback 색상 적용
+            profileCircle.setOpaque(true);
+            profileCircle.setBackground(Color.LIGHT_GRAY);
+        }
         profileCircle.setHorizontalAlignment(SwingConstants.CENTER);
+
 
         ImageIcon plusIcon = new ImageIcon("icons/plus-icon.png");
         Image plusImg = plusIcon.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
         JButton plusBtn = new JButton(new ImageIcon(plusImg));
-        plusBtn.setBounds(87, 68, 30, 30);
+        plusBtn.setBounds(85, 65, 30, 30);
         plusBtn.setFocusPainted(false);
         plusBtn.setContentAreaFilled(false);
         plusBtn.setBorderPainted(false);
@@ -76,7 +87,7 @@ public class SignupView extends BaseView {
             if (result == JFileChooser.APPROVE_OPTION) {
                 selectedImageFile[0] = fileChooser.getSelectedFile();
 
-                ImageIcon selectedIcon = new ImageIcon(selectedImageFile[0].getAbsolutePath());
+                ImageIcon selectedIcon = getRoundedImageIcon(selectedImageFile[0].getAbsolutePath(), 80);
                 Image scaled = selectedIcon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
                 profileCircle.setIcon(new ImageIcon(scaled));
                 profileCircle.setText(null);
@@ -138,7 +149,7 @@ public class SignupView extends BaseView {
             String savedProfileFileName = null;
             if (selectedImageFile[0] != null) {
                 try {
-                    String uploadDir = "resources/profile/images";
+                    String uploadDir = "resources/images/profile/";
                     File targetDir = new File(uploadDir);
                     if (!targetDir.exists()) targetDir.mkdirs();
 
@@ -149,6 +160,9 @@ public class SignupView extends BaseView {
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(this, "프로필 이미지 저장 중 오류 발생: " + ex.getMessage());
                 }
+            }
+            else{
+                savedProfileFileName = "default-profile.png";
             }
 
             boolean success = userController.signUp(savedProfileFileName,userId, pw, name, nickname, bank, account);
@@ -230,6 +244,41 @@ public class SignupView extends BaseView {
         });
 
         return field;
+    }
+
+    //이미지 둥글게 하는 코드
+    private ImageIcon getRoundedImageIcon(String imagePath, int diameter) {
+        try {
+            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+            int imgWidth = originalImage.getWidth();
+            int imgHeight = originalImage.getHeight();
+
+            // Center Crop: 이미지 비율 무시하고 꽉 차게 확대
+            float scale = Math.max((float) diameter / imgWidth, (float) diameter / imgHeight);
+            int scaledWidth = Math.round(imgWidth * scale);
+            int scaledHeight = Math.round(imgHeight * scale);
+
+            Image scaledImage = originalImage.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+
+            // 원형 마스킹용 버퍼 생성
+            BufferedImage rounded = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = rounded.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // 자른 이미지의 중심을 원에 맞춤
+            int x = (scaledWidth - diameter) / 2;
+            int y = (scaledHeight - diameter) / 2;
+
+            // 원형 클리핑
+            g2.setClip(new Ellipse2D.Float(0, 0, diameter, diameter));
+            g2.drawImage(scaledImage, -x, -y, null);
+            g2.dispose();
+
+            return new ImageIcon(rounded);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // UI 테스트용 main

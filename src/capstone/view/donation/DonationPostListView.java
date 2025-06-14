@@ -158,14 +158,14 @@ public class DonationPostListView extends BaseView {
         card.add(dDayLabel);
 
         // 2. 이미지 (donationImg 경로)
-        String imgPath = "resources/donation/images/" + post.getDonationImg();
+        String imgPath = "resources/images/donation/" + post.getDonationImg();
         File imgFile = new File(imgPath);
 
         ImageIcon icon;
         if (imgFile.exists()) {
             icon = new ImageIcon(imgPath);
         } else {
-            icon = new ImageIcon("resources/donation/images/default_donation.png"); // 기본 이미지
+            icon = new ImageIcon("icons/default_donation.png"); // 기본 이미지
         }
         Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
@@ -273,14 +273,9 @@ public class DonationPostListView extends BaseView {
         profileBtn.setFocusPainted(false);
 
         profileBtn.addActionListener(e -> {
-            JFrame myPageFrame = new JFrame("마이페이지 - " + loginUser.getNickName());
-            myPageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            myPageFrame.setSize(400, 700);
-            myPageFrame.setLocationRelativeTo(null);
-            myPageFrame.setContentPane(new MyPageMainView(loginUser, userController,donationPostController, scrapController));
+            MyPageMainView myPageFrame = new MyPageMainView(loginUser, userController, donationPostController, scrapController);
             myPageFrame.setVisible(true);
         });
-
 
         header.add(profileBtn);
     }

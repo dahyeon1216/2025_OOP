@@ -81,7 +81,7 @@ public class DonationHistoryView extends BaseView {
         card.setOpaque(true);
 
         // 이미지
-        String imgPath = "resources/donation/images/" + post.getDonationImg();
+        String imgPath = "resources/images/donation/" + post.getDonationImg();
         File imgFile = new File(imgPath);
         ImageIcon icon = imgFile.exists() ? new ImageIcon(imgPath) : new ImageIcon("icons/image-fail.png");
         Image scaledImage = icon.getImage().getScaledInstance(65, 65, Image.SCALE_SMOOTH);
