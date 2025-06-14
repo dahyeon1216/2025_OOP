@@ -37,7 +37,7 @@ public class DonationPostService {
     }
 
     // 랜덤 가상계좌 생성
-    private String generateVirtualAccount() {
+    public String generateVirtualAccount() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         sb.append("VA-"); // prefix (예: 가상계좌의 의미)
