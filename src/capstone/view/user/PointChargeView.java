@@ -187,6 +187,7 @@ public class PointChargeView extends JFrame {
                 // UI 업데이트
                 currentPointLabel.setText("보유 포인트 " + this.loginUser.getPoint() + " P"); // 보유 포인트 업데이트
                 JOptionPane.showMessageDialog(this, amountToCharge + " P가 충전되었습니다.", "충전 완료", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
 
                 // 충전 후 상태 초기화
                 amountToCharge = 0; // 충전 예정 금액 초기화
