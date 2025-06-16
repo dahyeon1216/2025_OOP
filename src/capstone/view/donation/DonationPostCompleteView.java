@@ -101,35 +101,40 @@ public class DonationPostCompleteView extends JFrame {
         setVisible(true);
     }
 
-    /*
     public static void main(String[] args) {
-        // Create dummy User object
-        // Based on the User constructor you provided:
-        // public User(String userId, String password, String name, String nickName,
-        //            String profileImg, BankType bankType, String bankAccount,
-        //            int point, Tier tier)
-        User dummyUser = new User(
-                "testuser",              // userId
-                "password123",           // password
-                "테스트 사용자",           // name
-                "테스트닉네임",            // nickName
-                "profile.jpg",           // profileImg
-                KB,        // bankType
-                "123-4567-8901",         // bankAccount
-                5000,                    // point
-                BRONZE              // tier
-        );
-
-        // Create dummy controller objects (can be null or minimal mocks for UI testing)
-        UserController dummyUserController = new UserController(null); // Pass null or a mock DAO if needed
-        DonationPostController dummyDonationPostController = new DonationPostController(null); // Pass null or mock DAOs
-
-        // Run the UI on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
-            new DonationPostCompleteView();
+            // 더미 User 생성
+            User dummyUser = new User(
+                    "testuser",
+                    "password123",
+                    "테스트 사용자",
+                    "테스트닉네임",
+                    "profile.jpg",
+                    KB,
+                    "123-4567-8901",
+                    10000,
+                    BRONZE
+            );
+
+            // 더미 DonationPost 생성 (가상계좌까지 생성해야 하므로 setVirtualAccount() 필요)
+            DonationPost dummyPost = new DonationPost(
+                    dummyUser,
+                    "donation.jpg",
+                    50000,
+                    java.time.LocalDate.now().plusDays(30),
+                    "기부 테스트",
+                    "내용"
+            );
+
+            // 가상 계좌 (더미)
+            capstone.model.VirtualAccount va = new capstone.model.VirtualAccount(KB, "110-1234-5678");
+            dummyPost.setVirtualAccount(va);
+
+            // View 실행
+            new DonationPostCompleteView(dummyPost);
         });
     }
-    */
+
 }
 
 
