@@ -183,9 +183,13 @@ public class DonationPostListView extends BaseView {
         card.add(titleLabel);
 
         // 4. 진행률 계산 (raisedPoint / goalPoint)
-        int percent = post.getGoalPoint() == 0 ? 0 :
-                (int) ((double) post.getRaisedPoint() / post.getGoalPoint() * 100);
-        JLabel progressLabel = new JLabel("진행률 " + percent + "% (" + post.getRaisedPoint() + "P)");
+        int goal = post.getGoalPoint();
+        int current = post.getRaisedPoint();
+        double rawPercent = goal > 0 ? ((double) current / goal) * 100 : 0;
+        double cappedPercent = Math.min(100.0, rawPercent);
+        String percentText = String.format("%.1f%%", cappedPercent);
+
+        JLabel progressLabel = new JLabel("진행률 " + percentText + " (" + current + "P)");
         progressLabel.setFont(customFont.deriveFont(Font.PLAIN, 20f));
         int progressY = 45 + titleHeight + 5;
         progressLabel.setBounds(100, progressY, 250, 20);
