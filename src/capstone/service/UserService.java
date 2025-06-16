@@ -10,9 +10,9 @@ public class UserService {
     private final Map<String, User> userMap = new HashMap<>();
 
     // 회원가입
-    public boolean signUp(String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+    public boolean signUp(String profileImg, String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
         if (userMap.containsKey(userId)) return false;
-        User user = new User(userId, password, name, nickName, bankType, bankAccount);
+        User user = new User(profileImg, userId, password, name, nickName, bankType, bankAccount);
         userMap.put(userId, user);
         return true;
     }

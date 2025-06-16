@@ -16,8 +16,8 @@ public class DonationPostController {
     }
 
     // 기부글 작성
-    public void createPost(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
-        donationPostService.create(writer, donationImg, goalPoint, endAt, title, content);
+    public DonationPost createPost(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
+        return donationPostService.create(writer, donationImg, goalPoint, endAt, title, content);
     }
 
     // 전체 기부글 조회

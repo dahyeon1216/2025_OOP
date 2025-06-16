@@ -37,7 +37,8 @@ public class User {
     }
 
     // 회원가입 생성자
-    public User(String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+    public User(String profileImg, String userId, String password, String name, String nickName, BankType bankType, String bankAccount) {
+        this.profileImg = profileImg;
         this.userId = userId;
         this.password = password;
         this.name = name;
@@ -61,7 +62,7 @@ public class User {
     public void setNickName(String nickName) { this.nickName = nickName; }
 
     public String getProfileImg() { return profileImg; }
-    public void setProfileImag(String profileImag) { this.profileImg = profileImag; }
+    public void setProfileImg(String profileImag) { this.profileImg = profileImag; }
 
     public BankType getBankType() { return bankType; }
     public void setBankType(BankType bankType) { this.bankType = bankType; }

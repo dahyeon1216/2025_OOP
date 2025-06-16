@@ -26,7 +26,7 @@ public class DonationPostService {
     }
 
     // 기부글 작성
-    public void create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
+    public DonationPost create(User writer, String donationImg, int goalPoint, LocalDate endAt, String title, String content) {
         DonationPost post = new DonationPost(writer, donationImg, goalPoint, endAt, title, content);
 
         String vaAccount = generateVirtualAccount(); // 가상계좌 생성
@@ -34,10 +34,12 @@ public class DonationPostService {
 
         post.setVirtualAccount(virtualAccount);
         posts.add(post);
+
+        return post;
     }
 
     // 랜덤 가상계좌 생성
-    private String generateVirtualAccount() {
+    public String generateVirtualAccount() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         sb.append("VA-"); // prefix (예: 가상계좌의 의미)

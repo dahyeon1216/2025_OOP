@@ -1,75 +1,204 @@
 package capstone.view.donation;
 
+//기부글 진행중/ 진행완료 세부 조회
+//피그마-기부글_세부내역P
+
 import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
+import capstone.model.Tier;
 import capstone.model.User;
 import capstone.model.VirtualAccount;
+import capstone.service.DonationPostService;
+import capstone.service.ScrapService;
+import capstone.view.BaseView;
+import capstone.view.style.RoundedBorder;
+import capstone.view.style.RoundedButton;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
 
-public class DonationPostDetailView extends JFrame {
+import static capstone.model.BankType.KB;
+import static capstone.model.BankType.SHINHAN;
+
+public class DonationPostDetailView extends BaseView {
     public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, ScrapController scrapController, Runnable onPostUpdated) {
-        setTitle("기부글 상세 보기");
-        setSize(500, 450);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        super(post.getTitle());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setLayout(null);
+        mainPanel.setPreferredSize(new Dimension(393, 900));
 
-        // 이미지 미리보기 표시
-        String imgFileName = post.getDonationImg(); // 예: "1717208215022_hello.jpg"
-        if (imgFileName != null && !imgFileName.isBlank()) {
-            String imagePath = "resources/images/" + imgFileName;
-            File imgFile = new File(imagePath);
-            if (imgFile.exists()) {
-                ImageIcon icon = new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(300, 200, Image.SCALE_SMOOTH));
-                JLabel imageLabel = new JLabel(icon);
-                imageLabel.setBorder(BorderFactory.createTitledBorder("기부 이미지"));
-                panel.add(imageLabel);
-            } else {
-                panel.add(new JLabel("이미지 파일이 존재하지 않습니다."));
+        // 1. 헤더
+        JPanel header = createHeader(post.getTitle());
+        header.setBounds(0, 0, 393, 45);
+
+        //삭제, 수정, 정산 버튼
+        //기부글 작성자의 경우에만 나오게 설정
+        if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
+
+            JButton optionButton = createMenuBarButton();
+            optionButton.setBounds(335, 6, 40, 30);
+
+            // 팝업 메뉴 생성
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem editMenuItem = new JMenuItem("수정하기");
+            JMenuItem deleteMenuItem = new JMenuItem("삭제하기");
+            JMenuItem settleMenuItem = new JMenuItem("정산하기");
+
+            popupMenu.add(editMenuItem);
+            popupMenu.add(deleteMenuItem);
+
+            //수정 기능 Item 액션 리스너
+            editMenuItem.addActionListener(e -> {
+                new DonationPostEditView(post, loginUser, donationPostController, () -> {
+                    JOptionPane.showMessageDialog(this, "기부글이 수정되었습니다.");
+                    if (onPostUpdated != null) onPostUpdated.run();
+                    dispose();
+                }).setVisible(true);
+            });
+
+            //삭제 기능 Item 액션 리스너
+            deleteMenuItem.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(this, "정말 삭제하시겠습니까?");
+                if (confirm == JOptionPane.YES_OPTION) {
+                    donationPostController.deletePost(post.getId());
+                    JOptionPane.showMessageDialog(this, "삭제 완료");
+                    if (onPostUpdated != null) onPostUpdated.run();
+                    dispose();
+                }
+            });
+
+            //정산버튼 액션리스너
+            //진행완료인 기부글인 경우에만 나오게
+            if (post.isCompleted() && !post.isSettled()) {
+
+                settleMenuItem.addActionListener(e -> {
+                    boolean success = donationPostController.settlePost(post);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
+
+                        // 정산 후 사용내역 추가 버튼 활성화
+                        VirtualAccount va = post.getVirtualAccount();
+                        va.setRaisedPoint(post.getRaisedPoint());
+                        va.setCurrentPoint(post.getRaisedPoint());
+                        //usageButton.setEnabled(true);
+                        //-> 이 부분은 아래 사용내역 코드에 존재해서 주석처리했습니다
+
+                        onPostUpdated.run(); // 리스트 패널 새로고침
+                        dispose(); // 상세창 닫기
+                        new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
+                    } else {
+                        JOptionPane.showMessageDialog(this, "정산에 실패했습니다.");
+                    }
+                });
+                popupMenu.add(settleMenuItem);
             }
-        } else {
-            panel.add(new JLabel("이미지 없음"));
+            header.add(optionButton);
+
+            // optionButton 버튼 리스너: 옵션 버튼 클릭 시 팝업 메뉴 표시
+            optionButton.addActionListener(e -> {
+                popupMenu.show(optionButton, 0, optionButton.getHeight());
+            });
         }
 
+        mainPanel.add(header);
 
-        panel.add(new JLabel("제목: " + post.getTitle()));
-        panel.add(new JLabel("작성자: " + (post.getWriter() != null ? post.getWriter().getUserId() : "익명")));
-        panel.add(new JLabel("내용: "));
+        // 2. 이미지 영역
+        JLabel imageLabel = new JLabel();
+        imageLabel.setBounds(0, 45, 393, 393);
+        imageLabel.setIcon(loadImageOrDefault("resources/images/donation/" + post.getDonationImg(), 393, 393));
+        mainPanel.add(imageLabel);
 
+        // 3. 프로필 영역
+        JPanel profilePanel = new JPanel(null);
+        profilePanel.setBounds(0, 445, 393, 100);
+        profilePanel.setBackground(Color.WHITE);
+
+        // 프로필 이미지
+        JLabel profileImg = new JLabel();
+        profileImg.setBounds(15, 15, 70, 70);
+
+        String profilePath = "resources/images/profile/" + loginUser.getProfileImg();
+
+        ImageIcon roundedIcon = getRoundedImageIcon(profilePath, 70);
+        if (roundedIcon != null) {
+            profileImg.setIcon(roundedIcon);
+        } else {
+            // 이미지 파일을 못 읽었을 경우 fallback 색상 적용
+            profileImg.setOpaque(true);
+            profileImg.setBackground(Color.LIGHT_GRAY);
+        }
+
+        profilePanel.add(profileImg);
+
+        // 닉네임
+        JLabel nicknameLabel = new JLabel(loginUser.getNickName());
+        nicknameLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        nicknameLabel.setBounds(100, 10, 170, 25);
+        profilePanel.add(nicknameLabel);
+
+        // 티어
+        JLabel tierLabel = new JLabel(loginUser.getTier());
+        tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        tierLabel.setBounds(290, 10, 100, 25);
+        profilePanel.add(tierLabel);
+
+        // 목표 금액
+        JLabel goalLabel = new JLabel("목표금액 " + post.getGoalPoint() + "P");
+        goalLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        goalLabel.setBounds(100, 37, 200, 20);
+        profilePanel.add(goalLabel);
+
+        // 현재 금액
+        JLabel raisedLabel = new JLabel("현재금액 " + post.getRaisedPoint() + "P");
+        raisedLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        raisedLabel.setBounds(100, 57, 200, 20);
+        profilePanel.add(raisedLabel);
+
+        mainPanel.add(profilePanel);
+
+        //4. 본문 영역
+
+        // 본문 전체를 감쌀 둥근 패널
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(null);
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBounds(15, 545, 348, 400);
+
+        // 내용 텍스트
         JTextArea contentArea = new JTextArea(post.getContent());
-        contentArea.setEditable(false);
+        contentArea.setBounds(5, 0, 340, 250); // ← 좌우 여백 20px
+        contentArea.setBorder(new RoundedBorder(15));
+        contentArea.setBackground(new Color(240, 240, 240));
         contentArea.setLineWrap(true);
         contentArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(contentArea);
-        scrollPane.setPreferredSize(new Dimension(400, 150));
-        panel.add(scrollPane);
+        contentArea.setEditable(false); //읽기 전용
+        contentArea.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
-        panel.add(new JLabel("이미지: " + post.getDonationImg()));
-        panel.add(new JLabel("목표 포인트: " + post.getGoalPoint()));
-        panel.add(new JLabel("현재 기부된 포인트: " + post.getRaisedPoint()));
-        panel.add(new JLabel("모금 종료일: " + (post.getEndAt() != null ? post.getEndAt().toString() : "없음")));
+        contentPanel.add(contentArea);
 
-        int goal = post.getGoalPoint();
-        int current = post.getRaisedPoint();
-        double rawPercent = goal > 0 ? ((double) current / goal) * 100 : 0;
-        double cappedPercent = Math.min(100.0, rawPercent);
-        String percentText = String.format("%.1f%%", cappedPercent);
-        panel.add(new JLabel("진행률: " + percentText));
 
-        // 공통 버튼 패널 (왼쪽 정렬)
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        //여기서 up 버튼은 '나의 기부글 패널'에서 구현해야할 것 같습니다!
+        // 기부하기 버튼
+        // 진행 중인 기부글일 때 & 로그인한 유저일 때만 보이게
+        if (!post.isCompleted() && loginUser != null) {
+            //JButton upButton = new JButton("UP 하기");
 
-        // 진행 중인 기부글일 때만 보이게
-        // 기부하기, up하기 버튼
-        if (!post.isCompleted()) {
-            JButton donateButton = new JButton("기부하기");
-            JButton upButton = new JButton("UP 하기");
+            // 기부하기 버튼 생성 및 설정
+            RoundedButton donateButton = new RoundedButton("기부하기", new Color(60, 60, 60), 30);
+            donateButton.setPreferredSize(new Dimension(0, 44));
+            donateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            donateButton.setFont(customFont.deriveFont(Font.BOLD, 20f));
+            donateButton.setForeground(Color.WHITE);
+            donateButton.setBounds(245, 270, 100, 44);
 
             donateButton.addActionListener(e -> {
                 String input = JOptionPane.showInputDialog(this, "기부할 포인트를 입력하세요:");
@@ -93,6 +222,7 @@ public class DonationPostDetailView extends JFrame {
                 }
             });
 
+            /*
             upButton.addActionListener(e -> {
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "300포인트를 사용하여 기부글을 상단에 노출하시겠습니까?",
@@ -109,97 +239,89 @@ public class DonationPostDetailView extends JFrame {
                     }
                 }
             });
+            */
 
-            buttonPanel.add(upButton);
-            buttonPanel.add(donateButton);
+            contentPanel.add(donateButton);
         }
 
-        JButton usageBtn = new JButton("사용내역");
+        // 사용내역 버튼
+        // 진행완료된 포스트 && 로그인한 유저일 때만 보이게
+        if (post.isCompleted() && loginUser != null) {
 
-        // 로그인한 유저일 때만 보이게
-        // 스크랩 버튼, 사용내역 버튼
-        if (loginUser != null) {
-            usageBtn.setEnabled(post.isSettled()); // 정산 전에는 비활성화
-            JButton scrapButton = new JButton(
-                    scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
-            );
+            // 사용내역 버튼 생성 및 설정
+            RoundedButton usageButton = new RoundedButton("사용내역", new Color(60, 60, 60), 30);
+            usageButton.setPreferredSize(new Dimension(0, 44));
+            usageButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            usageButton.setFont(customFont.deriveFont(Font.BOLD, 20f));
+            usageButton.setForeground(Color.WHITE);
+            usageButton.setBounds(245, 270, 100, 44);
 
-            scrapButton.addActionListener(e -> {
-                scrapController.toggleScrap(loginUser, post);
-                scrapButton.setText(
-                        scrapController.isScrapped(loginUser, post) ? "스크랩 취소" : "스크랩"
-                );
-                if (onPostUpdated != null) onPostUpdated.run(); // 스크랩 후 갱신
-            });
-
-            usageBtn.addActionListener(e -> {
-                new ReceiptView(post.getVirtualAccount(), loginUser);
-            });
-
-            buttonPanel.add(usageBtn);
-            buttonPanel.add(scrapButton);
+            usageButton.setEnabled(post.isSettled()); // 정산 전에는 비활성화
+            contentPanel.add(usageButton);
         }
 
-        // 기부글의 작성자일 때만 보이게
-        // 수정, 삭제 버튼
-        if (post.getWriter() != null && post.getWriter().equals(loginUser)) {
+        mainPanel.add(contentPanel);
 
-            // 가상 계좌 정보
-            VirtualAccount virtualAccount = post.getVirtualAccount();
-            panel.add(new JLabel("가상계좌: " + (virtualAccount.getBankAccount() != null ? virtualAccount.getBankAccount() : "없음")));
+        //스크롤 기능 추가
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setBounds(0, 0, 393, 698); // 프레임 크기와 동일
+        scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // 가로 스크롤 제거
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);    // 세로 스크롤 항상 표시
 
-            JButton editBtn = new JButton("수정");
-            JButton deleteBtn = new JButton("삭제");
+        add(scrollPane);
 
-            editBtn.addActionListener(e -> {
-                new DonationPostEditView(post, loginUser, donationPostController, () -> {
-                    JOptionPane.showMessageDialog(this, "기부글이 수정되었습니다.");
-                    if (onPostUpdated != null) onPostUpdated.run();
-                    dispose();
-                }).setVisible(true);
-            });
+        setVisible(true);
+    }
 
-            deleteBtn.addActionListener(e -> {
-                int confirm = JOptionPane.showConfirmDialog(this, "정말 삭제하시겠습니까?");
-                if (confirm == JOptionPane.YES_OPTION) {
-                    donationPostController.deletePost(post.getId());
-                    JOptionPane.showMessageDialog(this, "삭제 완료");
-                    if (onPostUpdated != null) onPostUpdated.run();
-                    dispose();
-                }
-            });
-
-            if (post.isCompleted() && !post.isSettled()) {
-                JButton settleButton = new JButton("정산하기");
-
-                settleButton.addActionListener(e -> {
-                    boolean success = donationPostController.settlePost(post);
-                    if (success) {
-                        JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
-
-                        // 정산 후 사용내역 추가 버튼 활성화
-                        VirtualAccount va = post.getVirtualAccount();
-                        va.setRaisedPoint(post.getRaisedPoint());
-                        va.setCurrentPoint(post.getRaisedPoint());
-                        usageBtn.setEnabled(true);
-
-                        onPostUpdated.run(); // 리스트 패널 새로고침
-                        dispose(); // 상세창 닫기
-                        new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
-                    } else {
-                        JOptionPane.showMessageDialog(this, "정산에 실패했습니다.");
-                    }
-                });
-                buttonPanel.add(settleButton);
-            }
-
-            buttonPanel.add(editBtn);
-            buttonPanel.add(deleteBtn);
+    private ImageIcon loadImageOrDefault(String path, int width, int height) {
+        try {
+            File file = new File(path);
+            if (!file.exists()) throw new IOException("파일 없음");
+            ImageIcon icon = new ImageIcon(path);
+            Image scaled = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaled);
+        } catch (Exception e) {
+            ImageIcon fallback = new ImageIcon("icons/image-fail.png");
+            Image scaled = fallback.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaled);
         }
+    }
 
-        // 버튼 패널 전체에 추가
-        panel.add(buttonPanel);
+    //----view 부가적인 코드----
+    //이미지 둥글게 하는 코드
+    private ImageIcon getRoundedImageIcon(String imagePath, int diameter) {
+        try {
+            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+            int imgWidth = originalImage.getWidth();
+            int imgHeight = originalImage.getHeight();
 
-        add(panel);
+            // Center Crop: 이미지 비율 무시하고 꽉 차게 확대
+            float scale = Math.max((float) diameter / imgWidth, (float) diameter / imgHeight);
+            int scaledWidth = Math.round(imgWidth * scale);
+            int scaledHeight = Math.round(imgHeight * scale);
+
+            Image scaledImage = originalImage.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+
+            // 원형 마스킹용 버퍼 생성
+            BufferedImage rounded = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = rounded.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // 자른 이미지의 중심을 원에 맞춤
+            int x = (scaledWidth - diameter) / 2;
+            int y = (scaledHeight - diameter) / 2;
+
+            // 원형 클리핑
+            g2.setClip(new Ellipse2D.Float(0, 0, diameter, diameter));
+            g2.drawImage(scaledImage, -x, -y, null);
+            g2.dispose();
+
+            return new ImageIcon(rounded);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
+
