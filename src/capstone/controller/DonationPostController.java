@@ -25,6 +25,11 @@ public class DonationPostController {
         return donationPostService.getAll();
     }
 
+    // 기부글 상세 조회
+    public DonationPost getPost(int id) {
+        return donationPostService.findById(id);
+    }
+
     // 기부글 수정
     public void updatePost(int id, String title, String content, String img, int goal, LocalDate endAt) {
         donationPostService.update(id, title, content, img, goal, endAt);
