@@ -12,6 +12,7 @@ import capstone.model.VirtualAccount;
 import capstone.service.DonationPostService;
 import capstone.service.ScrapService;
 import capstone.view.BaseView;
+import capstone.view.receipt.ReceiptListView;
 import capstone.view.style.RoundedBorder;
 import capstone.view.style.RoundedButton;
 
@@ -91,12 +92,6 @@ public class DonationPostDetailView extends BaseView {
                 boolean success = donationPostController.settlePost(post);
                 if (success) {
                     JOptionPane.showMessageDialog(this, "정산이 완료되었습니다. 포인트가 지급되었습니다.");
-
-                    // 정산 후 사용내역 추가 버튼 활성화
-                    VirtualAccount va = post.getVirtualAccount();
-                    va.setRaisedPoint(post.getRaisedPoint());
-                    va.setCurrentPoint(post.getRaisedPoint());
-
                     onPostUpdated.run(); // 리스트 패널 새로고침
                     dispose(); // 상세창 닫기
                     new DonationPostDetailView(post, loginUser, donationPostController, scrapController, onPostUpdated).setVisible(true); // 새로 열기
@@ -239,6 +234,17 @@ public class DonationPostDetailView extends BaseView {
         usageButton.setForeground(Color.WHITE);
         usageButton.setBounds(245, 270, 100, 44);
         usageButton.setEnabled(post.isSettled());
+
+        usageButton.addActionListener(e -> {
+            VirtualAccount va = donationPost.getVirtualAccount();
+            if (va != null) {
+                ReceiptListView receiptView = new ReceiptListView(va);
+                receiptView.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "아직 정산되지 않아 사용내역이 없습니다.");
+            }
+        });
+
         contentPanel.add(usageButton);
 
         donateButton.setVisible(!post.isCompleted());

@@ -99,7 +99,6 @@ public class DonationPostService {
                 .collect(Collectors.toList());
     }
 
-
     // 기부글 정산하기
     public boolean settlePost(DonationPost post) {
         if (post.isCompleted() && !post.isSettled()) {
@@ -108,8 +107,7 @@ public class DonationPostService {
 
             if (writer != null && virtualAccount != null) {
                 int actualRaised = post.getRaisedPoint();
-                virtualAccount.setRaisedPoint(actualRaised);
-                virtualAccount.setCurrentPoint(actualRaised);
+                virtualAccount.settleReceipt(actualRaised);
                 post.settle();
                 return true;
             }

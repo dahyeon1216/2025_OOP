@@ -151,7 +151,13 @@ public class MyDonationPostListView extends BaseView {
         usageBtn.setFont(customFont.deriveFont(Font.BOLD, 16f));
         usageBtn.setBounds(205, 180, 130, 30);
         usageBtn.addActionListener(e -> {
-            new ReceiptListView(post, loginUser, donationPostController, scrapController, this::refresh).setVisible(true);
+            VirtualAccount va = post.getVirtualAccount();
+            if (va != null) {
+                ReceiptListView receiptView = new ReceiptListView(va);
+                receiptView.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "아직 정산되지 않아 사용내역이 없습니다.");
+            }
         });
         card.add(usageBtn);
 
