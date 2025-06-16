@@ -1,5 +1,6 @@
 package capstone.model;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ public class VirtualAccount {
     private DonationPost donationPost;
     private int raisedPoint; // 초기 모금 포인트
     private int currentPoint; // 포인트 잔고
-    private Map<Integer,String> receipt; // 포인트 사용 내역
+    private Map<Integer,ReceiptRecord> receipt; // 포인트 사용 내역
 
     // 생성자
     public VirtualAccount(BankType bankType, String bankAccount, User ownerUser, DonationPost donationPost) {
@@ -18,6 +19,12 @@ public class VirtualAccount {
         this.bankAccount = bankAccount;
         this.ownerUser = ownerUser;
         this.donationPost = donationPost;
+        this.receipt = new LinkedHashMap<>();
+    }
+
+    public VirtualAccount(BankType type, String bankAccount){
+        this.bankType = type;
+        this.bankAccount = bankAccount;
         this.receipt = new LinkedHashMap<>();
     }
 
@@ -46,26 +53,25 @@ public class VirtualAccount {
         return raisedPoint;
     }
 
-    public void setRaisedPoint(int raisedPoint) {
-        this.raisedPoint = raisedPoint;
-    }
-
-    public void setCurrentPoint(int point) {
+    public void settleReceipt(int point) {
+        this.raisedPoint = point;
         this.currentPoint = point;
-    }
-
-    public Map<Integer, String> getReceipt() {
-        return receipt;
+        int nextId = receipt.size() + 1;
+        receipt.put(nextId, new ReceiptRecord(LocalDateTime.now(), "정산금", 0, point));
     }
 
     public boolean usePoint(int amount, String usageDetail) {
-        if (currentPoint <= amount) {
+        if (currentPoint < amount) {
             return false;
         }
-
         currentPoint -= amount;
         int nextId = receipt.size() + 1;
-        receipt.put(nextId, usageDetail + " (잔여 포인트: " + currentPoint + "P)");
+        receipt.put(nextId, new ReceiptRecord(LocalDateTime.now(), usageDetail, amount, currentPoint));
         return true;
     }
+
+    public Map<Integer, ReceiptRecord> getReceipt() {
+        return receipt;
+    }
+
 }
