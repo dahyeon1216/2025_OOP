@@ -21,6 +21,11 @@ public class VirtualAccount {
         this.receipt = new LinkedHashMap<>();
     }
 
+    public VirtualAccount(BankType type, String bankAccount){
+        this.bankType = type;
+        this.bankAccount = bankAccount;
+    }
+
     // getter setter
     public BankType getBankType() {
         return bankType;
