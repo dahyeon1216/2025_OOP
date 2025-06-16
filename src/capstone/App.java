@@ -83,7 +83,6 @@ public class App extends JFrame {
         buttonPanel.add(loginBtn);
         buttonPanel.add(signupBtn);
 
-
         add(titlePanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
         setVisible(true);
@@ -100,7 +99,6 @@ public class App extends JFrame {
 
 
         signupBtn.addActionListener(e -> {
-            dispose();
             new SignupView(userController, () -> {
                 new LoginView(userController, donationPostController, scrapController, loginUser -> {
                     new DonationPostListView(loginUser, userController, donationPostController, scrapController);
@@ -108,6 +106,7 @@ public class App extends JFrame {
             }).setVisible(true);
         });
     }
+
 
     public static void main(String[] args) {
         // 서비스 및 컨트롤러 생성
@@ -121,8 +120,8 @@ public class App extends JFrame {
         ScrapController scrapController = new ScrapController(scrapService);
 
         // 테스트용 사용자 등록
-        userService.signUp("default_donation.png","1", "1", "1", "1", BankType.KAKAO, "1");
-        userService.signUp("default_donation.png","2", "2", "2", "2", BankType.SHINHAN, "2");
+        userService.signUp("default-profile.png","1", "1", "1", "123456789012345678901234567890", BankType.KAKAO, "1");
+        userService.signUp("default-profile.png","2", "2", "2", "2", BankType.SHINHAN, "2");
 
         // App 실행 (시작 메뉴 열기)
         SwingUtilities.invokeLater(() ->

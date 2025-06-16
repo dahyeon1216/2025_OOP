@@ -48,9 +48,9 @@ public class MyPageMainView extends BaseView {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(Color.white);
-        mainPanel.setBorder(new EmptyBorder(10, 20, 30, 20));
+        mainPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-
+        add(header,BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
 
 
@@ -93,7 +93,7 @@ public class MyPageMainView extends BaseView {
         // 닉네임
         JLabel nicknameLabel = new JLabel(loginUser.getNickName());
         nicknameLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
-        nicknameLabel.setSize(nicknameLabel.getPreferredSize());
+        nicknameLabel.setSize(new Dimension(170, nicknameLabel.getPreferredSize().height));
         nicknameLabel.setLocation(90, 32);
 
         // 티어
@@ -111,31 +111,35 @@ public class MyPageMainView extends BaseView {
         // 보유 포인트 패널
         JPanel pointPanel = new JPanel(null);
         pointPanel.setBackground(new Color(235, 235, 235));
-        pointPanel.setMinimumSize(new Dimension(360, 150));
-        pointPanel.setMaximumSize(new Dimension(360, 150));
+        pointPanel.setMinimumSize(new Dimension(360, 160));
+        pointPanel.setMaximumSize(new Dimension(360, 160));
         pointPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         pointPanel.setBorder(new RoundedBorder(30));
 
         // 문구
         JLabel pointLabel = new JLabel("보유 포인트");
         pointLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
-        pointLabel.setBounds(30, 20, 120, 30); // x, y, w, h
+        pointLabel.setBounds(30, 25, 120, 30); // x, y, w, h
 
         // 구분선
         JSeparator separator = new JSeparator();
-        separator.setBounds(30, 70, 295, 10);
+        separator.setBounds(30, 75, 295, 10);
         separator.setForeground(new Color(179, 179, 179));
 
         amountLabel = new JLabel(String.format("%,d P", loginUser.getPoint()));
         amountLabel.setFont(customFont.deriveFont(Font.BOLD, 23f));
-        amountLabel.setBounds(260, 30, 120, 30);
+
+        int panelWidth = 360;  // pointPanel의 폭
+        int rightMargin = 50;
+        int labelWidth = amountLabel.getPreferredSize().width;
+        amountLabel.setBounds(panelWidth - rightMargin - labelWidth, 30, 120, 30);
 
         // 충전버튼
         JButton chargeButton = new RoundedButton("충전", new Color(60, 60, 60), 30);
         chargeButton.setFont(customFont.deriveFont(Font.BOLD, 18f));
         chargeButton.setBackground(Color.BLACK);
         chargeButton.setForeground(Color.WHITE);
-        chargeButton.setBounds(230, 90, 85, 40);
+        chargeButton.setBounds(230, 100, 85, 40);
         chargeButton.addActionListener(e -> {
             PointChargeView pointChargeView = new PointChargeView(loginUser, ()-> {refreshPoint();});
             pointChargeView.setVisible(true);
@@ -150,20 +154,20 @@ public class MyPageMainView extends BaseView {
         // 나의 거래 패널
         JPanel transactionPanel = new JPanel(null);
         transactionPanel.setBackground(new Color(235, 235, 235));
-        transactionPanel.setMinimumSize(new Dimension(360, 330));
-        transactionPanel.setMaximumSize(new Dimension(360, 330));
+        transactionPanel.setMinimumSize(new Dimension(360, 300));
+        transactionPanel.setMaximumSize(new Dimension(360, 300));
         transactionPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         transactionPanel.setBorder(new RoundedBorder(30));
 
         // 나의 거래 라벨
         JLabel dealLabel = new JLabel("나의 거래");
         dealLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
-        dealLabel.setBounds(30, 30, 120, 30); // x, y, w, h
+        dealLabel.setBounds(30, 25, 120, 30); // x, y, w, h
         transactionPanel.add(dealLabel);
 
         // 구분선
         JSeparator separator0 = new JSeparator();
-        separator0.setBounds(30, 80, 295, 10);
+        separator0.setBounds(30, 75, 295, 10);
         separator0.setForeground(new Color(179, 179, 179));
         transactionPanel.add(separator0);
 
@@ -176,7 +180,7 @@ public class MyPageMainView extends BaseView {
         // 나의 기부글
         JPanel labelPanel = new JPanel(new BorderLayout());
         labelPanel.setOpaque(false);  // 배경 투명
-        labelPanel.setBounds(35, 100, 280, 30); // 크기 조정 (조금 넉넉히)
+        labelPanel.setBounds(35, 95, 280, 30); // 크기 조정 (조금 넉넉히)
 
         ImageIcon leftIcon = new ImageIcon("icons/Vector.png");
         JLabel donationLabel = new JLabel(" 나의 기부글", leftIcon, JLabel.LEFT);
@@ -192,10 +196,10 @@ public class MyPageMainView extends BaseView {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // 새 화면 띄우기
-//                MyDonationPostListView myDonationPostListView = new MyDonationPostListView(
-//                        donationPostController, scrapController, loginUser
-//                );
-//                myDonationPostListView.setVisible(true);
+                MyDonationPostListView myDonationPostListView = new MyDonationPostListView(
+                        loginUser, donationPostController, scrapController
+                );
+                myDonationPostListView.setVisible(true);
             }
         });
         labelPanel.add(rightIconLabel, BorderLayout.EAST);
@@ -206,7 +210,7 @@ public class MyPageMainView extends BaseView {
 
         // 구분선
         JSeparator separator1 = new JSeparator();
-        separator1.setBounds(30, 145, 295, 10);
+        separator1.setBounds(30, 140, 295, 10);
         separator1.setForeground(new Color(179, 179, 179));
         transactionPanel.add(separator1);
 
@@ -214,7 +218,7 @@ public class MyPageMainView extends BaseView {
         // 스크랩 목록
         JPanel labelPanel2 = new JPanel(new BorderLayout());
         labelPanel2.setOpaque(false);  // 배경 투명
-        labelPanel2.setBounds(30, 165, 285, 30); // 크기 조정 (조금 넉넉히)
+        labelPanel2.setBounds(30, 160, 285, 30); // 크기 조정 (조금 넉넉히)
 
         ImageIcon leftIcon2 = new ImageIcon("icons/bookmark.png");
         JLabel scrapLabel = new JLabel(" 스크랩 목록", leftIcon2, JLabel.LEFT);
@@ -244,7 +248,7 @@ public class MyPageMainView extends BaseView {
 
         // 구분선
         JSeparator separator3 = new JSeparator();
-        separator3.setBounds(30, 210, 295, 10);
+        separator3.setBounds(30, 205, 295, 10);
         separator3.setForeground(new Color(179, 179, 179));
         transactionPanel.add(separator3);
 
@@ -252,7 +256,7 @@ public class MyPageMainView extends BaseView {
         // 기부 내역
         JPanel labelPanel3 = new JPanel(new BorderLayout());
         labelPanel3.setOpaque(false);  // 배경 투명
-        labelPanel3.setBounds(37, 230, 278, 30); // 크기 조정 (조금 넉넉히)
+        labelPanel3.setBounds(37, 225, 278, 30); // 크기 조정 (조금 넉넉히)
 
         ImageIcon leftIcon3 = new ImageIcon("icons/donationhistory.png");
         JLabel historyLabel = new JLabel("  기부 내역", leftIcon3, JLabel.LEFT);
@@ -282,17 +286,17 @@ public class MyPageMainView extends BaseView {
 
         // 구분선
         JSeparator separator4 = new JSeparator();
-        separator4.setBounds(30, 275, 295, 10);
+        separator4.setBounds(30, 270, 295, 10);
         separator4.setForeground(new Color(179, 179, 179));
         transactionPanel.add(separator4);
 
 
         // 조립
-        mainPanel.add(Box.createVerticalStrut(10));
+        mainPanel.add(Box.createVerticalStrut(0));
         mainPanel.add(topProfilePanel);
         mainPanel.add(Box.createVerticalStrut(15));
         mainPanel.add(pointPanel);
-        mainPanel.add(Box.createVerticalStrut(30));
+        mainPanel.add(Box.createVerticalStrut(20));
         mainPanel.add(transactionPanel);
         add(mainPanel);
     }
@@ -333,10 +337,17 @@ public class MyPageMainView extends BaseView {
     }
 
     private void refreshPoint() {
+//        User updatedUser = userController.getUserProfile(loginUser.getUserId());
+//        loginUser.setPoint(updatedUser.getPoint());
+
         amountLabel.setText(String.format("%,d P", loginUser.getPoint()));
+
+        int panelWidth = 360;
+        int rightMargin = 50;
+        int labelWidth = amountLabel.getPreferredSize().width;
+        amountLabel.setBounds(panelWidth - rightMargin - labelWidth, 30, labelWidth, 30);
     }
 
-    /*
     //테스트 main
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -365,6 +376,6 @@ public class MyPageMainView extends BaseView {
             view.setVisible(true);
         });
     }
-     */
+
 }
 

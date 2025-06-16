@@ -5,6 +5,7 @@ import capstone.controller.ScrapController;
 import capstone.controller.UserController;
 import capstone.model.User;
 import capstone.view.style.RoundedBorder;
+import capstone.view.style.RoundedButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,20 +42,6 @@ public class LoginView extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.WHITE);
-
-
-        //뒤로가기 버튼
-
-        ImageIcon backIcon = new ImageIcon("icons/arrow-leftb.png");
-        Image scaledImg = backIcon.getImage().getScaledInstance(26, 26, Image.SCALE_SMOOTH);
-        ImageIcon resizedIcon = new ImageIcon(scaledImg);
-
-        JButton backBtn = new JButton(resizedIcon);
-        backBtn.setBorderPainted(false);
-        backBtn.setContentAreaFilled(false);
-        backBtn.setFocusPainted(false);
-        backBtn.setBounds(5, 6, 40, 30);
-        backBtn.addActionListener(e -> dispose());
 
 
         JLabel welcomeLabel = new JLabel("안녕하세요");
@@ -126,21 +113,18 @@ public class LoginView extends JFrame {
                 }
             }
         });
-        
 
-        JButton loginBtn = new JButton("로그인");
-        loginBtn.setForeground(Color.BLACK);
-        loginBtn.setBackground(new Color(120, 230, 170));
-        loginBtn.setBorder(new RoundedBorder(25));
+
+        JButton loginBtn = new RoundedButton("로그인", new Color(60, 60, 60), 30);
         loginBtn.setFont(customFont.deriveFont(Font.BOLD, 16f));
         loginBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
-        loginBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50)); //양 옆 마진 맞추기
-        loginBtn.setPreferredSize(new Dimension(700, 50)); // 참고용
+        loginBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        loginBtn.setPreferredSize(new Dimension(700, 50));
 
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(80,15,80,15));
+        panel.setBorder(BorderFactory.createEmptyBorder(90,15,80,15));
         panel.setBackground(Color.WHITE);
         panel.add(loginBtn); // 그대로 추가
 
@@ -182,11 +166,6 @@ public class LoginView extends JFrame {
         add(panel);
         setVisible(true);
 
-        // 더미 포커스 주기
-        JPanel dummyPanel = new JPanel();
-        dummyPanel.setFocusable(true);
-        add(dummyPanel, BorderLayout.NORTH);
-        SwingUtilities.invokeLater(() -> dummyPanel.requestFocusInWindow());
 
         loginBtn.addActionListener(e -> {
             String id = idField.getText();

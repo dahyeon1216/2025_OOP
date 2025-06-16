@@ -142,11 +142,11 @@ public class DonationPostDetailView extends BaseView {
         // 닉네임
         JLabel nicknameLabel = new JLabel(loginUser.getNickName());
         nicknameLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        nicknameLabel.setBounds(100, 10, 200, 25);
+        nicknameLabel.setBounds(100, 10, 170, 25);
         profilePanel.add(nicknameLabel);
 
         // 티어
-        JLabel tierLabel = new JLabel(loginUser.getTier() + "티어");
+        JLabel tierLabel = new JLabel(loginUser.getTier());
         tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
         tierLabel.setBounds(290, 10, 100, 25);
         profilePanel.add(tierLabel);
@@ -222,7 +222,8 @@ public class DonationPostDetailView extends BaseView {
                 }
             });
 
-           /* upButton.addActionListener(e -> {
+            /*
+            upButton.addActionListener(e -> {
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "300포인트를 사용하여 기부글을 상단에 노출하시겠습니까?",
                         "UP 하기 확인",
@@ -237,7 +238,7 @@ public class DonationPostDetailView extends BaseView {
                         JOptionPane.showMessageDialog(this, "포인트가 부족합니다. 최소 300P가 필요합니다.");
                     }
                 }
-            })
+            });
             */
 
             contentPanel.add(donateButton);

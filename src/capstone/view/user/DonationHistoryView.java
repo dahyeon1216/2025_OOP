@@ -6,6 +6,8 @@ import capstone.model.*;
 import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.service.DonationPostService;
+import capstone.service.ScrapService;
+import capstone.service.UserService;
 import capstone.view.BaseView;
 import capstone.view.donation.DonationPostDetailView;
 import capstone.view.style.RoundedBorder;
@@ -84,9 +86,9 @@ public class DonationHistoryView extends BaseView {
         String imgPath = "resources/images/donation/" + post.getDonationImg();
         File imgFile = new File(imgPath);
         ImageIcon icon = imgFile.exists() ? new ImageIcon(imgPath) : new ImageIcon("icons/image-fail.png");
-        Image scaledImage = icon.getImage().getScaledInstance(65, 65, Image.SCALE_SMOOTH);
+        Image scaledImage = icon.getImage().getScaledInstance(67, 67, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-        imageLabel.setBounds(15, 15, 65, 65);
+        imageLabel.setBounds(15, 15, 67, 67);
         imageLabel.setBorder(new RoundedBorder(15));
         card.add(imageLabel);
 
@@ -111,7 +113,7 @@ public class DonationHistoryView extends BaseView {
         card.add(donatedLabel);
 
         // 상세보기 버튼
-        JButton detailBtn = new RoundedButton("상세보기", Color.BLACK, 20);
+        JButton detailBtn = new RoundedButton("상세보기", new Color(60, 60, 60), 20);
         detailBtn.setForeground(Color.WHITE);
         detailBtn.setFont(customFont.deriveFont(Font.BOLD, 16f));
         detailBtn.setBounds(245, 90, 90, 30);
@@ -125,7 +127,7 @@ public class DonationHistoryView extends BaseView {
         wrapper.setOpaque(false);
         wrapper.setPreferredSize(new Dimension(355, 150));
         wrapper.setMaximumSize(new Dimension(355, 150));
-        wrapper.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        wrapper.setBorder(BorderFactory.createEmptyBorder(15, 1, 0, 0));
         wrapper.add(card, BorderLayout.CENTER);
 
         return wrapper;
@@ -143,11 +145,14 @@ public class DonationHistoryView extends BaseView {
             postListPanel.add(card);
         }
 
+        // 하단 여백 추가 (스크롤 맨 아래 공간 확보)
+        postListPanel.add(Box.createVerticalStrut(15));
+
         postListPanel.revalidate();
         postListPanel.repaint();
     }
 
-    /*
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // 더미 User 생성
@@ -202,16 +207,32 @@ public class DonationHistoryView extends BaseView {
                             LocalDateTime.now().minusDays(5)  // 5일 전에 기부했다고 가정
                     );
 
-                    return List.of(info1, info2);
+                    DonatedPostInfo info3 = new DonatedPostInfo(
+                            post2,
+                            150,
+                            LocalDateTime.now().minusDays(5)  // 5일 전에 기부했다고 가정
+                    );
+
+                    DonatedPostInfo info4 = new DonatedPostInfo(
+                            post2,
+                            150,
+                            LocalDateTime.now().minusDays(5)  // 5일 전에 기부했다고 가정
+                    );
+
+                    DonatedPostInfo info5 = new DonatedPostInfo(
+                            post2,
+                            150,
+                            LocalDateTime.now().minusDays(5)  // 5일 전에 기부했다고 가정
+                    );
+
+                    return List.of(info1, info2,info3,info4,info5);
                 }
             };
 
-            UserController dummyUserController = null;
             ScrapController dummyScrapController = null;
 
             DonationHistoryView view = new DonationHistoryView(
                     dummyUser,
-                    dummyUserController,
                     dummyDonationPostController,
                     dummyScrapController
             );
@@ -219,6 +240,5 @@ public class DonationHistoryView extends BaseView {
             view.setVisible(true);
         });
     }
-    */
 
 }

@@ -80,7 +80,7 @@ public abstract class BaseView extends JFrame {
         backBtn.setBorderPainted(false);
         backBtn.setContentAreaFilled(false);
         backBtn.setFocusPainted(false);
-        backBtn.setBounds(5, 6, 40, 30);
+        backBtn.setBounds(5, 7, 40, 30);
 
         return backBtn;
     }

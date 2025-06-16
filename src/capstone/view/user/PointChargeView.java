@@ -97,8 +97,9 @@ public class PointChargeView extends JFrame {
 
         // --- selectedAmountLabel 초기화 및 추가 ---
         selectedAmountLabel = new JLabel("0 P"); // 초기값은 0
-        selectedAmountLabel.setFont(customFont.deriveFont(Font.BOLD, 38f)); // 이미지와 유사하게 매우 큰 폰트
+        selectedAmountLabel.setFont(customFont.deriveFont(Font.BOLD, 38f));
         selectedAmountLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        selectedAmountLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
 
         // 금액 선택 버튼 (기존 코드 유지, 액션 리스너만 수정)
@@ -114,15 +115,14 @@ public class PointChargeView extends JFrame {
             String label = amt.equals("기타") ? "기타" : "+" + (Integer.parseInt(amt) / 10000) + "만원";
 
             // --- RoundedButton 초기화 시 기존 스타일 유지 ---
-            RoundedButton btn = new RoundedButton(label, Color.WHITE, 20); // 원래대로 Color.WHITE
-            btn.setForeground(new Color(120, 120, 120)); // 원래대로 new Color(120, 120, 120)
+            RoundedButton btn = new RoundedButton(label, Color.WHITE, 20);
+            btn.setForeground(new Color(120, 120, 120));
             btn.setFocusPainted(false);
             btn.setFont(customFont.deriveFont(Font.PLAIN, 14f)); // 원래대로 14f
-            btn.setBorder(new RoundedBorder(30, new Color(180, 180, 180))); // 원래대로 new Color(180, 180, 180)
-            btn.setPreferredSize(new Dimension(90, 38)); // 원래대로 90, 38
+            btn.setBorder(new RoundedBorder(30, new Color(180, 180, 180)));
+//            btn.setPreferredSize(new Dimension(93, 38));
+            btn.setHorizontalAlignment(SwingConstants.CENTER);
             amountPanel.add(btn);
-            // amountButtons.add(btn); // 버튼 스타일 변경 기능 제거로 인해 이 리스트 추가는 이제 필요 없음. 주석 처리
-
 
             if (!amt.equals("기타")) {
                 btn.addActionListener(e -> {
@@ -193,7 +193,7 @@ public class PointChargeView extends JFrame {
 
                 // UI 업데이트
                 currentPointLabel.setText("보유 포인트 " + this.loginUser.getPoint() + " P"); // 보유 포인트 업데이트
-                JOptionPane.showMessageDialog(this, amountToCharge + " P가 충전되었습니다.", "충전 완료", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, amountToCharge + "P가 충전되었습니다.", "충전 완료", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
 
                 // 충전 후 상태 초기화

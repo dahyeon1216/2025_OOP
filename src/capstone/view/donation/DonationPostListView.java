@@ -50,7 +50,7 @@ public class DonationPostListView extends BaseView {
 
         // 진행중 버튼 생성 및 초기 색상 설정
         // 초기에는 '진행중'이 선택된 상태로 시작하도록 설정
-        this.ongoingBtn = new RoundedButton("진행중", Color.BLACK, 30);
+        this.ongoingBtn = new RoundedButton("진행중", new Color(60, 60, 60), 30);
         ongoingBtn.setPreferredSize(new Dimension(140, 40));
         ongoingBtn.setFont(customFont.deriveFont(Font.BOLD, 20f));
         ongoingBtn.setForeground(Color.LIGHT_GRAY); // 초기 글씨색 흰색
@@ -89,7 +89,7 @@ public class DonationPostListView extends BaseView {
         postListPanel.setOpaque(false);
 
         // 기부글 쓰기 버튼 생성
-        JButton writeBtn = new RoundedButton("기부글 쓰기", Color.BLACK, 30);
+        JButton writeBtn = new RoundedButton("기부글 쓰기", new Color(60, 60, 60), 30);
         writeBtn.setForeground(Color.WHITE);
         writeBtn.setPreferredSize(new Dimension(130, 45)); // 너비, 높이
         writeBtn.setFont(customFont.deriveFont(Font.BOLD, 22f));
@@ -141,9 +141,9 @@ public class DonationPostListView extends BaseView {
     //개별 기부 게시물(DonationPost 객체)의 정보를 시각적으로 표현하는 메소드
     private JPanel createDonationCard(DonationPost post) {
         JPanel card = new JPanel(null);
-        card.setMinimumSize(new Dimension(355, 145));
-        card.setPreferredSize(new Dimension(355, 145));
-        card.setMaximumSize(new Dimension(355, 145));
+        card.setMinimumSize(new Dimension(355, 135));
+        card.setPreferredSize(new Dimension(355, 135));
+        card.setMaximumSize(new Dimension(355, 120));
         card.setBackground(new Color(245, 245, 245));
         card.setBorder(BorderFactory.createEmptyBorder()); //테두리 제거
         card.setBorder(new RoundedBorder(20));
@@ -153,7 +153,7 @@ public class DonationPostListView extends BaseView {
         long dDay = ChronoUnit.DAYS.between(LocalDate.now(), post.getEndAt());
         String dDayText = dDay >= 0 ? "D-" + dDay : "D+" + Math.abs(dDay);
         JLabel dDayLabel = new JLabel(dDayText);
-        dDayLabel.setBounds(10, 10, 50, 20);
+        dDayLabel.setBounds(20, 10, 50, 20);
         dDayLabel.setFont(customFont.deriveFont(Font.BOLD, 20f));
         card.add(dDayLabel);
 
@@ -167,9 +167,9 @@ public class DonationPostListView extends BaseView {
         } else {
             icon = new ImageIcon("icons/default_donation.png"); // 기본 이미지
         }
-        Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+        Image scaledImage = icon.getImage().getScaledInstance(67, 67, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-        imageLabel.setBounds(10, 40, 60, 60);
+        imageLabel.setBounds(20, 40, 67, 67);
         imageLabel.setBorder(new RoundedBorder(15));
         card.add(imageLabel);
 
@@ -179,28 +179,24 @@ public class DonationPostListView extends BaseView {
         titleLabel.setFont(customFont.deriveFont(Font.BOLD, 22f));
         int maxTitleHeight = 40;
         int titleHeight = Math.min(titleLabel.getPreferredSize().height, maxTitleHeight);
-        titleLabel.setBounds(80, 30, 230, titleHeight);
+        titleLabel.setBounds(100, 45, 230, titleHeight);
         card.add(titleLabel);
 
         // 4. 진행률 계산 (raisedPoint / goalPoint)
         int percent = post.getGoalPoint() == 0 ? 0 :
                 (int) ((double) post.getRaisedPoint() / post.getGoalPoint() * 100);
-        JLabel progressLabel = new JLabel("진행률 " + percent + "%    " + post.getRaisedPoint() + "P");
+        JLabel progressLabel = new JLabel("진행률 " + percent + "% (" + post.getRaisedPoint() + "P)");
         progressLabel.setFont(customFont.deriveFont(Font.PLAIN, 20f));
-        int progressY = 30 + titleHeight + 5;
-        progressLabel.setBounds(80, progressY, 250, 20);
+        int progressY = 45 + titleHeight + 5;
+        progressLabel.setBounds(100, progressY, 250, 20);
         card.add(progressLabel);
-
-        //카드 높이 조정
-        int totalHeight = progressY + 25;
-        card.setPreferredSize(new Dimension(320, totalHeight));
-        card.setMaximumSize(new Dimension(320, totalHeight));
 
         // 6. 스크랩 버튼
         JButton scrapBtn = new JButton(new ImageIcon("icons/bookmark.png"));
-        scrapBtn.setBounds(310, 10, 30, 30);
+        scrapBtn.setBounds(310, 10, 35, 35);
         scrapBtn.setContentAreaFilled(false);
         scrapBtn.setBorderPainted(false);
+        card.add(scrapBtn);
 
         scrapBtn.addActionListener(e -> {
             scrapController.toggleScrap(loginUser, post);
@@ -243,8 +239,8 @@ public class DonationPostListView extends BaseView {
         //전체 조립
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
-        wrapper.setPreferredSize(new Dimension(355, 145));
-        wrapper.setMaximumSize(new Dimension(355, 145));
+        wrapper.setPreferredSize(new Dimension(355, 140));
+        wrapper.setMaximumSize(new Dimension(355, 140));
         wrapper.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
         wrapper.add(card, BorderLayout.CENTER);
 
@@ -267,7 +263,7 @@ public class DonationPostListView extends BaseView {
         ImageIcon userIcon = new ImageIcon("icons/person.png");
         Image scaled = userIcon.getImage().getScaledInstance(27, 27, Image.SCALE_SMOOTH);
         JButton profileBtn = new JButton(new ImageIcon(scaled));
-        profileBtn.setBounds(335, 6, 40, 30);
+        profileBtn.setBounds(347, 7, 40, 30);
         profileBtn.setBorderPainted(false);
         profileBtn.setContentAreaFilled(false);
         profileBtn.setFocusPainted(false);
@@ -308,4 +304,37 @@ public class DonationPostListView extends BaseView {
 
 
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // 1. 더미 User 생성
+            User dummyUser = new User(
+                    "testuser",
+                    "password123",
+                    "테스트 사용자",
+                    "테스트닉네임",
+                    "profile.jpg",
+                    capstone.model.BankType.KB,
+                    "123-4567-8901",
+                    10000,
+                    capstone.model.Tier.SILVER
+            );
+
+            // 2. 더미 Service 및 Controller 생성
+            capstone.service.DonationPostService dummyService = new capstone.service.DonationPostService();
+            DonationPostController dummyDonationPostController = new DonationPostController(dummyService);
+
+            // 3. 가상의 테스트용 기부글 몇 개 등록
+            dummyService.create(dummyUser, "donationImg1.jpg", 1000, LocalDate.now().plusDays(10), "강아지 보호소", "유기견 보호소 후원합니다");
+            dummyService.create(dummyUser, "donationImg2.jpg", 2000, LocalDate.now().minusDays(5), "아동 교육 후원", "저소득층 아동을 위한 교육 지원");
+
+            // 4. 더미 UserController 및 ScrapController
+            UserController dummyUserController = new UserController(null);
+            ScrapController dummyScrapController = new ScrapController(null);
+
+            // 5. View 실행
+            new DonationPostListView(dummyUser, dummyUserController, dummyDonationPostController, dummyScrapController).setVisible(true);
+        });
+    }
+
 }
