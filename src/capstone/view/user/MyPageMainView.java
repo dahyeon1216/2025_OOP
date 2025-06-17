@@ -299,6 +299,13 @@ public class MyPageMainView extends BaseView {
         mainPanel.add(Box.createVerticalStrut(20));
         mainPanel.add(transactionPanel);
         add(mainPanel);
+
+        this.addWindowFocusListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowGainedFocus(java.awt.event.WindowEvent e) {
+                refreshPoint();
+            }
+        });
     }
 
     //이미지 둥글게 하는 코드
@@ -337,9 +344,6 @@ public class MyPageMainView extends BaseView {
     }
 
     private void refreshPoint() {
-//        User updatedUser = userController.getUserProfile(loginUser.getUserId());
-//        loginUser.setPoint(updatedUser.getPoint());
-
         amountLabel.setText(String.format("%,d P", loginUser.getPoint()));
 
         int panelWidth = 360;
