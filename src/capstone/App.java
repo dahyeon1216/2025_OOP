@@ -36,7 +36,7 @@ public class App extends JFrame {
                DonationPostController donationPostController,
                ScrapController scrapController) {
 
-        setTitle("기부담다 로그인/회원가입");
+        setTitle("기부담다");
         setSize(393, 698);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
