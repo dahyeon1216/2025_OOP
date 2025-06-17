@@ -1,6 +1,7 @@
 package capstone.view.user;
 
 import capstone.model.User;
+import capstone.view.BaseView;
 import capstone.view.style.RoundedBorder;
 import capstone.view.style.RoundedButton;
 
@@ -8,20 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class PointChargeView extends JFrame {
-
-    //폰트
-    private static Font customFont;
-    static {
-        try {
-            customFont = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/font1.ttf")).deriveFont(15f);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(customFont);
-        } catch (Exception e) {
-            customFont = new Font("SansSerif", Font.PLAIN, 15);
-            e.printStackTrace();
-        }
-    }
+public class PointChargeView extends BaseView {
 
     private User loginUser; // 생성자에서 전달받은 loginUser를 저장
     private final Runnable onPointUpdated;
@@ -30,13 +18,9 @@ public class PointChargeView extends JFrame {
     private JLabel selectedAmountLabel; // 사용자가 선택한/입력한 금액을 크게 보여주는 라벨 (예: '34040 P')
 
     public PointChargeView(User loginUser, Runnable onPointUpdated) {
+        super("포인트 충전");
         this.loginUser = loginUser; // 멤버 변수에 로그인 사용자 정보 저장
         this.onPointUpdated = onPointUpdated;
-
-        setTitle("포인트 충전");
-        setSize(393, 698);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); // 이 창만 닫히도록 함
 
         if (this.loginUser == null) {
             JOptionPane.showMessageDialog(this, "로그인한 사용자만 접근할 수 있습니다.", "접근 제한", JOptionPane.ERROR_MESSAGE);
@@ -44,10 +28,12 @@ public class PointChargeView extends JFrame {
             return;
         }
 
+        JPanel header = createHeader("포인트 충전");
+        add(header, BorderLayout.NORTH);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20)); // 좌우 여백 20px 유지
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(-15, 20, 30, 20)); // 좌우 여백 20px 유지
 
 
         // 왼쪽 정렬 contentPanel
@@ -81,7 +67,7 @@ public class PointChargeView extends JFrame {
         chargeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // --- currentPointLabel 초기화 (기존 pointLabel을 재활용) ---
-        currentPointLabel = new JLabel("보유 포인트 " + this.loginUser.getPoint() + " P");
+        currentPointLabel = new JLabel("보유 포인트: " + this.loginUser.getPoint() + " P");
         currentPointLabel.setFont(customFont.deriveFont(18f));
         currentPointLabel.setForeground(Color.GRAY);
         currentPointLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -107,10 +93,7 @@ public class PointChargeView extends JFrame {
         amountPanel.setOpaque(false);
         amountPanel.setMaximumSize(new Dimension(327, 100)); // 기존 코드 유지
         amountPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // 기존 코드 유지
-
         String[] amounts = {"10000", "20000", "30000", "40000", "50000", "기타"};
-
-
         for (String amt : amounts) {
             String label = amt.equals("기타") ? "기타" : "+" + (Integer.parseInt(amt) / 10000) + "만원";
 
