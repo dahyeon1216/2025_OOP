@@ -69,7 +69,7 @@ public class DonationPostCompleteView extends JFrame {
         successLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
 
         String virtualAccountNum = createdPost.getVirtualAccount().getBankAccount();
-        System.out.println(virtualAccountNum);
+//        System.out.println(virtualAccountNum);
         JLabel accountLabel = new JLabel("모금통장: " + virtualAccountNum);
         accountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         accountLabel.setFont(customFont.deriveFont(Font.BOLD, 21f));
