@@ -72,7 +72,12 @@ public class DonationPostDetailView extends BaseView {
 
             //삭제 기능 Item 액션 리스너
             deleteMenuItem.addActionListener(e -> {
-                int confirm = JOptionPane.showConfirmDialog(this, "정말 삭제하시겠습니까?");
+                int confirm = JOptionPane.showConfirmDialog(
+                        this,
+                        "정말 삭제하시겠습니까?",
+                        "삭제 확인",
+                        JOptionPane.YES_NO_OPTION
+                );
                 if (confirm == JOptionPane.YES_OPTION) {
                     donationPostController.deletePost(post.getId());
                     JOptionPane.showMessageDialog(this, "삭제 완료");
