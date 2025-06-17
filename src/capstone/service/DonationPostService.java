@@ -74,15 +74,16 @@ public class DonationPostService {
     }
 
     // 기부글에 기부하기
-    public boolean donateToPost(DonationPost post, User donor, int donatePpoint) {
+    public boolean donateToPost(DonationPost post, User donor, int donatePoint) {
         if (post.isCompleted()) return false; // 이미 종료된 기부글
-        if (donor.getPoint() < donatePpoint) return false;
+        if (donor.getPoint() < donatePoint) return false;
 
-        donor.setPoint(donor.getPoint() - donatePpoint); // 포인트 차감
-        post.donate(donatePpoint); // 포스트에 기부 반영
+        int accumulatedPoint = (int)(donatePoint * 0.01);
+        donor.setPoint(donor.getPoint() - donatePoint + accumulatedPoint); // 포인트 차감
+        post.donate(donatePoint); // 포스트에 기부 반영
 
         // 사용자의 기부 기록 저장
-        DonationRecord record = new DonationRecord(donor, post, donatePpoint, LocalDateTime.now());
+        DonationRecord record = new DonationRecord(donor, post, donatePoint, LocalDateTime.now());
         donationRecords.add(record);
         return true;
     }

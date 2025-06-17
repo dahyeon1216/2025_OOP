@@ -13,9 +13,9 @@ import java.awt.*;
 
 import static capstone.model.BankType.KB;
 
-public class DonateCompleteView extends BaseView {
+public class DonateActonCompleteView extends BaseView {
 
-    public DonateCompleteView(int donatedPoint, Runnable afterCloseAction) {
+    public DonateActonCompleteView(int donatedPoint, Runnable afterCloseAction) {
         super("기부하기 완료");
 
 
@@ -120,7 +120,7 @@ public class DonateCompleteView extends BaseView {
             Runnable dummyOnPostUpdated = () -> System.out.println("업데이트 콜백 호출됨");
 
             // View 실행 (기부한 금액: 예: 10000P 기부했다고 가정)
-            new DonateCompleteView(10000,null);
+            new DonateActonCompleteView(10000,null);
         });
     }
 

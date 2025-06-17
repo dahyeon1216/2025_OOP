@@ -6,11 +6,8 @@ package capstone.view.donation;
 import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.model.DonationPost;
-import capstone.model.Tier;
 import capstone.model.User;
 import capstone.model.VirtualAccount;
-import capstone.service.DonationPostService;
-import capstone.service.ScrapService;
 import capstone.view.BaseView;
 import capstone.view.receipt.ReceiptListView;
 import capstone.view.style.RoundedBorder;
@@ -23,10 +20,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-
-import static capstone.model.BankType.KB;
-import static capstone.model.BankType.SHINHAN;
 
 public class DonationPostDetailView extends BaseView {
     private final DonationPostController donationPostController;
@@ -200,27 +193,10 @@ public class DonationPostDetailView extends BaseView {
         donateButton.setBounds(245, 270, 100, 44);
 
         donateButton.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this, "기부할 포인트를 입력하세요:");
-            if (input != null) {
-                try {
-                    int amount = Integer.parseInt(input);
-                    if (amount <= 0) throw new NumberFormatException();
-                    boolean success = donationPostController.donate(post, loginUser, amount);
-                    if (success) {
-                        onPostUpdated.run();
-                        int accumulatedPoint = (int)(amount * 0.01);
-                        loginUser.setPoint(loginUser.getPoint() + accumulatedPoint);
-                        new DonateCompleteView(amount, () -> {
-                            this.refresh();
-                        }).setVisible(true);
-
-                    } else {
-                        JOptionPane.showMessageDialog(this, "기부 실패. 포인트 부족합니다.");
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "올바른 숫자를 입력하세요.");
-                }
-            }
+            new DonateActionView(donationPost, loginUser, donationPostController, scrapController, () -> {
+                if (onPostUpdated != null) onPostUpdated.run();
+                refresh();
+            }).setVisible(true);
         });
 
         contentPanel.add(donateButton);
