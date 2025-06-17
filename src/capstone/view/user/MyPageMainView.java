@@ -86,7 +86,7 @@ public class MyPageMainView extends BaseView {
         addImgBtn.setBorderPainted(false);
 
         addImgBtn.addActionListener(e -> {
-            // UserProfileEditView
+            new UserProfileEditView(this.loginUser, userController).setVisible(true);
         });
 
 
