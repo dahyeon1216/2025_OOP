@@ -130,7 +130,7 @@ public class DonationPostDetailView extends BaseView {
         JLabel profileImg = new JLabel();
         profileImg.setBounds(15, 15, 70, 70);
 
-        String profilePath = "resources/images/profile/" + loginUser.getProfileImg();
+        String profilePath = "resources/images/profile/" + post.getWriter().getProfileImg();
 
         ImageIcon roundedIcon = getRoundedImageIcon(profilePath, 70);
         if (roundedIcon != null) {
@@ -144,13 +144,13 @@ public class DonationPostDetailView extends BaseView {
         profilePanel.add(profileImg);
 
         // 닉네임
-        JLabel nicknameLabel = new JLabel(loginUser.getNickName());
+        JLabel nicknameLabel = new JLabel(post.getWriter().getNickName());
         nicknameLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         nicknameLabel.setBounds(100, 10, 170, 25);
         profilePanel.add(nicknameLabel);
 
         // 티어
-        JLabel tierLabel = new JLabel(loginUser.getTier());
+        JLabel tierLabel = new JLabel(post.getWriter().getTier());
         tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
         tierLabel.setBounds(290, 10, 100, 25);
         profilePanel.add(tierLabel);
@@ -318,8 +318,10 @@ public class DonationPostDetailView extends BaseView {
         usageButton.setVisible(updatedPost.isCompleted());
         usageButton.setEnabled(updatedPost.isSettled());
 
-        settleMenuItem.setVisible(updatedPost.isCompleted());
-        settleMenuItem.setEnabled(!updatedPost.isSettled());
+        if (settleMenuItem != null) {
+            settleMenuItem.setVisible(updatedPost.isCompleted());
+            settleMenuItem.setEnabled(!updatedPost.isSettled());
+        }
     }
 }
 
