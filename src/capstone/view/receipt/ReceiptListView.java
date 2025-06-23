@@ -19,7 +19,7 @@ public class ReceiptListView extends BaseView {
     private JPanel contentPanel; // 사용 내역 리스트를 담을 패널
     private VirtualAccount virtualAccount;
 
-    public ReceiptListView(VirtualAccount virtualAccount) {
+    public ReceiptListView(VirtualAccount virtualAccount, User loginUser) {
         super("사용내역");
         this.virtualAccount = virtualAccount;
 
@@ -40,11 +40,16 @@ public class ReceiptListView extends BaseView {
         infoButton.setBounds(350, 7, 40, 30);
         headerPanel.add(infoButton);
 
-        // i 버튼 액션 리스너
-        infoButton.addActionListener(e -> {
-        });
-
         add(headerPanel, BorderLayout.NORTH);
+
+        if (!loginUser.equals(virtualAccount.getOwnerUser())) {
+            infoButton.setVisible(false); // 작성자가 아니라면 i 버튼 숨김
+        } else {
+            // 작성자라면 i 버튼 액션 리스너 설정
+            infoButton.addActionListener(e -> {
+                new ReceiptWriteView(virtualAccount, loginUser, this::refresh);
+            });
+        }
 
         // 사용 내역을 담을 스크롤 가능한 패널
         contentPanel = new JPanel();
@@ -197,10 +202,9 @@ public class ReceiptListView extends BaseView {
 
 
             // View 실행
-            ReceiptListView view = new ReceiptListView(dummyAccount);
+            ReceiptListView view = new ReceiptListView(dummyAccount, dummyUser);
             view.setVisible(true);
         });
     }
-
 
 }

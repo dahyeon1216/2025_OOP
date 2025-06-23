@@ -16,6 +16,7 @@ public class User {
     private String bankAccount;
     private int point;
     private Tier tier;
+    private int donatedTotalPoint; // 누적 기부 포인트
 
     // 기본 생성자
     public User() {
@@ -34,6 +35,7 @@ public class User {
         this.bankAccount = bankAccount;
         this.point = point;
         this.tier = tier;
+        this.donatedTotalPoint = 0;
     }
 
     // 회원가입 생성자
@@ -46,6 +48,23 @@ public class User {
         this.bankType = bankType;
         this.bankAccount = bankAccount;
         this.tier = Tier.BRONZE; // default
+    }
+
+    public void addDonation(int amount) {
+        this.donatedTotalPoint += amount;
+        updateTierIfNeeded(); // ✅ 기부할 때마다 티어 자동 확인
+    }
+
+    public void updateTierIfNeeded() {
+        if (donatedTotalPoint >= 50000) {
+            this.tier = Tier.PLATINUM;
+        } else if (donatedTotalPoint >= 30000) {
+            this.tier = Tier.GOLD;
+        } else if (donatedTotalPoint >= 10000) {
+            this.tier = Tier.SILVER;
+        } else {
+            this.tier = Tier.BRONZE;
+        }
     }
 
     // Getter and Setter
