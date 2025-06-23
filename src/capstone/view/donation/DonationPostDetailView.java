@@ -61,7 +61,7 @@ public class DonationPostDetailView extends BaseView {
             JMenuItem deleteMenuItem = new JMenuItem("삭제하기");
             settleMenuItem = new JMenuItem("정산하기");
 
-            //수정 기능 Item 액션 리스너
+            //수정 기능
             editMenuItem.addActionListener(e -> {
                 new DonationPostEditView(post, loginUser, donationPostController, () -> {
                     JOptionPane.showMessageDialog(this, "기부글이 수정되었습니다.");
@@ -70,7 +70,7 @@ public class DonationPostDetailView extends BaseView {
                 }).setVisible(true);
             });
 
-            //삭제 기능 Item 액션 리스너
+            //삭제 기능
             deleteMenuItem.addActionListener(e -> {
                 int confirm = JOptionPane.showConfirmDialog(
                         this,
@@ -86,6 +86,7 @@ public class DonationPostDetailView extends BaseView {
                 }
             });
 
+            // 정산하기 기능
             settleMenuItem.addActionListener(e -> {
                 boolean success = donationPostController.settlePost(post);
                 if (success) {
@@ -219,7 +220,7 @@ public class DonationPostDetailView extends BaseView {
         usageButton.addActionListener(e -> {
             VirtualAccount va = donationPost.getVirtualAccount();
             if (va != null) {
-                ReceiptListView receiptView = new ReceiptListView(va);
+                ReceiptListView receiptView = new ReceiptListView(va, loginUser);
                 receiptView.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "아직 정산되지 않아 사용내역이 없습니다.");

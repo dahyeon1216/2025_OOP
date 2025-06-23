@@ -153,7 +153,7 @@ public class MyDonationPostListView extends BaseView {
         usageBtn.addActionListener(e -> {
             VirtualAccount va = post.getVirtualAccount();
             if (va != null) {
-                ReceiptListView receiptView = new ReceiptListView(va);
+                ReceiptListView receiptView = new ReceiptListView(va, loginUser);
                 receiptView.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "아직 정산되지 않아 사용내역이 없습니다.");
