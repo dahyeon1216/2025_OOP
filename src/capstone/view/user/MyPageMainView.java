@@ -95,9 +95,21 @@ public class MyPageMainView extends BaseView {
         nicknameLabel.setSize(new Dimension(170, nicknameLabel.getPreferredSize().height));
         nicknameLabel.setLocation(90, 32);
 
+        // 티어의 이모티콘 깨짐 방지
+        String os = System.getProperty("os.name").toLowerCase();
+        Font emojiFont;
+
+        if (os.contains("mac")) {
+            emojiFont = new Font("Apple Color Emoji", Font.PLAIN, 15);
+        } else if (os.contains("win")) {
+            emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, 15);
+        } else {
+            emojiFont = new Font("Noto Color Emoji", Font.PLAIN, 15); // 리눅스 등
+        }
+
         // 티어
         JLabel tierLabel = new JLabel(loginUser.getTier());
-        tierLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        tierLabel.setFont(emojiFont);
         tierLabel.setForeground(new Color(255, 170, 0));
         tierLabel.setBounds(267, 38, 200, 20);
 

@@ -32,12 +32,13 @@ public class DonationPostDetailView extends BaseView {
     private RoundedButton usageButton;
     private JPanel contentPanel;
     private JMenuItem settleMenuItem;
+    private JLabel tierLabel;
 
 
     public DonationPostDetailView(DonationPost post, User loginUser, DonationPostController donationPostController, ScrapController scrapController, Runnable onPostUpdated) {
         super(post.getTitle());
         this.donationPostController = donationPostController;
-        this.donationPost=post;
+        this.donationPost = post;
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE);
@@ -150,9 +151,21 @@ public class DonationPostDetailView extends BaseView {
         nicknameLabel.setBounds(100, 10, 170, 25);
         profilePanel.add(nicknameLabel);
 
+        // 티어의 이모티콘 깨짐 방지
+        String os = System.getProperty("os.name").toLowerCase();
+        Font emojiFont;
+
+        if (os.contains("mac")) {
+            emojiFont = new Font("Apple Color Emoji", Font.PLAIN, 13);
+        } else if (os.contains("win")) {
+            emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, 13);
+        } else {
+            emojiFont = new Font("Noto Color Emoji", Font.PLAIN, 13); // 리눅스 등
+        }
+
         // 티어
-        JLabel tierLabel = new JLabel(post.getWriter().getTier());
-        tierLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        tierLabel = new JLabel(post.getWriter().getTier());
+        tierLabel.setFont(emojiFont);
         tierLabel.setBounds(290, 10, 100, 25);
         profilePanel.add(tierLabel);
 
@@ -322,6 +335,17 @@ public class DonationPostDetailView extends BaseView {
         if (settleMenuItem != null) {
             settleMenuItem.setVisible(updatedPost.isCompleted());
             settleMenuItem.setEnabled(!updatedPost.isSettled());
+        }
+
+        // 기부하기 기능ㅇ로 인한 티어 갱신
+        if (tierLabel != null) {
+            String os = System.getProperty("os.name").toLowerCase();
+            Font emojiFont = os.contains("mac") ? new Font("Apple Color Emoji", Font.PLAIN, 13)
+                    : os.contains("win") ? new Font("Segoe UI Emoji", Font.PLAIN, 13)
+                    : new Font("Noto Color Emoji", Font.PLAIN, 13);
+
+            tierLabel.setFont(emojiFont);
+            tierLabel.setText(updatedPost.getWriter().getTier());
         }
     }
 }

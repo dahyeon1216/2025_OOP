@@ -207,5 +207,4 @@ public class ReceiptListView extends BaseView {
         });
     }
 
-
 }

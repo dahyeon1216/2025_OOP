@@ -73,6 +73,7 @@ public class DonationPostService {
         posts.removeIf(p -> p.getId() == id);
     }
 
+
     // 기부글에 기부하기
     public boolean donateToPost(DonationPost post, User donor, int donatePoint) {
         if (post.isCompleted()) return false; // 이미 종료된 기부글
@@ -80,6 +81,7 @@ public class DonationPostService {
 
         int accumulatedPoint = (int)(donatePoint * 0.01);
         donor.setPoint(donor.getPoint() - donatePoint + accumulatedPoint); // 포인트 차감
+        donor.addDonation(donatePoint);
         post.donate(donatePoint); // 포스트에 기부 반영
 
         // 사용자의 기부 기록 저장
