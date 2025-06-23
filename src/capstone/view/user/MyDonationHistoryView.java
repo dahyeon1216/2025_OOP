@@ -1,13 +1,10 @@
 package capstone.view.user;
 
-import capstone.controller.UserController;
 import capstone.dto.DonatedPostInfo;
 import capstone.model.*;
 import capstone.controller.DonationPostController;
 import capstone.controller.ScrapController;
 import capstone.service.DonationPostService;
-import capstone.service.ScrapService;
-import capstone.service.UserService;
 import capstone.view.BaseView;
 import capstone.view.donation.DonationPostDetailView;
 import capstone.view.style.RoundedBorder;
@@ -20,16 +17,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class DonationHistoryView extends BaseView {
+public class MyDonationHistoryView extends BaseView {
 
     private final User loginUser;
     private final DonationPostController donationPostController;
     private final ScrapController scrapController;
     private JPanel postListPanel;
 
-    public DonationHistoryView(User loginUser,
-                               DonationPostController donationPostController,
-                               ScrapController scrapController){
+    public MyDonationHistoryView(User loginUser,
+                                 DonationPostController donationPostController,
+                                 ScrapController scrapController){
         super("기부 내역");
 
         this.loginUser = loginUser;
@@ -231,7 +228,7 @@ public class DonationHistoryView extends BaseView {
 
             ScrapController dummyScrapController = null;
 
-            DonationHistoryView view = new DonationHistoryView(
+            MyDonationHistoryView view = new MyDonationHistoryView(
                     dummyUser,
                     dummyDonationPostController,
                     dummyScrapController

@@ -6,7 +6,6 @@ import capstone.controller.UserController;
 import capstone.model.BankType;
 import capstone.model.Tier;
 import capstone.model.User;
-import capstone.service.DonationPostService;
 import capstone.view.BaseView;
 import capstone.view.scrap.ScrappedPostListView;
 import capstone.view.style.RoundedBorder;
@@ -86,7 +85,7 @@ public class MyPageMainView extends BaseView {
         addImgBtn.setBorderPainted(false);
 
         addImgBtn.addActionListener(e -> {
-            new UserProfileEditView(this.loginUser, userController).setVisible(true);
+            new MyProfileEditView(this.loginUser, userController).setVisible(true);
         });
 
 
@@ -272,10 +271,10 @@ public class MyPageMainView extends BaseView {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // 새 화면 띄우기
-                DonationHistoryView donationHistoryView = new DonationHistoryView(
+                MyDonationHistoryView myDonationHistoryView = new MyDonationHistoryView(
                         loginUser, donationPostController, scrapController
                 );
-                donationHistoryView.setVisible(true);
+                myDonationHistoryView.setVisible(true);
             }
         });
         labelPanel3.add(rightIconLabel3, BorderLayout.EAST);

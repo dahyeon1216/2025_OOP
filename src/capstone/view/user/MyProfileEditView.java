@@ -7,8 +7,8 @@ import capstone.model.User;
 import javax.swing.*;
 import java.awt.*;
 
-public class UserProfileEditView extends JFrame {
-    public UserProfileEditView(User loginUser, UserController editController) {
+public class MyProfileEditView extends JFrame {
+    public MyProfileEditView(User loginUser, UserController editController) {
         setTitle("회원 정보 수정");
         setSize(400, 300);
         setLocationRelativeTo(null);
