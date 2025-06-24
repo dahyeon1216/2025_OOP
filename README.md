@@ -2,7 +2,7 @@
 2025년 1학기 객체지향프로그래밍 캡스톤 팀 프로젝트 입니다.
 
 사용자가 기부글을 작성하고, 포인트로 기부하며, 기부 내역을 확인할 수 있는 데스크탑 애플리케이션입니다.  
-기부글 정렬(업 기능), 마이페이지, 포인트 관리, 스크랩 등 다양한 기능을 제공합니다.
+기부글 정렬(Up하기 기능), 마이페이지, 포인트 관리, 스크랩 등 다양한 기능을 제공합니다.
 
 ---
 
@@ -170,3 +170,9 @@ oop/
 
 ```
 
+## 🙌 함께한 팀원
+
+| 박소윤 | 백다현 | 김예린 |
+| :---------:|:----------:| :----------:|
+|<img width="300" alt="image" src="https://avatars.githubusercontent.com/u/102134838?v=4"> | <img width="300" alt="image" src="https://avatars.githubusercontent.com/u/110024521?v=4"> | <img width="300" alt="image" src="https://avatars.githubusercontent.com/u/165559356?v=4"> | 
+| [happine2s](https://github.com/happine2s) | [dahyeon1216](https://github.com/dahyeon1216) | [yerinni](https://github.com/yerinni) |
